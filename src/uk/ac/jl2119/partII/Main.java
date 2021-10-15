@@ -21,9 +21,9 @@ public class Main {
         for(int i=0 ; i<data.length ; i++){
             double currentTime = (double) i/sampleRate;
             double frequency = 1000 * (Math.PI * 2);
-            double maxAmplitude = 0xFF;
+            double maxAmplitude = 0xFFFF;
             double amplitudeAtTime = Math.sin(currentTime*frequency);
-            data[i] = (short) (Math.round(amplitudeAtTime)*maxAmplitude);
+            data[i] = (short) (Math.round(amplitudeAtTime*maxAmplitude));
         }
 
         byte [] buf = new byte[data.length * 2];
