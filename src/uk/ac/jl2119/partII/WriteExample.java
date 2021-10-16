@@ -21,7 +21,7 @@ public class WriteExample {
         for(int i=0 ; i<data.length ; i++){
             double currentTime = (double) i/sampleRate;
             double frequency = 1000 * (Math.PI * 2);
-            double maxAmplitude = 0xFFFF;
+            double maxAmplitude = 0x7FFF;
             double amplitudeAtTime = Math.sin(currentTime*frequency);
             data[i] = (short) (Math.round(amplitudeAtTime*maxAmplitude));
         }
