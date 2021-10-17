@@ -1,7 +1,6 @@
 package uk.ac.jl2119.partII;
 
 import javax.sound.sampled.*;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
