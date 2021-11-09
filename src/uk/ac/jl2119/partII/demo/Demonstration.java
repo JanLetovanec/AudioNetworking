@@ -1,4 +1,4 @@
-package uk.ac.jl2119.partII.deliverables;
+package uk.ac.jl2119.partII.demo;
 
 import uk.ac.jl2119.partII.WavManipulation.WavReader;
 import uk.ac.jl2119.partII.WavManipulation.WavWriter;
