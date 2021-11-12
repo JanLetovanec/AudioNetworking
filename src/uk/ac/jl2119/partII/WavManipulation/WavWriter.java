@@ -8,7 +8,6 @@ import java.io.IOException;
 
 public class WavWriter extends AbstractWriter {
     WavFile wavFile;
-    private static final int AUDIO_BIT_DEPTH = 16;
 
     protected WavWriter(WavFile wavFile) {
         this.wavFile = wavFile;
@@ -37,23 +36,13 @@ public class WavWriter extends AbstractWriter {
         return wavFile.getSampleRate();
     }
 
-    /***
-     * Writes a sine wave lasting 'lengthInSamples' with specified 'frequency'
-     */
-    public void writeFrequency(double frequency, int lengthInSamples) throws WavFileException, IOException {
-        if (lengthInSamples > wavFile.getFramesRemaining()) {
-            throw new WavFileException("Cannot write more than remaining number of samples");
-        }
-
-        double[] buffer = new double[lengthInSamples];
-        for (int offset = 0; offset < lengthInSamples; offset++) {
-            buffer[offset] = Math.sin(2.0 * Math.PI * frequency * offset / wavFile.getSampleRate());
-        }
-        writeFrames(buffer, lengthInSamples);
-    }
-
     @Override
     public void close() throws IOException {
         wavFile.close();
+    }
+
+    @Override
+    protected int getFramesRemaining() {
+        return (int) wavFile.getFramesRemaining();
     }
 }
