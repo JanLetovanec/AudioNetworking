@@ -1,5 +1,7 @@
 package uk.ac.jl2119.partII;
 
+import java.util.function.Function;
+
 public abstract class DigitalToAnalogueTransformer {
     protected long sampleRate;
 
