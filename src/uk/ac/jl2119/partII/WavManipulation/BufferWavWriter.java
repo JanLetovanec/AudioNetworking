@@ -27,7 +27,7 @@ public class BufferWavWriter extends AbstractWriter{
     @Override
     public int writeFrames(double[] sampleBuffer, int offset, int numFramesToWrite) throws IOException, WavFileException {
         // Do we have enough space?
-        if (headPointer + numFramesToWrite >= buffer.length) {
+        if (numFramesToWrite > getFramesRemaining()) {
             throw new WavFileException("Trying to write more than allocated!");
         }
 
@@ -50,7 +50,7 @@ public class BufferWavWriter extends AbstractWriter{
 
     @Override
     protected int getFramesRemaining() {
-        return buffer.length - headPointer - 1;
+        return buffer.length - headPointer;
     }
 
     public double[] getBuffer() {return buffer;}
