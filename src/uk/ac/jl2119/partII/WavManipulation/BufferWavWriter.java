@@ -33,6 +33,7 @@ public class BufferWavWriter extends AbstractWriter{
 
         for(int i = 0; i < numFramesToWrite; i++) {
             buffer[headPointer] = sampleBuffer[offset + i];
+            headPointer++;
         }
 
         return numFramesToWrite;
