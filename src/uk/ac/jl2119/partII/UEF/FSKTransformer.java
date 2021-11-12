@@ -8,12 +8,12 @@ import java.io.IOException;
 
 public class FSKTransformer extends DigitalToAnalogueTransformer {
     private final int symbolDurationInFrames;
-    private final long baseFrequency;
+    private final double baseFrequency;
 
     /**
      * Binary Frequency shift keying
      */
-    protected FSKTransformer(long baseFrequency, int symbolDurationInFrames, long sampleRate) {
+    protected FSKTransformer(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
         super(sampleRate);
         this.baseFrequency = baseFrequency;
         this.symbolDurationInFrames = symbolDurationInFrames;
@@ -40,8 +40,7 @@ public class FSKTransformer extends DigitalToAnalogueTransformer {
     }
 
     private void transformBit(Boolean bit, BufferWavWriter writer) throws IOException, WavFileException {
-        long frequency = bit ? baseFrequency*2 : baseFrequency;
-        writer.writeFrequency(frequency, symbolDurationInFrames);
+        double frequency = bit ? (baseFrequency * 2) : baseFrequency;
+        writer.writeFrequency((float)frequency, symbolDurationInFrames);
     }
-
 }

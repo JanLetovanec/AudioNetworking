@@ -21,7 +21,7 @@ public class Main {
                 "Hopefully, this will not last like nothing...";
 
         AbstractWriterFactory factory = new WavWriterFactory("./output/Module2/test.wav", SAMPLE_RATE);
-        Encoder encoder = new TmpPSKEncoder(factory, BASE_FREQUENCY, true);
+        Encoder encoder = new TmpPSKEncoder(factory, BASE_FREQUENCY, 10);
 
         encoder.generateSignal(data.getBytes());
 
