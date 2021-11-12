@@ -6,7 +6,7 @@ import uk.ac.thirdParty.WavFile.WavFileException;
 import java.io.File;
 import java.io.IOException;
 
-public class WavWriter {
+public class WavWriter extends AbstractWriter {
     WavFile wavFile;
     private static final int AUDIO_BIT_DEPTH = 16;
 
@@ -20,14 +20,21 @@ public class WavWriter {
         return new WavWriter(newWavFile);
     }
 
+    @Override
     public int writeFrames(double[] sampleBuffer, int numFramesToWrite) throws IOException, WavFileException
     {
         return wavFile.writeFrames(sampleBuffer, 0, numFramesToWrite);
     }
 
+    @Override
     public int writeFrames(double[] sampleBuffer, int offset, int numFramesToWrite) throws IOException, WavFileException
     {
         return wavFile.writeFrames(sampleBuffer, offset, numFramesToWrite);
+    }
+
+    @Override
+    public long getSampleRate() {
+        return wavFile.getSampleRate();
     }
 
     /***
@@ -45,6 +52,7 @@ public class WavWriter {
         writeFrames(buffer, lengthInSamples);
     }
 
+    @Override
     public void close() throws IOException {
         wavFile.close();
     }
