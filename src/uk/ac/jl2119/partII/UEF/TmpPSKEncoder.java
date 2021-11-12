@@ -15,7 +15,9 @@ public class TmpPSKEncoder extends Encoder {
     private static FSKTransformer getTransformer(AbstractWriterFactory writerFactory,
                                                  long baseFrequency,
                                                  boolean originalMode) {
-        int cyclesPerZero = originalMode ? 1 : 4;
+        int cyclesPerZero = originalMode
+                ? 1
+                : 4;    // Alternative modes is 4 cycles for zero (8 cycles for 1)
         return getTransformer(writerFactory, baseFrequency, cyclesPerZero);
     }
 
