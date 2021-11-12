@@ -1,6 +1,7 @@
 package uk.ac.jl2119.partII;
 
 import uk.ac.jl2119.partII.WavManipulation.AbstractWriter;
+import uk.ac.jl2119.partII.WavManipulation.AbstractWriterFactory;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;
@@ -14,10 +15,10 @@ import java.io.IOException;
 public abstract class PreCodedEncoder extends Encoder{
     DigitalToDigitalTransformer digitalToDigitalTransformer;
 
-    protected PreCodedEncoder(AbstractWriter writer,
+    protected PreCodedEncoder(AbstractWriterFactory writerFactory,
                               DigitalToAnalogueTransformer digitalToAnalogueTransformer,
                               DigitalToDigitalTransformer digitalToDigitalTransformer) {
-        super(writer, digitalToAnalogueTransformer);
+        super(writerFactory, digitalToAnalogueTransformer);
         this.digitalToDigitalTransformer = digitalToDigitalTransformer;
     }
 
