@@ -8,9 +8,9 @@ import java.io.IOException;
 public class Demonstration {
     public static void main(String[] args) throws IOException, WavFileException {
         final int SAMPLE_RATE = 44100;		// Samples per second
-        final String STABLE_TONE = "./output/stable1k.wav";
-        final String CHANGING_TONE = "./output/change1kTo2k.wav";
-        final String SWAPPED_CHANGING_TONE = "./output/swappedChange1kTo2k.wav";
+        final String STABLE_TONE = "./output/Module1/stable1k.wav";
+        final String CHANGING_TONE = "./output/Module1/change1kTo2k.wav";
+        final String SWAPPED_CHANGING_TONE = "./output/Module1/swappedChange1kTo2k.wav";
 
         //Demonstrate that a wav file can be created
         // First Create a 3s 1kHz wav
