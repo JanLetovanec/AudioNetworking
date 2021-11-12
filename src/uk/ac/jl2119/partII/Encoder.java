@@ -21,6 +21,7 @@ public abstract class Encoder {
         double[] signalBytes = digitalToAnalogueTransformer.transform(input);
         writer = writerFactory.createWriter(signalBytes.length);
         writer.writeFrames(signalBytes, signalBytes.length);
+        writer.close();
     }
 
     public AbstractWriter getWriter() {
