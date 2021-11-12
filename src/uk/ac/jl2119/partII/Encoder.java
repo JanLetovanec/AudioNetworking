@@ -7,9 +7,9 @@ import uk.ac.thirdParty.WavFile.WavFileException;
 import java.io.IOException;
 
 public abstract class Encoder {
-    AbstractWriterFactory writerFactory;
-    AbstractWriter writer;
-    DigitalToAnalogueTransformer digitalToAnalogueTransformer;
+    protected AbstractWriterFactory writerFactory;
+    protected AbstractWriter writer;
+    protected DigitalToAnalogueTransformer digitalToAnalogueTransformer;
 
     public Encoder(AbstractWriterFactory writerFactory, DigitalToAnalogueTransformer transformer) {
         this.writerFactory = writerFactory;

@@ -7,4 +7,6 @@ public abstract class AbstractWriterFactory {
     }
 
     public abstract AbstractWriter createWriter(long numFrames);
+
+    public long getSampleRate() {return sampleRate;}
 }

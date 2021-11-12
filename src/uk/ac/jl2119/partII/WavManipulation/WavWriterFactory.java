@@ -3,7 +3,7 @@ package uk.ac.jl2119.partII.WavManipulation;
 public class WavWriterFactory extends AbstractWriterFactory{
     private final String fileName;
 
-    WavWriterFactory(String fileName, long sampleRate) {
+    public WavWriterFactory(String fileName, long sampleRate) {
         super(sampleRate);
         this.fileName = fileName;
     }
