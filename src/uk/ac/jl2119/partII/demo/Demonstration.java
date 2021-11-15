@@ -37,15 +37,14 @@ public class Demonstration {
         WavReader reader = WavReader.getReader(CHANGING_TONE);
         numOfFrames = reader.getRemainingSamples();
         writer = WavWriter.getWriter(SWAPPED_CHANGING_TONE, numOfFrames, SAMPLE_RATE);
-        double[][] buffer = new double[1][(int)numOfFrames];
         //Read the first half into the second half of the buffer (and vice versa
         long halfSamples = numOfFrames / 2;
-        long halfOffset = numOfFrames - halfSamples; // Off by one error possible
-        reader.readFrames(buffer, (int)halfOffset, (int)halfSamples);
-        reader.readFrames(buffer, 0, (int)reader.getRemainingSamples());
+        double[] firstHalf = reader.readFrames((int)halfSamples);
+        double[] secondHalf = reader.readFrames((int)reader.getRemainingSamples());
         reader.close();
-        // Write the buffer to the file (chose the first channel)
-        writer.writeFrames(buffer[0], (int)numOfFrames);
+        // Write the buffer to the file
+        writer.writeFrames(secondHalf, secondHalf.length);
+        writer.writeFrames(firstHalf, firstHalf.length);
         writer.close();
 
         // Demonstrate a fine-grain read control
@@ -54,18 +53,17 @@ public class Demonstration {
         // Read the buffer in
         reader = WavReader.getReader(STABLE_TONE);
         numOfFrames = 1 * SAMPLE_RATE;
-        buffer = new double [1][(int)numOfFrames];  // STABLE_TONE only has 1 channel
-        reader.readFrames(buffer, (int)numOfFrames);
+        double[] buffer = reader.readFrames((int)numOfFrames);
         reader.close();
         // Arbitrary logic with buffer
         boolean isPositive = true;
         long changeCount = 0;
-        for (int offset = 0; offset < buffer[0].length; offset++) {
-            if (isPositive && buffer[0][offset] < 0) {
+        for (int offset = 0; offset < buffer.length; offset++) {
+            if (isPositive && buffer[offset] < 0) {
                 isPositive = false;
                 changeCount++;
             }
-            else if (!isPositive && buffer[0][offset] > 0) {
+            else if (!isPositive && buffer[offset] > 0) {
                 isPositive = true;
                 changeCount++;
             }

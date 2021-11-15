@@ -5,8 +5,6 @@ import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class WavReader extends AbstractReader{
     WavFile wavFile;
@@ -22,9 +20,13 @@ public class WavReader extends AbstractReader{
     }
 
     @Override
-    public int readFrames(double[][] sampleBuffer, int offset, int numFramesToRead) throws IOException, WavFileException
+    public double[] readFrames(int numFramesToRead) throws IOException, WavFileException
     {
-        return wavFile.readFrames(sampleBuffer, offset, numFramesToRead);
+        double[][] buffer = new double[wavFile.getNumChannels()][numFramesToRead];
+        wavFile.readFrames(buffer, numFramesToRead);
+
+        double[] firstChannelBuffer = buffer[0];
+        return firstChannelBuffer;
     }
 
     @Override
