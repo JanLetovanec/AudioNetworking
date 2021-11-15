@@ -20,7 +20,7 @@ public class FSKTransformer extends DigitalToAnalogueTransformer {
     }
 
     @Override
-    public double[] transform(byte[] input) {
+    public Double[] transform(Byte[] input) {
         int numOfSamples = input.length * symbolDurationInFrames * 8; // Byte is 8 bits
         BufferWavWriter writer = new BufferWavWriter(numOfSamples, sampleRate);
 

@@ -7,7 +7,7 @@ import uk.ac.jl2119.partII.DigitalToDigitalTransformer;
  */
 public class StartStopTransformer extends DigitalToDigitalTransformer {
     @Override
-    public byte[] transform(byte[] input) {
+    public Byte[] transform(Byte[] input) {
         // Each byte will be 10bits longs... but we want length in bytes (round up)
         int newLength = (int) Math.ceil(input.length * (10.0/8.0));
         byte[] buffer = new byte[newLength];
@@ -29,7 +29,7 @@ public class StartStopTransformer extends DigitalToDigitalTransformer {
             // Copy the second part of byte
             bitMask = (byte) (0xFF >> (8 -(outputIndexInBits % 8)));
             data = (byte) (currentByte & bitMask);
-            data = (byte) (0xFF << (8 -(outputIndexInBits % 8)));
+            data = (byte) (data << (8 -(outputIndexInBits % 8)));
             buffer[byteOffset + 1] = (byte) (buffer[byteOffset + 1] | data);
             //Advance counters
             outputIndexInBits += 8;
@@ -42,6 +42,10 @@ public class StartStopTransformer extends DigitalToDigitalTransformer {
 
             inputIndex++;
         }
-        return buffer;
+
+        //Boxing the array again :/
+        Byte[] output = new Byte[buffer.length];
+        for(int i = 0 ; i < output.length; i++) {output[i] = buffer[i];}
+        return output;
     }
 }

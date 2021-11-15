@@ -9,23 +9,18 @@ import java.io.IOException;
  * This buffer is accessible afterwards
  */
 public class BufferWavWriter extends AbstractWriter{
-    private double[] buffer;
+    private final Double[] buffer;
     private int headPointer;
-    private long sampleRate;
+    private final long sampleRate;
 
     public BufferWavWriter(long numFrames, long sampleRate) {
-        buffer = new double[(int)numFrames];
+        buffer = new Double[(int)numFrames];
         headPointer = 0;
         this.sampleRate = sampleRate;
     }
 
     @Override
-    public int writeFrames(double[] sampleBuffer, int numFramesToWrite) throws IOException, WavFileException {
-        return writeFrames(sampleBuffer, 0, numFramesToWrite);
-    }
-
-    @Override
-    public int writeFrames(double[] sampleBuffer, int offset, int numFramesToWrite) throws IOException, WavFileException {
+    public int writeFrames(double[] sampleBuffer, int offset, int numFramesToWrite) throws WavFileException {
         // Do we have enough space?
         if (numFramesToWrite > getFramesRemaining()) {
             throw new WavFileException("Trying to write more than allocated!");
@@ -53,5 +48,5 @@ public class BufferWavWriter extends AbstractWriter{
         return buffer.length - headPointer;
     }
 
-    public double[] getBuffer() {return buffer;}
+    public Double[] getBuffer() {return buffer;}
 }

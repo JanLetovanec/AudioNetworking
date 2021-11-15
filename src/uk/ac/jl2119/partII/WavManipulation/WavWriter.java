@@ -5,6 +5,7 @@ import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class WavWriter extends AbstractWriter {
     WavFile wavFile;
@@ -17,12 +18,6 @@ public class WavWriter extends AbstractWriter {
         File file = new File(filename);
         WavFile newWavFile = WavFile.newWavFile(file, 1, numFrames, AUDIO_BIT_DEPTH, sampleRate);
         return new WavWriter(newWavFile);
-    }
-
-    @Override
-    public int writeFrames(double[] sampleBuffer, int numFramesToWrite) throws IOException, WavFileException
-    {
-        return wavFile.writeFrames(sampleBuffer, 0, numFramesToWrite);
     }
 
     @Override

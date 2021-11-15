@@ -23,6 +23,5 @@ public class Main {
         Encoder encoder = new UEFEncoder(factory, false);
 
         encoder.generateSignal(data.getBytes());
-
     }
 }

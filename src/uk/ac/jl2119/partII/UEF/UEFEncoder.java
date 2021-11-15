@@ -1,15 +1,14 @@
 package uk.ac.jl2119.partII.UEF;
 
-import uk.ac.jl2119.partII.PreCodedEncoder;
+import uk.ac.jl2119.partII.Encoder;
 import uk.ac.jl2119.partII.WavManipulation.AbstractWriterFactory;
 
-public class UEFEncoder extends PreCodedEncoder {
+public class UEFEncoder extends Encoder {
     private static final double BASE_FREQUENCY = 1200;
 
     public UEFEncoder(AbstractWriterFactory writerFactory, boolean originalMode) {
         super(writerFactory,
-                getAnalogueTransformer(writerFactory, originalMode),
-                new StartStopTransformer());
+                new UEFTransformer(BASE_FREQUENCY, originalMode, writerFactory.getSampleRate()));
     }
 
     private static FSKTransformer getAnalogueTransformer(AbstractWriterFactory writerFactory, boolean mode) {
