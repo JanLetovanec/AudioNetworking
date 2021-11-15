@@ -19,7 +19,7 @@ public abstract class Encoder {
     }
 
     public void generateSignal(byte[] input) throws IOException, WavFileException {
-        // Java cannot box arrays :/
+        // Java cannot box byte arrays :/
         Byte[] inputBuffer = new Byte[input.length];
         for (int i = 0; i < input.length; i++) {inputBuffer[i] = input[i];}
 
