@@ -1,20 +1,21 @@
 package uk.ac.jl2119.partII.UEF;
 
-import uk.ac.jl2119.partII.DigitalToAnalogueTransformer;
+import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;
 
-public class FSKTransformer extends DigitalToAnalogueTransformer {
+public class FSKTransformer implements ITransformer<Byte, Double> {
     private final int symbolDurationInFrames;
     private final double baseFrequency;
+    protected long sampleRate;
 
     /**
      * Binary Frequency shift keying
      */
     protected FSKTransformer(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
-        super(sampleRate);
+        this.sampleRate = sampleRate;
         this.baseFrequency = baseFrequency;
         this.symbolDurationInFrames = symbolDurationInFrames;
     }

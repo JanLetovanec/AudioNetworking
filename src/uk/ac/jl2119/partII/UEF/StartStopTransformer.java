@@ -1,11 +1,11 @@
 package uk.ac.jl2119.partII.UEF;
 
-import uk.ac.jl2119.partII.DigitalToDigitalTransformer;
+import uk.ac.jl2119.partII.ITransformer;
 
 /**
  * Adds 0 start bit and 1 end bit to each byte
  */
-public class StartStopTransformer extends DigitalToDigitalTransformer {
+public class StartStopTransformer implements ITransformer<Byte, Byte> {
     @Override
     public Byte[] transform(Byte[] input) {
         // Each byte will be 10bits longs... but we want length in bytes (round up)
