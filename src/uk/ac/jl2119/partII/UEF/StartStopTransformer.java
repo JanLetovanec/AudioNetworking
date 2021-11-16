@@ -11,40 +11,48 @@ public class StartStopTransformer implements ITransformer<Byte, Byte> {
     @Override
     public Byte[] transform(Byte[] input) {
         // Each byte will be 10bits longs... but we want length in bytes (round up)
-        int newLength = (int) Math.ceil(input.length * (10.0/8.0));
-        byte[] buffer = new byte[newLength];
-        int inputIndex = 0;
+        byte[] outputBuffer = allocateBufferSpace(input);
         int outputIndexInBits = 0;
 
-        while (inputIndex < input.length) {
-            byte currentByte = input[inputIndex];
-
+        for(int inputIndex = 0; inputIndex < input.length; inputIndex++) {
             // Add start bit (0)
             outputIndexInBits++;
 
-            // Copy the first part of byte
-            int byteOffset = outputIndexInBits / 8;
-            byte bitMask = (byte) (0xFF << (outputIndexInBits % 8));
-            byte data = (byte) (currentByte & bitMask);
-            data = (byte) (data >> outputIndexInBits % 8);
-            buffer[byteOffset] = (byte) (buffer[byteOffset] | data);
-            // Copy the second part of byte
-            bitMask = (byte) (0xFF >> (8 -(outputIndexInBits % 8)));
-            data = (byte) (currentByte & bitMask);
-            data = (byte) (data << (8 -(outputIndexInBits % 8)));
-            buffer[byteOffset + 1] = (byte) (buffer[byteOffset + 1] | data);
-            //Advance counters
+            byte currentByte = input[inputIndex];
+            copyByte(outputBuffer, outputIndexInBits, currentByte);
             outputIndexInBits += 8;
 
             //Add stop bit (1)
-            byteOffset = outputIndexInBits / 8;
-            bitMask = (byte) (0x80 >> (outputIndexInBits % 8)); //0x80 = 1000 0000
-            buffer[byteOffset] = (byte) (buffer[byteOffset] | bitMask);
+            addStopBit(outputBuffer, outputIndexInBits);
             outputIndexInBits++;
-
-            inputIndex++;
         }
 
-        return Boxer.box(buffer);
+        return Boxer.box(outputBuffer);
+    }
+
+    private byte[] allocateBufferSpace(Byte[] input) {
+        int newLength = (int) Math.ceil(input.length * (10.0/8.0));
+        return new byte[newLength];
+    }
+
+    private void copyByte(byte[] buffer, int outputIndexInBits, byte currentByte) {
+        // Copy the first part of byte
+        int byteOffset = outputIndexInBits / 8;
+        byte bitMask = (byte) (0xFF << (outputIndexInBits % 8));
+        byte data = (byte) (currentByte & bitMask);
+        data = (byte) (data >> outputIndexInBits % 8);
+        buffer[byteOffset] = (byte) (buffer[byteOffset] | data);
+
+        // Copy the second part of byte
+        bitMask = (byte) (0xFF >> (8 -(outputIndexInBits % 8)));
+        data = (byte) (currentByte & bitMask);
+        data = (byte) (data << (8 -(outputIndexInBits % 8)));
+        buffer[byteOffset + 1] = (byte) (buffer[byteOffset + 1] | data);
+    }
+
+    private void addStopBit(byte[] buffer, int outputIndexInBits){
+        int byteOffset = outputIndexInBits / 8;
+        int bitMask = 0x80 >> (outputIndexInBits % 8); //0x80 = 1000 0000
+        buffer[byteOffset] = (byte) (buffer[byteOffset] | bitMask);
     }
 }
