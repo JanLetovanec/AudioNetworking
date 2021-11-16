@@ -31,11 +31,15 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
         Boolean[] transformedBits = batchedInput.stream()
                 .map(batch -> transformBit(batch.toArray(Double[]::new)))
                 .toArray(Boolean[]::new);
-        Byte result = 0;
+        byte result = 0;
         for (int bit = 0; bit < 8; bit++){
-            if (transformedBits[bit]) {
-                result = (byte) (result + 2 ^ (8 - bit));    // data is transmitted as MSB first
+            if (!transformedBits[bit]) {
+                continue;
             }
+
+            int bitShift = 7 - bit;
+            int shiftedMask = 0x1 << bitShift;
+            result = (byte) (result | shiftedMask);
         }
         return result;
     }
