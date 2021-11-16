@@ -1,21 +1,34 @@
 package uk.ac.jl2119.partII.WavManipulation;
 
-public class WavWriterFactory extends AbstractWriterFactory{
+public class WavReaderFactory extends AbstractReaderFactory{
     private final String fileName;
 
-    public WavWriterFactory(String fileName, long sampleRate) {
-        super(sampleRate);
+    public WavReaderFactory(String fileName) {
+        super(extractSampleRate(fileName));
         this.fileName = fileName;
     }
 
     @Override
-    public AbstractWriter createWriter(long numFrames) {
+    public AbstractReader createReader() {
         try {
-            return WavWriter.getWriter(fileName, numFrames, sampleRate);
+            return WavReader.getReader(fileName);
         }
         catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private static long extractSampleRate(String fileName) {
+        try {
+            WavReader reader = WavReader.getReader(fileName);
+            long sampleRate = reader.getSampleRate();
+            reader.close();
+            return sampleRate;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
