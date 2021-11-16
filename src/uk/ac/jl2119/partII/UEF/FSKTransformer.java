@@ -2,9 +2,8 @@ package uk.ac.jl2119.partII.UEF;
 
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
-import uk.ac.thirdParty.WavFile.WavFileException;
 
-import java.io.IOException;
+import java.util.Arrays;
 
 public class FSKTransformer implements ITransformer<Byte, Double> {
     private final int symbolDurationInFrames;
@@ -25,23 +24,24 @@ public class FSKTransformer implements ITransformer<Byte, Double> {
         int numOfSamples = input.length * symbolDurationInFrames * 8; // Byte is 8 bits
         BufferWavWriter writer = new BufferWavWriter(numOfSamples, sampleRate);
 
-        try{
-            for(byte dataByte : input) {
-                for (int maskBit = 0x80; maskBit > 0; maskBit = maskBit >> 1) {
-                    Boolean currentBit = (dataByte & maskBit) > 0;
-                    transformBit(currentBit, writer);
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        Arrays.stream(input).forEach(dataByte -> transformByte(writer, dataByte));
 
         return writer.getBuffer();
     }
 
-    private void transformBit(Boolean bit, BufferWavWriter writer) throws IOException, WavFileException {
-        double frequency = bit ? (baseFrequency * 2) : baseFrequency;
-        writer.writeFrequency((float)frequency, symbolDurationInFrames);
+    private void transformByte(BufferWavWriter writer, byte dataByte) {
+        for (int maskBit = 0x80; maskBit > 0; maskBit = maskBit >> 1) {
+            Boolean currentBit = (dataByte & maskBit) > 0;
+            transformBit(currentBit, writer);
+        }
+    }
+
+    private void transformBit(Boolean bit, BufferWavWriter writer){
+        try {
+            double frequency = bit ? (baseFrequency * 2) : baseFrequency;
+            writer.writeFrequency((float)frequency, symbolDurationInFrames);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

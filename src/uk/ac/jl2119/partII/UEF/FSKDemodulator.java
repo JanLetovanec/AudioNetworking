@@ -28,18 +28,20 @@ public class FSKDemodulator extends FixedBatchDemodulator {
     private int countNearZeroCrossings(Double[] batch) {
         int numberOfCrossings = 0;
         boolean isBelowThreshold = true;
+
         for (Double sample : batch) {
-            if (isBelowThreshold && sample > NEAR_ZERO_CROSSING_THRESHOLD) {
-                isBelowThreshold = false;
-                numberOfCrossings++;
-            }
-            else if (!isBelowThreshold && sample < NEAR_ZERO_CROSSING_THRESHOLD) {
-                isBelowThreshold = true;
+            if (hasCrossedThreshold(isBelowThreshold, sample)) {
+                isBelowThreshold = !isBelowThreshold;
                 numberOfCrossings++;
             }
         }
 
         return numberOfCrossings;
+    }
+
+    private boolean hasCrossedThreshold(boolean isBelowThreshold, Double sample) {
+        return (isBelowThreshold && sample > NEAR_ZERO_CROSSING_THRESHOLD)
+                || (!isBelowThreshold && sample < NEAR_ZERO_CROSSING_THRESHOLD);
     }
 
     private static int getCrossingsPerZero(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
