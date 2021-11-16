@@ -35,8 +35,4 @@ public abstract class Encoder {
         writer.writeFrames(signalBytes, signalBytes.length);
         writer.close();
     }
-
-    public AbstractWriter getWriter() {
-        return writer;
-    }
 }

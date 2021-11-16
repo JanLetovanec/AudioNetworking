@@ -18,7 +18,7 @@ public abstract class Decoder {
         reader = null;
     }
 
-    public byte[] generateSignal() throws IOException, WavFileException {
+    public byte[] decodeSignal() throws IOException, WavFileException {
         Double[] signalBytes = readSignalBytes();
         return getDigitalData(signalBytes);
     }
@@ -26,6 +26,8 @@ public abstract class Decoder {
     private Double[] readSignalBytes() throws IOException, WavFileException {
         reader = readerFactory.createReader();
         double[] buffer = reader.readFrames((int)reader.getRemainingSamples());
+        reader.close();
+
         Double[] boxedBuffer = Boxer.box(buffer);
         return boxedBuffer;
     }
@@ -33,9 +35,5 @@ public abstract class Decoder {
     private byte[] getDigitalData(Double[] signalBytes) {
         Byte[] output = analogueToDigitalTransformer.transform(signalBytes);
         return Boxer.unBox(output);
-    }
-
-    public AbstractReader getWriter() {
-        return reader;
     }
 }
