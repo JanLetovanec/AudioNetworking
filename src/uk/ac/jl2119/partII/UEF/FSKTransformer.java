@@ -14,7 +14,7 @@ public class FSKTransformer implements ITransformer<Byte, Double> {
     /**
      * Binary Frequency shift keying
      */
-    protected FSKTransformer(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
+    public FSKTransformer(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
         this.sampleRate = sampleRate;
         this.baseFrequency = baseFrequency;
         this.symbolDurationInFrames = symbolDurationInFrames;

@@ -12,7 +12,7 @@ public class FSKDemodulator extends FixedBatchDemodulator {
     private final double NEAR_ZERO_CROSSING_THRESHOLD = 0.1;
     private final int crossingsDecisionThreshold;
 
-    protected FSKDemodulator(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
+    public FSKDemodulator(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
         super(symbolDurationInFrames);
         int crossingsPerZero = getCrossingsPerZero(baseFrequency, symbolDurationInFrames, sampleRate);
         int crossingsPerOne = 2 * crossingsPerZero;
