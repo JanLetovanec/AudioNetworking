@@ -2,10 +2,10 @@ package uk.ac.jl2119.partII;
 
 import uk.ac.jl2119.partII.WavManipulation.AbstractWriter;
 import uk.ac.jl2119.partII.WavManipulation.AbstractWriterFactory;
+import uk.ac.jl2119.partII.utils.Boxer;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public abstract class Encoder {
     protected AbstractWriterFactory writerFactory;
@@ -19,18 +19,20 @@ public abstract class Encoder {
     }
 
     public void generateSignal(byte[] input) throws IOException, WavFileException {
-        // Java cannot box byte arrays :/
-        Byte[] inputBuffer = new Byte[input.length];
-        for (int i = 0; i < input.length; i++) {inputBuffer[i] = input[i];}
+        double[] signalBytes = getAnalogueSignal(input);
+        writeSignalFile(signalBytes);
+    }
 
+    private double[] getAnalogueSignal(byte[] input) {
+        Byte[] inputBuffer = Boxer.box(input);
         Double[] signalBytes = digitalToAnalogueTransformer.transform(inputBuffer);
+        double[] buffer = Boxer.unBox(signalBytes);
+        return buffer;
+    }
 
-        // Or unbox them :/
-        double[] buffer = Arrays.stream(signalBytes)
-                .mapToDouble(Double::doubleValue)
-                .toArray();
+    private void writeSignalFile(double[] signalBytes) throws IOException, WavFileException {
         writer = writerFactory.createWriter(signalBytes.length);
-        writer.writeFrames(buffer, signalBytes.length);
+        writer.writeFrames(signalBytes, signalBytes.length);
         writer.close();
     }
 

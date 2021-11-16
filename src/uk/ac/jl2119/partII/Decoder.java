@@ -2,10 +2,10 @@ package uk.ac.jl2119.partII;
 
 import uk.ac.jl2119.partII.WavManipulation.AbstractReader;
 import uk.ac.jl2119.partII.WavManipulation.AbstractReaderFactory;
+import uk.ac.jl2119.partII.utils.Boxer;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public abstract class Decoder {
     protected AbstractReaderFactory readerFactory;
@@ -18,15 +18,21 @@ public abstract class Decoder {
         reader = null;
     }
 
-    public Byte[] generateSignal() throws IOException, WavFileException {
+    public byte[] generateSignal() throws IOException, WavFileException {
+        Double[] signalBytes = readSignalBytes();
+        return getDigitalData(signalBytes);
+    }
+
+    private Double[] readSignalBytes() throws IOException, WavFileException {
         reader = readerFactory.createReader();
         double[] buffer = reader.readFrames((int)reader.getRemainingSamples());
-        Double[] boxedBuffer = Arrays.stream(buffer)
-                .boxed()
-                .toArray(Double[]::new);
+        Double[] boxedBuffer = Boxer.box(buffer);
+        return boxedBuffer;
+    }
 
-        Byte[] output = analogueToDigitalTransformer.transform(boxedBuffer);
-        return output;
+    private byte[] getDigitalData(Double[] signalBytes) {
+        Byte[] output = analogueToDigitalTransformer.transform(signalBytes);
+        return Boxer.unBox(output);
     }
 
     public AbstractReader getWriter() {

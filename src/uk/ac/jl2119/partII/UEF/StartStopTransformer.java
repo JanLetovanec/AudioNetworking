@@ -1,6 +1,7 @@
 package uk.ac.jl2119.partII.UEF;
 
 import uk.ac.jl2119.partII.ITransformer;
+import uk.ac.jl2119.partII.utils.Boxer;
 
 /**
  * Adds 0 start bit and 1 end bit to each byte
@@ -44,9 +45,6 @@ public class StartStopTransformer implements ITransformer<Byte, Byte> {
             inputIndex++;
         }
 
-        //Boxing the array again :/
-        Byte[] output = new Byte[buffer.length];
-        for(int i = 0 ; i < output.length; i++) {output[i] = buffer[i];}
-        return output;
+        return Boxer.box(buffer);
     }
 }
