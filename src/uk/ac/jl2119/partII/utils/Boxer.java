@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class Boxer {
     public static Byte[] box(byte[] input) {
         Byte[] outputBuffer = new Byte[input.length];
-        for (int i = 0; i < input.length; i++) {outputBuffer[i] = outputBuffer[i];}
+        for (int i = 0; i < input.length; i++) {outputBuffer[i] = input[i];}
         return outputBuffer;
     }
 
@@ -15,7 +15,7 @@ public class Boxer {
 
     public static byte[] unBox(Byte[] input) {
         byte[] outputBuffer = new byte[input.length];
-        for (int i = 0; i < input.length; i++) {outputBuffer[i] = outputBuffer[i];}
+        for (int i = 0; i < input.length; i++) {outputBuffer[i] = input[i];}
         return outputBuffer;
     }
 
