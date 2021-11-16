@@ -5,7 +5,6 @@ import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class WavWriter extends AbstractWriter {
     WavFile wavFile;

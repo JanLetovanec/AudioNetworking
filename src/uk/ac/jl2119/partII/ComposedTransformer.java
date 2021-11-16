@@ -7,7 +7,7 @@ import java.util.function.Function;
  * @param <S> Source type of the resulting transformation
  * @param <T> Result type of the resulting transformation
  */
-public abstract class ComposedTransformer<S,T> implements ITransformer<S,T> {
+public class ComposedTransformer<S,T> implements ITransformer<S,T> {
 
     /**
      * Generics T1 are not available outside the constructor,
