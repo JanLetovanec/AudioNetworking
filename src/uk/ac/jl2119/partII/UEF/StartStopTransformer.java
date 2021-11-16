@@ -6,6 +6,7 @@ import uk.ac.jl2119.partII.ITransformer;
  * Adds 0 start bit and 1 end bit to each byte
  */
 public class StartStopTransformer implements ITransformer<Byte, Byte> {
+
     @Override
     public Byte[] transform(Byte[] input) {
         // Each byte will be 10bits longs... but we want length in bytes (round up)

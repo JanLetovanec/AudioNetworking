@@ -7,6 +7,15 @@ import com.google.common.collect.UnmodifiableIterator;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * Often the samples / bit is constant
+ * and it is way simpler to specify how to translate a single *batch*
+ * rather than the whole signal
+ *
+ * FixedBatchDemodulator simply feeds its child batches of the signal,
+ * that correspond to a single bit
+ */
 public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte> {
     int samplesPerBatch;
 
@@ -31,6 +40,7 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
         Boolean[] transformedBits = batchedInput.stream()
                 .map(batch -> transformBit(batch.toArray(Double[]::new)))
                 .toArray(Boolean[]::new);
+
         byte result = 0;
         for (int bit = 0; bit < 8; bit++){
             if (!transformedBits[bit]) {
@@ -51,6 +61,11 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
         return batchedInput;
     }
 
-
+    /**
+     *
+     * @param batch part of signal, that corresponds to a single bit,
+     *              is always of size `samplesPerBatch`
+     * @return bit (TRUE = 1 / FALSE = 0), this batch represents
+     */
     protected abstract Boolean transformBit(Double[] batch);
 }
