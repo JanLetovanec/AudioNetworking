@@ -27,7 +27,7 @@ public class StartStopRemover implements ITransformer<Byte, Byte> {
     }
 
     private byte[] allocateBuffer(Byte[] input) {
-        int newLength = (int) Math.ceil(input.length * (8.0/10.0));
+        int newLength = (int) Math.floor(input.length * (8.0/10.0));
         return new byte[newLength];
     }
 
@@ -36,11 +36,11 @@ public class StartStopRemover implements ITransformer<Byte, Byte> {
 
         //Copy the first half
         byte currentByte = inputBuffer[inputIndexInBytes];
-        int contentsOfFirstHalf = getFirstHalfBits(currentByte, inputIndexInBits);
+        byte contentsOfFirstHalf = getFirstHalfBits(currentByte, inputIndexInBits);
 
         //Copy the second half
         byte nextByte = inputBuffer[inputIndexInBytes + 1];
-        int contentsOfSecondHalf = getSecondHalfBits(nextByte, inputIndexInBits);
+        byte contentsOfSecondHalf = getSecondHalfBits(nextByte, inputIndexInBits);
 
         // Combine
         byte result = (byte) (contentsOfFirstHalf | contentsOfSecondHalf);
@@ -48,18 +48,20 @@ public class StartStopRemover implements ITransformer<Byte, Byte> {
     }
 
     private byte getFirstHalfBits(byte currentByte, int inputIndexInBits) {
+        int clippedByte = currentByte & 0xFF;
         int shiftAmount = inputIndexInBits % 8;
-        int mask = 0xFF >> shiftAmount;
-        int contentsOfFirstHalf = currentByte & mask;
+        int mask = 0xFF >>> shiftAmount;
+        int contentsOfFirstHalf = clippedByte & mask;
         contentsOfFirstHalf = contentsOfFirstHalf << shiftAmount;
         return (byte) contentsOfFirstHalf;
     }
 
     private byte getSecondHalfBits(byte nextByte, int inputIndexInBits) {
+        int clippedByte = nextByte & 0xFF;
         int shiftAmount = (8 - inputIndexInBits % 8);
         int mask = 0xFF << shiftAmount;
-        int contents = nextByte & mask;
-        contents = contents >> shiftAmount;
+        int contents = (clippedByte & mask);
+        contents = (contents >>> shiftAmount);
         return (byte) contents;
     }
 }
