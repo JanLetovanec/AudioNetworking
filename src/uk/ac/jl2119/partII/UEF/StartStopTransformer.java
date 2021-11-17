@@ -36,16 +36,22 @@ public class StartStopTransformer implements ITransformer<Byte, Byte> {
     }
 
     private void copyByte(byte[] buffer, int outputIndexInBits, byte currentByte) {
-        // Copy the first part of byte
+        copyFirstHalf(buffer, outputIndexInBits, currentByte);
+        copySecondHalf(buffer, outputIndexInBits, currentByte);
+    }
+
+    private void copyFirstHalf(byte[] buffer, int outputIndexInBits, byte currentByte) {
         int byteOffset = outputIndexInBits / 8;
         int bitMask = 0xFF << (outputIndexInBits % 8);
-        int data = (currentByte & bitMask) & 0xFF;
+        int data = (currentByte & bitMask) & 0xFF;// Clip input to byte, in case some bits spilled out
         data = data >>> outputIndexInBits % 8;
         buffer[byteOffset] = (byte) (buffer[byteOffset] | data);
+    }
 
-        // Copy the second part of byte
-        bitMask = 0xFF >>> (8 -(outputIndexInBits % 8));
-        data = currentByte & bitMask;
+    private void copySecondHalf(byte[] buffer, int outputIndexInBits, byte currentByte) {
+        int byteOffset = outputIndexInBits / 8;
+        int bitMask = 0xFF >>> (8 -(outputIndexInBits % 8));
+        int data = (currentByte & bitMask); // No need to clip to byte here
         data = data << (8 -(outputIndexInBits % 8));
         buffer[byteOffset + 1] = (byte) (buffer[byteOffset + 1] | data);
     }
