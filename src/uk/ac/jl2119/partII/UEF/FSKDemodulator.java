@@ -45,7 +45,7 @@ public class FSKDemodulator extends FixedBatchDemodulator {
     }
 
     private static int getCrossingsPerZero(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
-        int samplesPerCycle = (int) Math.round(sampleRate / baseFrequency);
+        int samplesPerCycle = (int) Math.floor(sampleRate / baseFrequency);
         int numberOfCycles = symbolDurationInFrames / samplesPerCycle;
         int numberOfZeroCrossings =  2 * numberOfCycles;
         return numberOfZeroCrossings;
