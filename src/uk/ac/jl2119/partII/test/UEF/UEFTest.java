@@ -73,14 +73,14 @@ class UEFTest extends GenericTest {
 
     @Test
     void transmittsRandomInOriginal() throws IOException, WavFileException {
-        byte[] input = generateRandomBytesUnboxed(100);
+        byte[] input = generateRandomBytesUnboxed(500);
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
     void transmitsRandomInAlternative() throws IOException, WavFileException {
-        byte[] input = generateRandomBytesUnboxed(100);
+        byte[] input = generateRandomBytesUnboxed(500);
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }

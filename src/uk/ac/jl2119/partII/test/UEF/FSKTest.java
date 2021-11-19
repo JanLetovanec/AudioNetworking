@@ -57,7 +57,7 @@ class FSKTest extends GenericTest {
 
     @Test
     void tranlatesRandomAsNormal() {
-        Byte[] input = generateRandomBytes(100);
+        Byte[] input = generateRandomBytes(500);
         Byte[] output = translateBytes(input);
         assertBoxedArrayEquals(input, output);
     }
