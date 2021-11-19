@@ -1,4 +1,4 @@
-package uk.ac.jl2119.partII.test.UEF;
+package uk.ac.jl2119.partII.test;
 
 import uk.ac.jl2119.partII.utils.Boxer;
 

@@ -5,7 +5,7 @@ import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 import java.util.Arrays;
 
-public class FSKTransformer implements ITransformer<Byte, Double> {
+public class FSKModulator implements ITransformer<Byte, Double> {
     private final int symbolDurationInFrames;
     private final double baseFrequency;
     protected long sampleRate;
@@ -13,7 +13,7 @@ public class FSKTransformer implements ITransformer<Byte, Double> {
     /**
      * Binary Frequency shift keying
      */
-    public FSKTransformer(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
+    public FSKModulator(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
         this.sampleRate = sampleRate;
         this.baseFrequency = baseFrequency;
         this.symbolDurationInFrames = symbolDurationInFrames;

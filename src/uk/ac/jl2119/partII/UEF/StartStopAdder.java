@@ -6,7 +6,7 @@ import uk.ac.jl2119.partII.utils.Boxer;
 /**
  * Adds 0 start bit and 1 end bit to each byte
  */
-public class StartStopTransformer implements ITransformer<Byte, Byte> {
+public class StartStopAdder implements ITransformer<Byte, Byte> {
 
     @Override
     public Byte[] transform(Byte[] input) {

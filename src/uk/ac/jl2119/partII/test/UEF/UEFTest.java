@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.jl2119.partII.UEF.UEFDecoder;
 import uk.ac.jl2119.partII.UEF.UEFEncoder;
 import uk.ac.jl2119.partII.WavManipulation.*;
+import uk.ac.jl2119.partII.test.GenericTest;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;

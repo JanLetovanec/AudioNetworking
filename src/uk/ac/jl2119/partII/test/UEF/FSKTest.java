@@ -3,19 +3,20 @@ package uk.ac.jl2119.partII.test.UEF;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.ac.jl2119.partII.UEF.FSKDemodulator;
-import uk.ac.jl2119.partII.UEF.FSKTransformer;
+import uk.ac.jl2119.partII.UEF.FSKModulator;
+import uk.ac.jl2119.partII.test.GenericTest;
 
 class FSKTest extends GenericTest {
     final int SAMPLE_RATE = 44100;
     final double BASE_FREQUENCY = 1200;
     final int SAMPLES_PER_SYMBOL = (int) Math.floor(SAMPLE_RATE / BASE_FREQUENCY);
 
-    FSKTransformer modem;
+    FSKModulator modem;
     FSKDemodulator demod;
 
     @BeforeEach
     void setUp() {
-        modem = new FSKTransformer(BASE_FREQUENCY, SAMPLES_PER_SYMBOL, SAMPLE_RATE);
+        modem = new FSKModulator(BASE_FREQUENCY, SAMPLES_PER_SYMBOL, SAMPLE_RATE);
         demod = new FSKDemodulator(BASE_FREQUENCY, SAMPLES_PER_SYMBOL, SAMPLE_RATE);
     }
 

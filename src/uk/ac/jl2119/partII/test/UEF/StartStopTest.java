@@ -3,15 +3,16 @@ package uk.ac.jl2119.partII.test.UEF;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.ac.jl2119.partII.UEF.StartStopRemover;
-import uk.ac.jl2119.partII.UEF.StartStopTransformer;
+import uk.ac.jl2119.partII.UEF.StartStopAdder;
+import uk.ac.jl2119.partII.test.GenericTest;
 
 class StartStopTest extends GenericTest {
-    StartStopTransformer adder;
+    StartStopAdder adder;
     StartStopRemover remover;
 
     @BeforeEach
     void setUp() {
-        adder = new StartStopTransformer();
+        adder = new StartStopAdder();
         remover = new StartStopRemover();
     }
 
