@@ -15,56 +15,56 @@ class UEFTest extends GenericTest {
     private final long SAMPLE_RATE = 44100;
 
     @Test
-    void transmitZeroInOriginal() throws IOException, WavFileException {
+    void transmitsZeroInOriginal() throws IOException, WavFileException {
         byte[] input = {0};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitZeroInAlternative() throws IOException, WavFileException {
+    void transmitsZeroInAlternative() throws IOException, WavFileException {
         byte[] input = {0};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitFFInOriginal() throws IOException, WavFileException {
+    void transmitsFFInOriginal() throws IOException, WavFileException {
         byte[] input = {(byte) 0xFF};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitFFInAlternative() throws IOException, WavFileException {
+    void transmitsFFInAlternative() throws IOException, WavFileException {
         byte[] input = {(byte) 0xFF};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmittsLotsOfZeoesInOriginal() throws IOException, WavFileException {
+    void transmitsLotsOfZeoesInOriginal() throws IOException, WavFileException {
         byte[] input = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmittsLotsOfZeroesInAlternative() throws IOException, WavFileException {
+    void transmitsLotsOfZeroesInAlternative() throws IOException, WavFileException {
         byte[] input = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmittsLotsOfFFsInOriginal() throws IOException, WavFileException {
+    void transmitsLotsOfFFsInOriginal() throws IOException, WavFileException {
         byte[] input = {(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmittsHighLowInOriginal() throws IOException, WavFileException {
+    void transmitsHighLowInOriginal() throws IOException, WavFileException {
         byte[] input = {5,124,5, 110, 25, 25};
         byte[] output = transmitBytes(input,true);
         assertArrayEquals(input, output);
@@ -78,7 +78,7 @@ class UEFTest extends GenericTest {
     }
 
     @Test
-    void transmittsRandomInAlternative() throws IOException, WavFileException {
+    void transmitsRandomInAlternative() throws IOException, WavFileException {
         byte[] input = generateRandomBytesUnboxed(100);
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
