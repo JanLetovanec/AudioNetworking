@@ -8,10 +8,16 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     private final double frequency;
     private final long sampleRate;
 
-    protected PSKDemodulator(double frequency, int samplesPerBatch, long sampleRate) {
-        super(samplesPerBatch);
+    public PSKDemodulator(double frequency, int cyclesPerBit, long sampleRate) {
+        super(getBatchSize(frequency, cyclesPerBit, sampleRate));
         this.frequency = frequency;
         this.sampleRate = sampleRate;
+    }
+
+    private static int getBatchSize(double frequency, int cyclesPerBit, long sampleRate) {
+        long samplesPerCycle = Math.round(Math.floor(sampleRate / frequency));
+        long samplesPerBit = cyclesPerBit * samplesPerCycle;
+        return (int) samplesPerBit;
     }
 
     @Override
