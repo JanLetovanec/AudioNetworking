@@ -1,7 +1,7 @@
 package uk.ac.jl2119.partII;
 
-import uk.ac.jl2119.partII.UEF.UEFDecoder;
-import uk.ac.jl2119.partII.UEF.UEFEncoder;
+import uk.ac.jl2119.partII.PSK.PSKDecoder;
+import uk.ac.jl2119.partII.PSK.PSKEncoder;
 import uk.ac.jl2119.partII.WavManipulation.AbstractReaderFactory;
 import uk.ac.jl2119.partII.WavManipulation.AbstractWriterFactory;
 import uk.ac.jl2119.partII.WavManipulation.WavReaderFactory;
@@ -22,11 +22,11 @@ public class Main {
         System.out.println(data);
 
         AbstractWriterFactory writerFactory = new WavWriterFactory(FILE_NAME, SAMPLE_RATE);
-        UEFEncoder encoder = new UEFEncoder(writerFactory, false);
+        Encoder encoder = new PSKEncoder(writerFactory);
         encoder.generateSignal(data.getBytes());
 
         AbstractReaderFactory readerFactory = new WavReaderFactory(FILE_NAME);
-        UEFDecoder decoder = new UEFDecoder(readerFactory, false);
+        Decoder decoder = new PSKDecoder(readerFactory);
         byte[] transmittedData = decoder.decodeSignal();
 
         System.out.println(new String(transmittedData));
