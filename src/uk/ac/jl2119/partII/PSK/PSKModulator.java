@@ -5,18 +5,10 @@ import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 public class PSKModulator extends FixedBatchModulator {
     private double currentPhase;
-
-    // Rather than adding/subbing Pi set phase to constants,
-    // Because floating point will make things off-sync eventually
-    private final double BASE_PHASE = 0;
-    private final double OFF_PHASE = Math.PI;
-    private final double EPSILON = 0.0001;
-
     private final double frequency;
 
     public PSKModulator(double frequency, int cyclesPerBit, long sampleRate) {
         super(getBatchSize(frequency, cyclesPerBit, sampleRate), sampleRate);
-        currentPhase = BASE_PHASE;
         this.frequency = frequency;
     }
 
@@ -28,8 +20,8 @@ public class PSKModulator extends FixedBatchModulator {
 
     @Override
     protected void transformBit(Boolean bit, BufferWavWriter writer) {
-        updatePhase(bit);
         writeBit(writer);
+        currentPhase = updatePhase(bit);
     }
 
     private void writeBit(BufferWavWriter writer) {
@@ -49,7 +41,13 @@ public class PSKModulator extends FixedBatchModulator {
     }
 
     private double flipPhase() {
-        boolean isInBasePhase = (currentPhase - BASE_PHASE) < EPSILON;
+        // Rather than adding/subbing Pi set phase to constants,
+        // Because floating point will make things off-sync eventually
+        final double BASE_PHASE = 0;
+        final double OFF_PHASE = Math.PI;
+        final double EPSILON = 0.0001;
+
+        boolean isInBasePhase = Math.abs(currentPhase - BASE_PHASE) < EPSILON;
         if (isInBasePhase) {
             return OFF_PHASE;
         }

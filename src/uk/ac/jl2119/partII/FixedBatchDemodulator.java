@@ -17,7 +17,7 @@ import java.util.List;
  * that correspond to a single bit
  */
 public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte> {
-    int samplesPerBatch;
+    protected int samplesPerBatch;
 
     protected FixedBatchDemodulator(int samplesPerBatch) {
         this.samplesPerBatch = samplesPerBatch;

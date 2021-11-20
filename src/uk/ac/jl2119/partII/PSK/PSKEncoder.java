@@ -12,11 +12,6 @@ public class PSKEncoder extends Encoder {
                 new PSKModulator(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, writerFactory.getSampleRate()));
     }
 
-    public PSKEncoder(AbstractWriterFactory writerFactory, double frequency) {
-        super(writerFactory,
-                new PSKModulator(frequency, DEFAULT_CYCLES_PER_BIT, writerFactory.getSampleRate()));
-    }
-
     public PSKEncoder(AbstractWriterFactory writerFactory, double frequency, int cyclesPerBit) {
         super(writerFactory,
                 new PSKModulator(frequency, cyclesPerBit, writerFactory.getSampleRate()));
