@@ -28,7 +28,7 @@ public class WavReaderFactory extends AbstractReaderFactory{
         }
         catch (Exception e) {
             e.printStackTrace();
+            return 0;
         }
-        return 0;
     }
 }
