@@ -20,8 +20,8 @@ public class PSKModulator extends FixedBatchModulator {
 
     @Override
     protected void transformBit(Boolean bit, BufferWavWriter writer) {
+        currentPhase = getUpdatedPhase(bit);
         writeBit(writer);
-        currentPhase = updatePhase(bit);
     }
 
     private void writeBit(BufferWavWriter writer) {
@@ -32,7 +32,7 @@ public class PSKModulator extends FixedBatchModulator {
         }
     }
 
-    private double updatePhase(Boolean newBit) {
+    private double getUpdatedPhase(Boolean newBit) {
         if (!newBit) {
             return currentPhase;
         }

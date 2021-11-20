@@ -28,7 +28,7 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     private boolean getBitFromBatch(Double[] batch) {
         Double[] baseSignal = getBaseSignal(samplesPerBatch);
         double inPhaseComponent = dotProductSignals(batch, baseSignal);
-        return inPhaseComponent > 0;
+        return inPhaseComponent < 0;
     }
 
     private Double[] getBaseSignal(int length) {
