@@ -1,9 +1,7 @@
 package uk.ac.jl2119.partII.Noises;
 
-
 import com.google.common.collect.Streams;
 import uk.ac.jl2119.partII.ITransformer;
-
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Stream;
