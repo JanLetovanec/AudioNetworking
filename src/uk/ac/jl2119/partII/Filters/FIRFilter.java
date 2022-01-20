@@ -5,6 +5,10 @@ import uk.ac.jl2119.partII.ITransformer;
 public class FIRFilter implements ITransformer<Double, Double> {
     private Double[] coefficients;
 
+    /**
+     * Creates a FIR filter with given coefficients
+     * @param coefficients
+     */
     public FIRFilter(Double[] coefficients) {
         this.coefficients = coefficients;
     }

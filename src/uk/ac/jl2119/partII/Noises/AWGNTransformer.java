@@ -30,10 +30,10 @@ public class AWGNTransformer implements ITransformer<Double, Double> {
     private Double generateSingleSample() {
         Random rng = new Random();
         double randomGauss = rng.nextGaussian() * stdDeviation;
-        return clip(randomGauss);
+        return clamp(randomGauss);
     }
 
-    private double clip(double input) {
+    private double clamp(double input) {
         return Math.min(1, Math.max(-1, input));
     }
 
