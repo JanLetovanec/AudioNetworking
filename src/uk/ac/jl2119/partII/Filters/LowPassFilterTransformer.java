@@ -1,10 +1,12 @@
-package uk.ac.jl2119.partII;
+package uk.ac.jl2119.partII.Filters;
+
+import uk.ac.jl2119.partII.ITransformer;
 
 import java.util.Arrays;
 
 /**
  * Implements LPF 'circuit' in software.
- * Uses back-war Euler method to approx. derivative.
+ * Uses back-ward Euler method to approx. derivative.
  */
 public class LowPassFilterTransformer implements ITransformer<Double, Double> {
     // Coeficients in the circuit equation:
