@@ -1,10 +1,10 @@
 package uk.ac.jl2119.partII.test.UEF;
 
 import org.junit.jupiter.api.Test;
-import uk.ac.jl2119.partII.UEF.UEFDecoder;
-import uk.ac.jl2119.partII.UEF.UEFEncoder;
-import uk.ac.jl2119.partII.WavManipulation.*;
+import uk.ac.jl2119.partII.UEF.UEFDemodulator;
+import uk.ac.jl2119.partII.UEF.UEFModulator;
 import uk.ac.jl2119.partII.test.GenericTest;
+import uk.ac.jl2119.partII.utils.Boxer;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class UEFTest extends GenericTest {
-    private final String FILE_NAME = "./test/testfile.wav";
     private final long SAMPLE_RATE = 44100;
 
     @Test
@@ -86,13 +85,11 @@ class UEFTest extends GenericTest {
     }
 
 
-    private byte[] transmitBytes(byte[] in, boolean originalMode) throws IOException, WavFileException {
-        AbstractWriterFactory writerFactory = new WavWriterFactory(FILE_NAME, SAMPLE_RATE);
-        UEFEncoder encoder = new UEFEncoder(writerFactory, originalMode);
-        encoder.generateSignal(in);
+    private byte[] transmitBytes(byte[] in, boolean originalMode){
+        UEFModulator modulator = new UEFModulator(originalMode, SAMPLE_RATE);
+        UEFDemodulator demodulator = new UEFDemodulator(originalMode, SAMPLE_RATE);
 
-        AbstractReaderFactory readerFactory = new WavReaderFactory(FILE_NAME);
-        UEFDecoder decoder = new UEFDecoder(readerFactory, originalMode);
-        return decoder.decodeSignal();
+        Double[] signal = modulator.transform(Boxer.box(in));
+        return Boxer.unBox(demodulator.transform(signal));
     }
 }

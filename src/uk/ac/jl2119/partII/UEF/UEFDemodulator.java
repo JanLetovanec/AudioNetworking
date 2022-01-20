@@ -1,11 +1,18 @@
 package uk.ac.jl2119.partII.UEF;
 
 import uk.ac.jl2119.partII.ComposedTransformer;
-import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.Filters.LowPassFilterTransformer;
+import uk.ac.jl2119.partII.ITransformer;
 
 public class UEFDemodulator extends ComposedTransformer<Double, Byte> {
-    public <T1> UEFDemodulator(double baseFrequency,boolean originalMode, long sampleRate) {
+    private static final double BASE_FREQUENCY = 1200;
+
+    public UEFDemodulator(boolean originalMode, long sampleRate) {
+        super(getLPF(BASE_FREQUENCY, sampleRate),
+                getComposite(BASE_FREQUENCY, originalMode, sampleRate));
+    }
+
+    public UEFDemodulator(double baseFrequency, boolean originalMode, long sampleRate) {
         super(getLPF(baseFrequency, sampleRate),
                 getComposite(baseFrequency, originalMode, sampleRate));
     }

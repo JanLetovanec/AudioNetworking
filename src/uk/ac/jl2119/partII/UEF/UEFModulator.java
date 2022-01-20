@@ -8,6 +8,11 @@ import uk.ac.jl2119.partII.ComposedTransformer;
  * with FSK D2A transformer
  */
 public class UEFModulator extends ComposedTransformer<Byte, Double> {
+    private static final double BASE_FREQUENCY = 1200;
+
+    public UEFModulator(boolean originalMode, long sampleRate) {
+        super(new StartStopAdder(), getFSKTransformer(BASE_FREQUENCY, originalMode, sampleRate));
+    }
 
     public UEFModulator(double baseFrequency, boolean originalMode, long sampleRate) {
         super(new StartStopAdder(), getFSKTransformer(baseFrequency, originalMode, sampleRate));

@@ -4,8 +4,17 @@ import uk.ac.jl2119.partII.FixedBatchModulator;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 public class PSKModulator extends FixedBatchModulator {
+
+    private static final double DEFAULT_FREQUENCY = 1000;
+    private static final int DEFAULT_CYCLES_PER_BIT = 1;
+
     private double currentPhase;
     private final double frequency;
+
+    public PSKModulator(long sampleRate) {
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate), sampleRate);
+        this.frequency = DEFAULT_FREQUENCY;
+    }
 
     public PSKModulator(double frequency, int cyclesPerBit, long sampleRate) {
         super(getBatchSize(frequency, cyclesPerBit, sampleRate), sampleRate);

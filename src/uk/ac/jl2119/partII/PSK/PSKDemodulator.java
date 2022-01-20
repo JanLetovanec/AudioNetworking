@@ -4,6 +4,9 @@ import uk.ac.jl2119.partII.FixedBatchDemodulator;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 public class PSKDemodulator extends FixedBatchDemodulator {
+    private static final double DEFAULT_FREQUENCY = 1000;
+    private static final int DEFAULT_CYCLES_PER_BIT = 1;
+
     private double currentPhase;
     private final double frequency;
     private final long sampleRate;
@@ -11,6 +14,12 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     public PSKDemodulator(double frequency, int cyclesPerBit, long sampleRate) {
         super(getBatchSize(frequency, cyclesPerBit, sampleRate));
         this.frequency = frequency;
+        this.sampleRate = sampleRate;
+    }
+
+    public PSKDemodulator(long sampleRate) {
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate));
+        this.frequency = DEFAULT_FREQUENCY;
         this.sampleRate = sampleRate;
     }
 
