@@ -11,6 +11,10 @@ public class GenericTest {
         assertArrayEquals(Boxer.unBox(expected), Boxer.unBox(actual));
     }
 
+    protected void assertBoxedArrayEquals(Double[] expected,Double[] actual) {
+        assertArrayEquals(Boxer.unBox(expected), Boxer.unBox(actual));
+    }
+
     protected Byte[] generateRandomBytes(int length) {
         Random rng = new Random();
         byte[] bytes = new byte[length];
