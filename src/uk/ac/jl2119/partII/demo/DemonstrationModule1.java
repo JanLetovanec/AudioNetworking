@@ -5,7 +5,7 @@ import uk.ac.jl2119.partII.WavManipulation.WavWriter;
 import uk.ac.thirdParty.WavFile.WavFileException;
 import java.io.IOException;
 
-public class Demonstration {
+public class DemonstrationModule1 {
     public static void main(String[] args) throws IOException, WavFileException {
         final int SAMPLE_RATE = 44100;		// Samples per second
         final String STABLE_TONE = "./output/Module1/stable1k.wav";
