@@ -29,8 +29,7 @@ public class AWGNTransformer implements ITransformer<Double, Double> {
 
     private Double generateSingleSample() {
         Random rng = new Random();
-        double randomGauss = rng.nextGaussian() * stdDeviation;
-        return clamp(randomGauss);
+        return rng.nextGaussian() * stdDeviation;
     }
 
     private double clamp(double input) {
@@ -42,7 +41,7 @@ public class AWGNTransformer implements ITransformer<Double, Double> {
         Stream<Double> noiseStream = Arrays.stream(noise);
         return Streams
             .zip(signalStream, noiseStream,
-                (signalFrame, noiseFrame) -> signalFrame + noiseFrame)
+                (signalFrame, noiseFrame) -> clamp(signalFrame + noiseFrame))
             .toArray(Double[]::new);
     }
 }

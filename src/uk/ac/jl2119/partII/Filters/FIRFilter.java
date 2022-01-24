@@ -18,10 +18,14 @@ public class FIRFilter implements ITransformer<Double, Double> {
         Double[] result = new Double[input.length];
 
         for (int i = 0; i < input.length; i++) {
-            result[i] = getSample(input, i);
+            result[i] = clamp(getSample(input, i));
         }
 
         return result;
+    }
+
+    private double clamp(double input) {
+        return Math.min(1, Math.max(-1, input));
     }
 
     private Double getSample(Double[] input, int index) {
