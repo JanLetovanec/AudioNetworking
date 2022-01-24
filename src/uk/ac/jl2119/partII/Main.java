@@ -2,9 +2,8 @@ package uk.ac.jl2119.partII;
 
 import com.google.common.base.Strings;
 import uk.ac.jl2119.partII.Noises.AWGNTransformer;
-import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
-import uk.ac.jl2119.partII.PSK.PSKModulator;
-import uk.ac.jl2119.partII.WavManipulation.WavWriter;
+import uk.ac.jl2119.partII.UEF.UEFDemodulator;
+import uk.ac.jl2119.partII.UEF.UEFModulator;
 import uk.ac.jl2119.partII.utils.Boxer;
 import uk.ac.thirdParty.WavFile.WavFileException;
 
@@ -14,29 +13,35 @@ public class Main {
     static final int SAMPLE_RATE = 44100;
     static final int LENGTH = SAMPLE_RATE * 5;
 
+    static ITransformer<Byte, Double> modulator;
+    static ITransformer<Double, Double> noiseGenerator;
+    static ITransformer<Double, Byte> demodulator;
+
     public static void main(String[] args) throws IOException, WavFileException {
-        Double[] noise = new AWGNTransformer(0.2).transform(Boxer.box(new double[LENGTH]));
-        writeOut("./output/Module4/pureWhite.wav", noise);
+        String data = Strings.repeat("This is some sample data to be encodded, so be careful about it\n",5);
+        //modulator = new PSKModulator(SAMPLE_RATE);
+        modulator = new UEFModulator(true, SAMPLE_RATE);
+        //noiseGenerator = new RayleighFadingTransformer(20, 0.2);
+        noiseGenerator = new AWGNTransformer(0.5);
+        //demodulator = new PSKDemodulator(SAMPLE_RATE);
+        demodulator = new UEFDemodulator(true, SAMPLE_RATE);
 
-        String data = Strings.repeat("This is some sample data to be encodded, so be careful about it",10);
-        Double[] signal = new PSKModulator(SAMPLE_RATE).transform(Boxer.box(data.getBytes()));
-        writeOut("./output/Module4/pureSignal.wav", signal);
-
-        Double[] signalWithNoise = new AWGNTransformer(0.2).transform(signal);
-        writeOut("./output/Module4/noiseSignal.wav", signalWithNoise);
-
-        Double[] signalFaded = new RayleighFadingTransformer(20, 0.2).transform(signal);
-        writeOut("./output/Module4/fadedSignal.wav", signal);
-
-        System.out.println("Done");
+        prettyPrint(data);
     }
 
-    private static void writeOut(String fileName, Double[] samples) throws IOException, WavFileException {
-        WavWriter writer = WavWriter.getWriter(fileName, samples.length, SAMPLE_RATE);
-        writer.writeFrames(Boxer.unBox(samples), samples.length);
-        writer.close();
-
-        System.out.println("Wrote: " + fileName);
+    public static String simulate(String data) {
+        Byte[] bytes = Boxer.box(data.getBytes());
+        Byte[] output =
+                demodulator.transform(
+                noiseGenerator.transform(
+                modulator.transform(bytes)));
+        return new String(Boxer.unBox(output));
     }
 
+    public static void prettyPrint(String data) {
+        System.out.println("IN:");
+        System.out.println(data);
+        System.out.println("OUT:");
+        System.out.println(simulate(data));
+    }
 }
