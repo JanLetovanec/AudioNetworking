@@ -6,9 +6,6 @@ import uk.ac.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.jl2119.partII.PSK.PSKDemodulator;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
 import uk.ac.jl2119.partII.utils.Boxer;
-import uk.ac.thirdParty.WavFile.WavFileException;
-
-import java.io.IOException;
 
 public class Main {
     static final int SAMPLE_RATE = 44100;
@@ -19,13 +16,13 @@ public class Main {
     static ITransformer<Double, Byte> demodulator;
     static ITransformer<Double, Double> attenuator;
 
-    public static void main(String[] args) throws IOException, WavFileException {
+    public static void main(String[] args) {
         String data = Strings.repeat("This is some sample data to be encodded, so be careful about it\n",5);
-        attenuator = new AttenuatorTransformer(0.1);
+        attenuator = new AttenuatorTransformer(0.2);
         modulator = new PSKModulator(SAMPLE_RATE);
         //modulator = new UEFModulator(true, SAMPLE_RATE);
         //noiseGenerator = new RayleighFadingTransformer(20, 0.2);
-        noiseGenerator = new AWGNTransformer(0.2);
+        noiseGenerator = new AWGNTransformer(0.5);
         demodulator = new PSKDemodulator(SAMPLE_RATE);
         //demodulator = new UEFDemodulator(true, SAMPLE_RATE);
 
