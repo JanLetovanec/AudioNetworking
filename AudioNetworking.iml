@@ -35,5 +35,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="ejml.all" level="project" />
+    <orderEntry type="library" name="cc.redberry.rings" level="project" />
   </component>
 </module>
