@@ -30,7 +30,7 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     @Override
     public Byte[] transform(Byte[] input) {
         return partitionData(input, DATA_SIZE).stream()
-                .map(block -> transformBlock(block))
+                .flatMap(block -> Arrays.stream(transformBlock(block.toArray(Byte[]::new))))
                 .toArray(Byte[]::new);
     }
 
@@ -41,10 +41,10 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
         return batchedInput;
     }
 
-    Byte[] transformBlock(List<Byte> block) {
+    Byte[] transformBlock(Byte[] block) {
         SimpleMatrix blockVector = new SimpleMatrix(DATA_SIZE, 1);
-        for (int i = 0; i < block.size(); i++){
-            blockVector.set(i, 0, block.get(i));
+        for (int i = 0; i < block.length; i++){
+            blockVector.set(i, 0, block[i]);
         }
 
         Byte[] result = new Byte[BLOCK_SIZE];
