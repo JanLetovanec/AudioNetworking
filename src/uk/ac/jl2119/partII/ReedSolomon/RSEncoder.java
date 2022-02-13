@@ -12,16 +12,14 @@ import java.util.List;
 public class RSEncoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
     private static final int DATA_SIZE = 223;
-    private static final byte PRIMITIVE_ELEMENT = 11;
 
-    private SimpleMatrix generator;
+    private final SimpleMatrix generator;
 
     public RSEncoder() {
         double[][] matrixData = new double[BLOCK_SIZE][DATA_SIZE];
         for(int row = 0; row < matrixData.length; row++) {
-            byte elementRow = (byte)(PRIMITIVE_ELEMENT^row % 0xFF);
             for(int column = 0; column < matrixData[row].length; column++) {
-                matrixData[row][column] = elementRow^column;
+                matrixData[row][column] = Math.pow(row, column);
             }
         }
         generator = new SimpleMatrix(matrixData);
@@ -37,8 +35,7 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     private List<List<Byte>> partitionData(Byte[] input, int batchSize) {
         UnmodifiableIterator<List<Byte>> batchedIterator = Iterators
                 .partition(Arrays.stream(input).iterator(), batchSize);
-        List<List<Byte>> batchedInput = Lists.newArrayList(batchedIterator);
-        return batchedInput;
+        return Lists.newArrayList(batchedIterator);
     }
 
     Byte[] transformBlock(Byte[] block) {

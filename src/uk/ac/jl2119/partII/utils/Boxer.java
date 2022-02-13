@@ -22,4 +22,10 @@ public class Boxer {
     public static double[] unBox(Double[] input) {
         return Arrays.stream(input).mapToDouble(Double::doubleValue).toArray();
     }
+
+    public static Byte[] convert(long[] input) {
+        Byte[] outputBuffer = new Byte[input.length];
+        for (int i = 0; i < input.length; i++) {outputBuffer[i] = (byte) (input[i] %0XFF);}
+        return outputBuffer;
+    }
 }
