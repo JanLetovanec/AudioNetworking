@@ -15,8 +15,8 @@ public class StreamUtils {
     }
 
     public static Byte[] padData(Byte[] input, int targetBlockSize) {
-        int padSize = input.length % targetBlockSize;
-        Byte[] newInput = new Byte[input.length + padSize];
+        int padSize = (int)Math.ceil(input.length*1.0 / targetBlockSize) * targetBlockSize;
+        Byte[] newInput = new Byte[padSize];
         copyBytesIn(newInput, input);
         initializeFromOffset(newInput, input.length, (byte) 0);
 
