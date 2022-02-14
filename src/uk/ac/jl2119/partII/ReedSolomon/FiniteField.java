@@ -1,11 +1,16 @@
 package uk.ac.jl2119.partII.ReedSolomon;
 
 public class FiniteField {
+
     public FiniteFieldElement getOne() {
         return null;
     }
 
-    public FiniteFieldElement valueOf() {
+    public FiniteFieldElement getZero() {
+        return null;
+    }
+
+    public FiniteFieldElement valueOf(Byte x) {
         return null;
     }
 

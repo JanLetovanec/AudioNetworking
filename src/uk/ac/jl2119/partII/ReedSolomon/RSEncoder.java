@@ -35,13 +35,21 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     }
 
     private Byte[] transformBlock(Byte[] blockData) {
-        return null;
+        Polynomial msgPoly = getMessagePoly(blockData);
+        Polynomial genPoly = getGeneratorPoly();
+        Polynomial remainder = msgPoly.modulo(genPoly);
+        msgPoly.add(remainder);
+
+        return extractResult(msgPoly);
     }
 
     private Polynomial getMessagePoly(Byte[] data) {
+        data = padData(data, BLOCK_SIZE);
         FiniteField gf = new FiniteField();
-        Arrays.stream(data)
-                .map(x -> FiniteField)
+        FiniteFieldElement[] coefficients = Arrays.stream(data)
+                .map(gf::valueOf)
+                .toArray(FiniteFieldElement[]::new);
+        return new Polynomial(coefficients);
     }
 
     private Polynomial getGeneratorPoly() {
@@ -58,5 +66,11 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
             genPoly.multiply(term);
         }
         return genPoly;
+    }
+
+    private Byte[] extractResult(Polynomial poly) {
+        return Arrays.stream(poly.getCoefficients())
+                .map(x -> (byte)x.getValue())
+                .toArray(Byte[]::new);
     }
 }
