@@ -1,7 +1,6 @@
 package uk.ac.jl2119.partII.ReedSolomon;
 
 import cc.redberry.rings.poly.FiniteField;
-import cc.redberry.rings.poly.univar.UnivariatePolynomialZ64;
 import cc.redberry.rings.poly.univar.UnivariatePolynomialZp64;
 
 import static cc.redberry.rings.Rings.GF;
@@ -17,7 +16,8 @@ public class FiniteFieldMatrixSolver {
     public FiniteFieldMatrixSolver(long[][] matrix) {
         //gf = GF(7,1);
         //gf =GF(UnivariatePolynomialZ64.parse("1 +2*x +3*x^2").modulus(7));
-        gf = GF(UnivariatePolynomialZ64.parse("1 + x^2 + x^3 + x^4 + x^8").modulus(255));
+        gf = GF(2, 8);
+        //gf = GF(UnivariatePolynomialZ64.parse("1 + x^2 + x^3 + x^4 + x^8").modulus(255));
         primitiveElement = gf.valueOf(11);
         //primitiveElement = gf.valueOf(3);
         //GF(UnivariatePolynomialZ64.parse("1 +2*x +3*x^2").modulus(7));
@@ -89,18 +89,6 @@ public class FiniteFieldMatrixSolver {
         }
 
         divide(rowIndex, matrix[rowIndex][rowIndex].copy());
-    }
-
-    private UnivariatePolynomialZp64 findFactor(UnivariatePolynomialZp64 target) {
-        int power = 0;
-        while(power <= 500) {
-            if (target.isOne()) {
-                return gf.pow(primitiveElement, power);
-            }
-            target.multiply(primitiveElement);
-            power++;
-        }
-        return target;//TODO: refactor
     }
 
     private void swap(int rowIndex1, int rowIndex2) {

@@ -1,13 +1,12 @@
 package uk.ac.jl2119.partII.ReedSolomon;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.UnmodifiableIterator;
 import org.ejml.simple.SimpleMatrix;
 import uk.ac.jl2119.partII.ITransformer;
 
 import java.util.Arrays;
-import java.util.List;
+
+import static uk.ac.jl2119.partII.utils.StreamUtils.padData;
+import static uk.ac.jl2119.partII.utils.StreamUtils.partitionData;
 
 public class RSEncoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
@@ -27,28 +26,37 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
 
     @Override
     public Byte[] transform(Byte[] input) {
-        return partitionData(input, DATA_SIZE).stream()
-                .flatMap(block -> Arrays.stream(transformBlock(block.toArray(Byte[]::new))))
+        input = padData(input, DATA_SIZE);
+        Byte[] output = partitionData(input, DATA_SIZE).stream()
+                .map(x -> transformBlock(x.toArray(Byte[]::new)))
                 .toArray(Byte[]::new);
+
+        return output;
     }
 
-    private List<List<Byte>> partitionData(Byte[] input, int batchSize) {
-        UnmodifiableIterator<List<Byte>> batchedIterator = Iterators
-                .partition(Arrays.stream(input).iterator(), batchSize);
-        return Lists.newArrayList(batchedIterator);
+    private Byte[] transformBlock(Byte[] blockData) {
+        return null;
     }
 
-    Byte[] transformBlock(Byte[] block) {
-        SimpleMatrix blockVector = new SimpleMatrix(DATA_SIZE, 1);
-        for (int i = 0; i < block.length; i++){
-            blockVector.set(i, 0, block[i]);
-        }
+    private Polynomial getMessagePoly(Byte[] data) {
+        FiniteField gf = new FiniteField();
+        Arrays.stream(data)
+                .map(x -> FiniteField)
+    }
 
-        Byte[] result = new Byte[BLOCK_SIZE];
-        SimpleMatrix resultVector = generator.mult(blockVector);
-        for (int i = 0; i < BLOCK_SIZE; i++) {
-            result[i] = (byte)(Math.round(resultVector.get(i, 0)) % 0xFF);
+    private Polynomial getGeneratorPoly() {
+        final int SHIFT = 1;
+
+        FiniteField gf = new FiniteField();
+        Polynomial genPoly = new Polynomial(new FiniteFieldElement[]{gf.getOne()});
+        for (int i = 0; i < BLOCK_SIZE - DATA_SIZE; i++) {
+            // term = (x + alpha^i)
+            Polynomial term = new Polynomial(new FiniteFieldElement[]{
+                    gf.getOne(),
+                    gf.power(gf.getGenerator(), i + SHIFT)
+            });
+            genPoly.multiply(term);
         }
-        return result;
+        return genPoly;
     }
 }
