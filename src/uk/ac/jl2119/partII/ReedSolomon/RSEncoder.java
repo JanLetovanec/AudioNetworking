@@ -28,7 +28,8 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     public Byte[] transform(Byte[] input) {
         input = padData(input, DATA_SIZE);
         Byte[] output = partitionData(input, DATA_SIZE).stream()
-                .map(x -> transformBlock(x.toArray(Byte[]::new)))
+                .map(x -> x.toArray(Byte[]::new))
+                .flatMap(x -> Arrays.stream(transformBlock(x)))
                 .toArray(Byte[]::new);
 
         return output;
@@ -37,7 +38,7 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     private Byte[] transformBlock(Byte[] blockData) {
         Polynomial msgPoly = getMessagePoly(blockData);
         Polynomial genPoly = getGeneratorPoly();
-        Polynomial remainder = msgPoly.modulo(genPoly);
+        Polynomial remainder = msgPoly.divAndMod(genPoly)[1];
         msgPoly.add(remainder);
 
         return extractResult(msgPoly);
@@ -45,9 +46,8 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
 
     private Polynomial getMessagePoly(Byte[] data) {
         data = padData(data, BLOCK_SIZE);
-        FiniteField gf = new FiniteField();
         FiniteFieldElement[] coefficients = Arrays.stream(data)
-                .map(gf::valueOf)
+                .map(x -> new FiniteFieldElement(x))
                 .toArray(FiniteFieldElement[]::new);
         return new Polynomial(coefficients);
     }
@@ -55,13 +55,12 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     private Polynomial getGeneratorPoly() {
         final int SHIFT = 1;
 
-        FiniteField gf = new FiniteField();
-        Polynomial genPoly = new Polynomial(new FiniteFieldElement[]{gf.getOne()});
+        Polynomial genPoly = new Polynomial(new FiniteFieldElement[]{FiniteFieldElement.getOne()});
         for (int i = 0; i < BLOCK_SIZE - DATA_SIZE; i++) {
             // term = (x + alpha^i)
             Polynomial term = new Polynomial(new FiniteFieldElement[]{
-                    gf.getOne(),
-                    gf.power(gf.getGenerator(), i + SHIFT)
+                    FiniteFieldElement.getOne(),
+                    FiniteFieldElement.getGenerator().power(i + SHIFT)
             });
             genPoly.multiply(term);
         }
