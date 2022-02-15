@@ -1,15 +1,12 @@
 package uk.ac.jl2119.partII.test.ReedSolomon;
 
 import com.google.common.base.Strings;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.ac.jl2119.partII.ReedSolomon.RSDecoder;
 import uk.ac.jl2119.partII.ReedSolomon.RSEncoder;
 import uk.ac.jl2119.partII.test.GenericTest;
 import uk.ac.jl2119.partII.utils.Boxer;
-
-import static org.junit.Assert.assertEquals;
 
 public class RSDecoderTest extends GenericTest {
     RSEncoder encoder;
@@ -25,25 +22,24 @@ public class RSDecoderTest extends GenericTest {
     @Test
     void decodeAllAsUncorrupted() {
         String text = Strings.repeat("A",223);
-        String decodedText = decodeIntoString(encodeString(text));
+        Byte[] original = dataAsBytes(text);
+        Byte[] encoded = encoder.transform(original);
+        Byte[] decoded = decoder.transform(encoded);
 
-        Assertions.assertEquals(text, decodedText);
+        assertBoxedArrayEquals(original, decoded);
     }
 
     @Test
     void decodeAllHelloWorldsUncorrupted() {
         String text = Strings.repeat("HelloWorld",22).concat("!!!");
-        String decodedText = decodeIntoString(encodeString(text));
+        Byte[] original = dataAsBytes(text);
+        Byte[] encoded = encoder.transform(original);
+        Byte[] decoded = decoder.transform(encoded);
 
-        assertEquals(text, decodedText);
+        assertBoxedArrayEquals(original, decoded);
     }
 
-    private Byte[] encodeString(String s) {
-        Byte[] data = Boxer.box(s.getBytes());
-        return encoder.transform(data);
-    }
-
-    private String decodeIntoString(Byte[] data) {
-        return new String(Boxer.unBox(encoder.transform(data)));
+    private Byte[] dataAsBytes(String s) {
+        return Boxer.box(s.getBytes());
     }
 }
