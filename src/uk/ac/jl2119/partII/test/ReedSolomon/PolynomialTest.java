@@ -105,6 +105,26 @@ public class PolynomialTest extends GenericTest {
         assertPolyEquals(expectedRemainder, qr[1]);
     }
 
+    @Test
+    void evaluateSimplePolyAtTwo() {
+        Polynomial p1 = getPoly(new int[]{1,1,1});
+        FiniteFieldElement point = new FiniteFieldElement((byte) 2);
+        FiniteFieldElement evaluation = p1.eval(point);
+
+        FiniteFieldElement expectedResult = new FiniteFieldElement((byte) 7);
+        assertElementsEquals(expectedResult, evaluation);
+    }
+
+    @Test
+    void evaluateComplexPolyAtThree() {
+        Polynomial p1 = getPoly(new int[]{5,4,1,2});
+        FiniteFieldElement point = new FiniteFieldElement((byte) 7);
+        FiniteFieldElement evaluation = p1.eval(point);
+
+        FiniteFieldElement expectedResult = new FiniteFieldElement((byte) 141);
+        assertElementsEquals(expectedResult, evaluation);
+    }
+
     public FiniteFieldElement[] getElems(int[] elems) {
         return Arrays.stream(elems)
                 .mapToObj(x -> new FiniteFieldElement((byte) x))

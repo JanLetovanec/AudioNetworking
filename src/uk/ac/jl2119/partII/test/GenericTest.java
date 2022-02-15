@@ -28,6 +28,10 @@ public class GenericTest {
         }
     }
 
+    protected void assertElementsEquals(FiniteFieldElement expected, FiniteFieldElement actual) {
+        assertEquals(expected.getValue(), actual.getValue());
+    }
+
     protected Byte[] generateRandomBytes(int length) {
         Random rng = new Random();
         byte[] bytes = new byte[length];

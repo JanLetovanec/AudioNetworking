@@ -131,4 +131,13 @@ public class Polynomial {
         return coefficients;
     }
 
+    public FiniteFieldElement eval(FiniteFieldElement atPoint) {
+        FiniteFieldElement runningTotal = FiniteFieldElement.getZero();
+        for (int i = 0; i < coefficients.length; i++) {
+            FiniteFieldElement relevantCoefficient = coefficients[coefficients.length - i - 1];
+            FiniteFieldElement currentTerm = atPoint.power(i).multiply(relevantCoefficient);
+            runningTotal = runningTotal.add(currentTerm);
+        }
+        return  runningTotal;
+    }
 }
