@@ -17,20 +17,19 @@ public class StreamUtils {
     public static Byte[] padData(Byte[] input, int targetBlockSize) {
         int padSize = (int)Math.ceil(input.length*1.0 / targetBlockSize) * targetBlockSize;
         Byte[] newInput = new Byte[padSize];
-        copyBytesIn(newInput, input);
-        initializeFromOffset(newInput, input.length, (byte) 0);
+        copyBytesIn(newInput, input, 0, input.length);
+        initializeFromOffset(newInput, input.length);
 
         return  newInput;
     }
 
-    private static void copyBytesIn(Byte[] destination, Byte[] source) {
-        for (int i = 0; i < source.length; i++) {
-            destination[i] = source[i];
-        }
+    public static void copyBytesIn(Byte[] destination, Byte[] source, int start, int length) {
+        if (length >= 0) System.arraycopy(source, start, destination, 0, length);
     }
-    private static void initializeFromOffset(Byte[] destination, int offset, byte value) {
+
+    private static void initializeFromOffset(Byte[] destination, int offset) {
         for (int i = offset; i < destination.length; i++) {
-            destination[i] = value;
+            destination[i] = (byte) 0;
         }
     }
 }
