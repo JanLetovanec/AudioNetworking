@@ -79,6 +79,10 @@ public class FiniteFieldElement {
     }
 
     public FiniteFieldElement multiply(FiniteFieldElement second) {
+        if (second.isZero()) {
+            return getZero();
+        }
+
         long logThis = logLookup[currentValue];
         long logSecond = logLookup[second.currentValue];
         long logProduct = logThis + logSecond;
