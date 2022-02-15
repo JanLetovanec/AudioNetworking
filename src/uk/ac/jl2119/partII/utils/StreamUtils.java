@@ -23,6 +23,10 @@ public class StreamUtils {
         return  newInput;
     }
 
+    public static Byte[] padData(int targetBlockSize) {
+        return padData(new Byte[0], targetBlockSize);
+    }
+
     public static void copyBytesIn(Byte[] destination, Byte[] source, int start, int length) {
         if (length >= 0) System.arraycopy(source, start, destination, 0, length);
     }
