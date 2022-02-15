@@ -11,6 +11,7 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
     private static final int DATA_SIZE = 223;
     private static final int SHIFT = 1;
+    private static byte FIELD_GENERATOR = 3;
 
     public RSEncoder() {
     }
@@ -47,7 +48,7 @@ public class RSEncoder implements ITransformer<Byte, Byte> {
             // term = (x + alpha^i)
             Polynomial term = new Polynomial(new FiniteFieldElement[]{
                     FiniteFieldElement.getOne(),
-                    FiniteFieldElement.getGenerator().power(i + SHIFT)
+                    new FiniteFieldElement(FIELD_GENERATOR).power(i + SHIFT)
             });
             genPoly.multiply(term);
         }
