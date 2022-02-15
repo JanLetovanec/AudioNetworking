@@ -1,5 +1,7 @@
 package uk.ac.jl2119.partII.ReedSolomon;
 
+import java.util.Arrays;
+
 public class Polynomial {
     private FiniteFieldElement[] coefficients;
 
@@ -19,27 +21,21 @@ public class Polynomial {
     }
 
     public void multiply(Polynomial second) {
-        FiniteFieldElement[] coefs = freshCoefficients(coefficients.length + second.degree());
+        FiniteFieldElement[] coefs = freshCoefficients(coefficients.length + second.coefficients.length - 1);
         for(int i = 0; i < coefficients.length; i++){
+            if (coefficients[i].isZero()) {
+                continue;
+            }
+
             for (int j = 0; j < second.coefficients.length; j++) {
+                if(second.coefficients[j].isZero()) {
+                    continue;
+                }
+
                 coefs[i + j] = coefs[i + j].add(coefficients[i].multiply(second.coefficients[j]));
             }
         }
         coefficients = coefs;
-    }
-
-    public void divideByScalar(FiniteFieldElement element) {
-        if (element.isZero() || element.isOne()) {
-            return;
-        }
-
-        for(int i = 0; i < coefficients.length; i++) {
-            if (coefficients[i].isZero() || coefficients[i].isOne()) {
-                continue;
-            }
-
-            coefficients[i] = coefficients[i].divide(element);
-        }
     }
 
     public void add(Polynomial second) {
@@ -104,10 +100,23 @@ public class Polynomial {
             }
         }
 
+        return extractQuotientAndRemainder(copiedPoly, divisor);
+    }
+
+    private Polynomial[] extractQuotientAndRemainder(Polynomial copiedPoly, Polynomial divisor) {
         int boundary = coefficients.length - divisor.degree();
-        Polynomial quotient =copiedPoly.getSubPoly(0, boundary);
+
+        Polynomial quotient = copiedPoly.getSubPoly(0, boundary);
+        quotient.contract();
+
         Polynomial remainder = copiedPoly.getSubPoly(boundary, coefficients.length);
+        remainder.contract();
         return new Polynomial[]{quotient, remainder};
+    }
+
+    private void contract() {
+        coefficients = Arrays.stream(coefficients).dropWhile(x -> x.isZero())
+                .toArray(FiniteFieldElement[]::new);
     }
 
     private Polynomial getSubPoly(int startIndex, int endIndexExcluded) {
