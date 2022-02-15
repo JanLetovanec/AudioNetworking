@@ -140,4 +140,10 @@ public class Polynomial {
         }
         return  runningTotal;
     }
+
+    public void multiplyByScalar(FiniteFieldElement elem) {
+        coefficients = Arrays.stream(coefficients)
+                .map(x -> x.multiply(elem))
+                .toArray(FiniteFieldElement[]::new);
+    }
 }
