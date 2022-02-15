@@ -11,8 +11,8 @@ import static uk.ac.jl2119.partII.utils.StreamUtils.partitionData;
 public class RSDecoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
     private static final int DATA_SIZE = 223;
-    private static byte FIELD_GENERATOR = 3;
-    private static byte SHIFT = 1;
+    private static final byte FIELD_GENERATOR = 3;
+    private static final byte SHIFT = 1;
 
     @Override
     public Byte[] transform(Byte[] input) {
@@ -23,19 +23,6 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
                 .toArray(Byte[]::new);
     }
 
-    private Polynomial getGeneratorPoly() {
-        Polynomial genPoly = new Polynomial(new FiniteFieldElement[]{FiniteFieldElement.getOne()});
-        for (int i = 0; i < BLOCK_SIZE - DATA_SIZE; i++) {
-            // term = (x + alpha^i)
-            Polynomial term = new Polynomial(new FiniteFieldElement[]{
-                    FiniteFieldElement.getOne(),
-                    new FiniteFieldElement(FIELD_GENERATOR).power(i + SHIFT)
-            });
-            genPoly.multiply(term);
-        }
-        return genPoly;
-    }
-
     private Byte[] transformBlock(Byte[] blockData) {
         Polynomial msgPoly = getMessagePoly(blockData);
 
@@ -43,12 +30,18 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         if(checkMessage(syndromes)) {
             return extractData(blockData);
         }
-        return null;
+
+        Polynomial errorLocatorPoly = getErrorLocPoly(syndromes);
+
+//          Compute the erasure/error evaluator polynomial (from the syndromes and erasure/error locator polynomial). Necessary to evaluate how much the characters were tampered (ie, helps to compute the magnitude).
+//          Compute the erasure/error magnitude polynomial (from all 3 polynomials above): this polynomial can also be called the corruption polynomial, since in fact it exactly stores the values that need to be subtracted from the received message to get the original, correct message (i.e., with correct values for erased characters). In other words, at this point, we extracted the noise and stored it in this polynomial, and we just have to remove this noise from the input message to repair it.
+//          Repair the input message simply by subtracting the magnitude polynomial from the input message.
+        return new Byte[0];
     }
 
     private boolean checkMessage(FiniteFieldElement[] syndromes) {
         return Arrays.stream(syndromes)
-                .allMatch(x -> x.isZero());
+                .allMatch(FiniteFieldElement::isZero);
     }
 
     private FiniteFieldElement[] calculateSyndromes(Polynomial poly) {
