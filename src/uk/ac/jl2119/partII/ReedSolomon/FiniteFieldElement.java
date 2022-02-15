@@ -1,7 +1,6 @@
 package uk.ac.jl2119.partII.ReedSolomon;
 
 public class FiniteFieldElement {
-    private static final byte GENERATOR = 3;
     private static final long GF_CHARACTERISTIC = 255;
     private static long GF_EXPONENT = 8;
 
@@ -69,10 +68,6 @@ public class FiniteFieldElement {
 
     public static FiniteFieldElement getZero() {
         return new FiniteFieldElement((byte) 0);
-    }
-
-    public static FiniteFieldElement getGenerator() {
-        return new FiniteFieldElement(GENERATOR);
     }
 
     public long getValue() {
