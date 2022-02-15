@@ -86,23 +86,31 @@ public class FiniteFieldElement {
         long logThis = logLookup[currentValue];
         long logSecond = logLookup[second.currentValue];
         long logProduct = logThis + logSecond;
-        logProduct = (logProduct & GF_CHARACTERISTIC) + (logProduct >> GF_EXPONENT); //GF tide up - modulo and overflow
+        logProduct = (logProduct & GF_CHARACTERISTIC) + (logProduct >> GF_EXPONENT); //GF tidy up - modulo and overflow
         long result = expLookup[(int)logProduct];
         return new FiniteFieldElement((byte)result);
-    }
-
-    public FiniteFieldElement divide(FiniteFieldElement second) {
-        return null;
     }
 
     public FiniteFieldElement power(int power) {
         long logThis = logLookup[currentValue];
         long logExp = logThis * power;
-        logExp = logExp % GF_CHARACTERISTIC; // GF tide up - modulo
+        logExp = logExp % GF_CHARACTERISTIC; // GF tidy up - modulo
         long result = expLookup[(int)logExp];
         return new FiniteFieldElement((byte) result);
     }
 
     public boolean isZero() {return currentValue == 0;}
     public boolean isOne() {return currentValue == 1;}
+
+    public FiniteFieldElement divide(FiniteFieldElement second) {
+        if (isZero() || second.isZero()) {
+            return getZero();
+        }
+
+        long logThis = logLookup[currentValue];
+        long logSecond = logLookup[second.currentValue];
+        long logDivision = logThis - logSecond;
+        logDivision = logDivision % GF_CHARACTERISTIC; // GF tidy up
+        return new FiniteFieldElement((byte) logLookup[(int)logDivision]);
+    }
 }
