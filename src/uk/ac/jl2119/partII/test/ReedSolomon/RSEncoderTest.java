@@ -3,27 +3,24 @@ package uk.ac.jl2119.partII.test.ReedSolomon;
 import com.google.common.base.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.jl2119.partII.ReedSolomon.RSDecoder;
 import uk.ac.jl2119.partII.ReedSolomon.RSEncoder;
 import uk.ac.jl2119.partII.test.GenericTest;
 import uk.ac.jl2119.partII.utils.Boxer;
 
 import static org.junit.Assert.assertEquals;
 
-public class RSTest extends GenericTest {
+public class RSEncoderTest extends GenericTest {
     // The test cases for stand-alone encoder
     // are compared against a relevant output of a 'reference implementation'
     // This reference implementation can be found here:
     // https://github.com/lrq3000/unireedsolomon/blob/887dd2ce49a7ebd81e94b6032d08888629ea577a/unireedsolomon/polynomial.py#L12
 
     RSEncoder encoder;
-    RSDecoder decoder;
     final int DATA_SIZE = 223;
 
     @BeforeEach
     void setUp() {
         encoder = new RSEncoder();
-        decoder = new RSDecoder();
     }
 
     @Test
