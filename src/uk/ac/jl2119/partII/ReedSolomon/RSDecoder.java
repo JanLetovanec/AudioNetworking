@@ -1,4 +1,4 @@
-package uk.ac.jl2119.partII.ReedSolomon;
+ package uk.ac.jl2119.partII.ReedSolomon;
 
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.utils.StreamUtils;
@@ -32,7 +32,7 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         }
 
         Polynomial errorLocatorPoly = getErrorLocPoly(syndromes);
-
+        Polynomial errorEvaluatorPoly = null;
 //          Compute the erasure/error evaluator polynomial (from the syndromes and erasure/error locator polynomial). Necessary to evaluate how much the characters were tampered (ie, helps to compute the magnitude).
 //          Compute the erasure/error magnitude polynomial (from all 3 polynomials above): this polynomial can also be called the corruption polynomial, since in fact it exactly stores the values that need to be subtracted from the received message to get the original, correct message (i.e., with correct values for erased characters). In other words, at this point, we extracted the noise and stored it in this polynomial, and we just have to remove this noise from the input message to repair it.
 //          Repair the input message simply by subtracting the magnitude polynomial from the input message.
@@ -46,15 +46,13 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
 
     private FiniteFieldElement[] calculateSyndromes(Polynomial poly) {
         int eccSymbolCount = BLOCK_SIZE - DATA_SIZE;
-        FiniteFieldElement[] results = new FiniteFieldElement[eccSymbolCount + 1];
+        FiniteFieldElement[] results = new FiniteFieldElement[eccSymbolCount];
 
         for (int i = 0; i < eccSymbolCount; i++) {
             FiniteFieldElement evaluationPoint = new FiniteFieldElement(FIELD_GENERATOR).power(i + SHIFT);
             FiniteFieldElement evaluation = poly.eval(evaluationPoint);
             results[i] = evaluation;
         }
-
-        results[results.length - 1] = FiniteFieldElement.getZero(); // The constant 0 is added
         return results;
     }
 
@@ -80,51 +78,41 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
      */
     private Polynomial getErrorLocPoly(FiniteFieldElement[] syndromes) {
         // Berkley-Massey algo
-        // Initialize
-        Polynomial C = getPolyOfOne();  // The current guess poly
-        Polynomial B = getPolyOfOne();  // The last guess poly
-        int L = 0;                      // Estimated errors
-        int m = 1;
-        FiniteFieldElement b = FiniteFieldElement.getOne();// Last discrepancy
 
-        syndromes[syndromes.length-1] = syndromes[syndromes.length-1].add(FiniteFieldElement.getOne());
-        Polynomial syndromePoly = new Polynomial(syndromes);
+        //Initialize
+        Polynomial C = getPolyOfOne();
+        Polynomial B = getPolyOfOne();
+        int L = 0;
+        Polynomial synPoly = getReversedSyndromePoly(syndromes); // BM uses reversed syn poly
 
-        //NOT SURE:
-        // * what direction the syndromes are indexed
+        for (int i = 0; i < BLOCK_SIZE - DATA_SIZE; i++) {
+            // Calculate d (discrepancy
+            FiniteFieldElement discrepancy = getDiscrepancy(synPoly, C, i);
 
-        for (int n = 0; n < syndromes.length; n++) {
-            // For odd numbers d = 0, so do not even bother
-//            if (n % 2 == 1) {
-//                m++;
-//                continue;
-//            }
+            // Update C <- C - d*(B<<1)
+            Polynomial copiedC = new Polynomial(C);
+            updateC(C, B, discrepancy);
 
-            // Calculate discrepancy
-            FiniteFieldElement d = getDiscrepancy(syndromePoly, C, L, n);
-            // if guess is okay, just carry on
-            if (d.isZero()) {
-                m++;
+            // If everything is fine, just carry on
+            if (discrepancy.isZero()) {
+                B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes
                 continue;
             }
-            // discrepancies should converge by n = 2L
-            // if we already reached n = 2L
-            // adjust C and L and reset relevant vars
-            if (2*L <= n) {
-                Polynomial tempPoly = new Polynomial(C);
-                adjustC(C,d, b, m, B);
-                L = n + 1 - L;
-                B = tempPoly;
-                b = d;
-                m = 1;
+
+            // Things should converge by i = 2L
+            // so do not increase L or adjust B
+            // just carry on
+            if(2*L > i) {
+                B.multiply(getShiftPoly());
                 continue;
             }
-            // otherwise just adjust C and carry on
-            adjustC(C,d, b, m, B);
-            m++;
+
+            // B <- 1/d * C though note that this is the C before the current update
+            B = getNewB(copiedC, discrepancy);
+            L = i - L;
         }
 
-        // If you terminated, C was correct guess
+        C.contract();
         return C;
     }
 
@@ -133,32 +121,35 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
      *  but they use inverted indexes...
      *  so the indexes are not 1:1 to the example
      */
-    private FiniteFieldElement getDiscrepancy(Polynomial syndromePoly,
-                                              Polynomial C,
-                                              int L,
-                                              int n) {
-        int baseIndex = syndromePoly.getCoefficients().length - n - 1;
-        FiniteFieldElement total = FiniteFieldElement.getZero();
-        for (int i = 0; i <= L; i++) {
-            total = total.add(C.getCoefficients()[L - i].multiply(syndromePoly.getCoefficients()[baseIndex + i]));
-        }
+    private FiniteFieldElement getDiscrepancy(Polynomial syndromePoly, Polynomial C, int i) {
         Polynomial temp = new Polynomial(syndromePoly);
-        //temp.multiply(C);
-        return temp.getCoefficients()[n];
+        temp.multiply(C);
+        return temp.getCoefficients()[i];
     }
 
-    private void adjustC(Polynomial C,
-                         FiniteFieldElement d,
-                         FiniteFieldElement b,
-                         int m,
-                         Polynomial B) {
-        Polynomial temp = new Polynomial(B);
-        FiniteFieldElement scalar = d.divide(b);
-        Polynomial xToM = getXtoM(m);
-        temp.multiply(xToM);
-        temp.multiplyByScalar(scalar);
+    private Polynomial getReversedSyndromePoly(FiniteFieldElement[] syndromes) {
+        FiniteFieldElement[] reversed = new FiniteFieldElement[syndromes.length];
+        for(int i = 0; i < reversed.length; i++) {
+            reversed[i] = syndromes[syndromes.length - 1 - i];
+        }
+        return new Polynomial(reversed);
+    }
 
+    private void updateC(Polynomial C,
+                         Polynomial B,
+                         FiniteFieldElement delta) {
+        Polynomial temp = new Polynomial(B);
+        temp.multiply(getShiftPoly());
+        temp.multiplyByScalar(delta);
         C.add(temp);
+    }
+
+    private Polynomial getNewB(Polynomial C,
+                         FiniteFieldElement delta) {
+        Polynomial temp = new Polynomial(C);
+        FiniteFieldElement deltaInverse = FiniteFieldElement.getOne().divide(delta);
+        temp.multiplyByScalar(deltaInverse);
+        return temp;
     }
 
     private Polynomial getPolyOfOne() {
@@ -168,12 +159,11 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         return new Polynomial(coefs);
     }
 
-    private Polynomial getXtoM(int m) {
-        FiniteFieldElement[] elems = new FiniteFieldElement[m + 1];
-        elems = Arrays.stream(elems)
-                .map(x -> FiniteFieldElement.getZero())
-                .toArray(FiniteFieldElement[]::new);
-        elems[0] = FiniteFieldElement.getOne();
-        return new Polynomial(elems);
+    private Polynomial getShiftPoly() {
+        FiniteFieldElement[] coefs = new FiniteFieldElement[] {
+                FiniteFieldElement.getOne(),
+                FiniteFieldElement.getZero()
+        };
+        return new Polynomial(coefs);
     }
 }

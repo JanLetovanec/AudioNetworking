@@ -125,6 +125,15 @@ public class PolynomialTest extends GenericTest {
         assertElementsEquals(expectedResult, evaluation);
     }
 
+    @Test
+    void contractRemovesZeroesButNotData() {
+        Polynomial p1 = getPoly(new int[]{0,0,0,5,4,1,2});
+        p1.contract();
+
+        Polynomial expectedResult = getPoly(new int[] {5,4,1,2});
+        assertPolyEquals(expectedResult, p1);
+    }
+
     public FiniteFieldElement[] getElems(int[] elems) {
         return Arrays.stream(elems)
                 .mapToObj(x -> new FiniteFieldElement((byte) x))
