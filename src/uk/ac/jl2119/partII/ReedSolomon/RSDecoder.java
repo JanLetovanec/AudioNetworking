@@ -77,7 +77,7 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
      * @return -- the Lambda(x) polynomial
      */
     private Polynomial getErrorLocPoly(FiniteFieldElement[] syndromes) {
-        // Berkley-Massey algo
+        // Berlekamp-Massey algo
 
         //Initialize
         Polynomial C = getPolyOfOne();
