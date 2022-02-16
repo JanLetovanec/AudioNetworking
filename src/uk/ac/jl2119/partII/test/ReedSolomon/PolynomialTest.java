@@ -143,6 +143,33 @@ public class PolynomialTest extends GenericTest {
         assertPolyEquals(expectedResult, p1);
     }
 
+    @Test
+    void indexingFromLowRetrievesCorrect() {
+        Polynomial p1 = getPoly(new int[]{1,2,3,4,5});
+        FiniteFieldElement a = p1.getIndexedFromLow(1);
+
+        FiniteFieldElement expected = new FiniteFieldElement((byte) 4);
+        assertElementsEquals(expected, a);
+    }
+
+    @Test
+    void indexingFromLowRetrievesZero() {
+        Polynomial p1 = getPoly(new int[]{1,2,3,4,5});
+        FiniteFieldElement a = p1.getIndexedFromLow(0);
+
+        FiniteFieldElement expected = new FiniteFieldElement((byte) 5);
+        assertElementsEquals(expected, a);
+    }
+
+    @Test
+    void indexingFromLowRetrievesMax() {
+        Polynomial p1 = getPoly(new int[]{1,2,3,4,5});
+        FiniteFieldElement a = p1.getIndexedFromLow(4);
+
+        FiniteFieldElement expected = new FiniteFieldElement((byte) 1);
+        assertElementsEquals(expected, a);
+    }
+
     protected FiniteFieldElement[] getElems(int[] elems) {
         return Arrays.stream(elems)
                 .mapToObj(x -> new FiniteFieldElement((byte) x))

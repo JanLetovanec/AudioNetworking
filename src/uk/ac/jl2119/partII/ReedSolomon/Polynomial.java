@@ -152,4 +152,9 @@ public class Polynomial {
                 .map(x -> x.multiply(elem))
                 .toArray(FiniteFieldElement[]::new);
     }
+
+    public FiniteFieldElement getIndexedFromLow(int index) {
+        int lowIndex = coefficients.length - 1 - index;
+        return coefficients[lowIndex];
+    }
 }
