@@ -45,13 +45,16 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
     }
 
     private FiniteFieldElement[] calculateSyndromes(Polynomial poly) {
-        int eccSymbolCount = BLOCK_SIZE - DATA_SIZE - 1;
-        FiniteFieldElement[] results = new FiniteFieldElement[eccSymbolCount];
+        int eccSymbolCount = BLOCK_SIZE - DATA_SIZE;
+        FiniteFieldElement[] results = new FiniteFieldElement[eccSymbolCount + 1];
+
         for (int i = 0; i < eccSymbolCount; i++) {
             FiniteFieldElement evaluationPoint = new FiniteFieldElement(FIELD_GENERATOR).power(i + SHIFT);
             FiniteFieldElement evaluation = poly.eval(evaluationPoint);
             results[i] = evaluation;
         }
+
+        results[results.length - 1] = FiniteFieldElement.getZero(); // The constant 0 is added
         return results;
     }
 
@@ -78,60 +81,70 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
     private Polynomial getErrorLocPoly(FiniteFieldElement[] syndromes) {
         // Berkley-Massey algo
         // Initialize
-        Polynomial syndromePoly = new Polynomial(syndromes);
         Polynomial C = getPolyOfOne();  // The current guess poly
         Polynomial B = getPolyOfOne();  // The last guess poly
         int L = 0;                      // Estimated errors
         int m = 1;
         FiniteFieldElement b = FiniteFieldElement.getOne();// Last discrepancy
 
+        syndromes[syndromes.length-1] = syndromes[syndromes.length-1].add(FiniteFieldElement.getOne());
+        Polynomial syndromePoly = new Polynomial(syndromes);
+
         //NOT SURE:
-        // * what direction the syndromes are supposed to go
+        // * what direction the syndromes are indexed
 
         for (int n = 0; n < syndromes.length; n++) {
             // For odd numbers d = 0, so do not even bother
-            if (n % 2 == 1) {
-                continue;
-            }
+//            if (n % 2 == 1) {
+//                m++;
+//                continue;
+//            }
 
             // Calculate discrepancy
-            FiniteFieldElement d = getDiscrepancy(syndromes, C,L, n);
+            FiniteFieldElement d = getDiscrepancy(syndromePoly, C, L, n);
             // if guess is okay, just carry on
             if (d.isZero()) {
                 m++;
                 continue;
             }
             // discrepancies should converge by n = 2L
-            // if its not yet n = 2L
-            // then adjust C and carry on
-            if (2*L > n) {
+            // if we already reached n = 2L
+            // adjust C and L and reset relevant vars
+            if (2*L <= n) {
+                Polynomial tempPoly = new Polynomial(C);
                 adjustC(C,d, b, m, B);
-                m++;
+                L = n + 1 - L;
+                B = tempPoly;
+                b = d;
+                m = 1;
                 continue;
             }
-            // if it its 2*L and did not converge yet
-            // adjust L and reset b,B,m
-            Polynomial tempPoly = new Polynomial(C);
+            // otherwise just adjust C and carry on
             adjustC(C,d, b, m, B);
-            L = n + 1 - L;
-            B = tempPoly;
-            b = d;
-            m = 1;
+            m++;
         }
 
         // If you terminated, C was correct guess
         return C;
     }
 
-    private FiniteFieldElement getDiscrepancy(FiniteFieldElement[] syndromes,
+    /**
+     *  This is same as discrepancy in the desc. algo,
+     *  but they use inverted indexes...
+     *  so the indexes are not 1:1 to the example
+     */
+    private FiniteFieldElement getDiscrepancy(Polynomial syndromePoly,
                                               Polynomial C,
                                               int L,
                                               int n) {
+        int baseIndex = syndromePoly.getCoefficients().length - n - 1;
         FiniteFieldElement total = FiniteFieldElement.getZero();
-        for (int i = 1; i < L; i++) {
-            total = total.add(C.getCoefficients()[i].multiply(syndromes[n - i]));
+        for (int i = 0; i <= L; i++) {
+            total = total.add(C.getCoefficients()[L - i].multiply(syndromePoly.getCoefficients()[baseIndex + i]));
         }
-        return total.add(syndromes[n]);
+        Polynomial temp = new Polynomial(syndromePoly);
+        //temp.multiply(C);
+        return temp.getCoefficients()[n];
     }
 
     private void adjustC(Polynomial C,
