@@ -79,7 +79,7 @@ public class FiniteFieldElement {
     }
 
     public FiniteFieldElement multiply(FiniteFieldElement second) {
-        if (second.isZero()) {
+        if (isZero() || second.isZero()) {
             return getZero();
         }
 
