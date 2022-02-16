@@ -170,6 +170,15 @@ public class PolynomialTest extends GenericTest {
         assertElementsEquals(expected, a);
     }
 
+    @Test
+    void settingFromLowSetsCorrectly() {
+        Polynomial p1 = getPoly(new int[]{1,2,3,4,5});
+        p1.setIndexedFromLow(1, new FiniteFieldElement((byte) 1));
+
+        Polynomial expected = getPoly(new int[]{1,2,3,1,5});;
+        assertPolyEquals(expected, p1);
+    }
+
     protected FiniteFieldElement[] getElems(int[] elems) {
         return Arrays.stream(elems)
                 .mapToObj(x -> new FiniteFieldElement((byte) x))

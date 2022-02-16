@@ -157,4 +157,9 @@ public class Polynomial {
         int lowIndex = coefficients.length - 1 - index;
         return coefficients[lowIndex];
     }
+
+    public void setIndexedFromLow(int index, FiniteFieldElement value) {
+        int lowIndex = coefficients.length - 1 - index;
+        coefficients[lowIndex] = value;
+    }
 }
