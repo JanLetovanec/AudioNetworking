@@ -31,10 +31,17 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             return extractData(blockData);
         }
 
-        Polynomial errorLocatorPoly = getErrorLocPoly(syndromes);
-        Polynomial errorEvaluatorPoly = null;
-//          Compute the erasure/error evaluator polynomial (from the syndromes and erasure/error locator polynomial). Necessary to evaluate how much the characters were tampered (ie, helps to compute the magnitude).
-//          Compute the erasure/error magnitude polynomial (from all 3 polynomials above): this polynomial can also be called the corruption polynomial, since in fact it exactly stores the values that need to be subtracted from the received message to get the original, correct message (i.e., with correct values for erased characters). In other words, at this point, we extracted the noise and stored it in this polynomial, and we just have to remove this noise from the input message to repair it.
+        Polynomial[] errorLocAndEval = getErrorPolys(syndromes);
+        Polynomial errorLocatorPoly = errorLocAndEval[0];
+        Polynomial errorEvaluatorPoly = errorLocAndEval[1];
+
+        FiniteFieldElement[] locationElements = getErrorLocations(errorLocatorPoly);
+        // Cannot fix errors, just give up and forward the message
+        if (locationElements == null) {
+            return extractData(blockData);
+        }
+
+        FiniteFieldElement[] magnitudes = getErrorMagnitudes(locationElements, errorEvaluatorPoly);
 //          Repair the input message simply by subtracting the magnitude polynomial from the input message.
         return new Byte[0];
     }
@@ -185,5 +192,56 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
                 FiniteFieldElement.getZero()
         };
         return new Polynomial(coefs);
+    }
+
+    /**
+     * Since there are at most 256 location, just brute-force through it
+     * @param errorPoly - The error locator polynomial. Its roots are the inverses of the 'locations'
+     * @return - The 'locations'. That is alpha^j, where j is the position of the error
+     */
+    private FiniteFieldElement[] getErrorLocations(Polynomial errorPoly) {
+        FiniteFieldElement[] roots = new FiniteFieldElement[errorPoly.degree()];
+        int foundRoots = 0;
+        for(int i = 0; i < BLOCK_SIZE; i++) {
+            FiniteFieldElement evalPoint = new FiniteFieldElement(FIELD_GENERATOR).power(i);
+
+            if (errorPoly.eval(evalPoint).isZero()) {
+                addRoot(foundRoots, evalPoint, roots);
+                foundRoots++;
+            }
+        }
+
+        // If inconsistent numbers, there are unfixable errors
+        // let the caller handle it
+        if (foundRoots != roots.length) {
+            return  null;
+        }
+
+        return  invertedRoots(roots);
+    }
+
+    private void addRoot(int foundRoots, FiniteFieldElement root, FiniteFieldElement[] roots) {
+        if (foundRoots < roots.length) {
+            roots[foundRoots] = root;
+        }
+    }
+
+    private FiniteFieldElement[] invertedRoots(FiniteFieldElement[] roots) {
+        return Arrays.stream(roots)
+                .map(x -> FiniteFieldElement.getOne().divide(x))
+                .toArray(FiniteFieldElement[]::new);
+    }
+
+    /**
+     * Find the error magnitudes e_j
+     * Using Forney algo for this:
+     * https://en.wikipedia.org/wiki/Forney_algorithm
+     * @param errorLocations - Error location elements (alpha^j,
+     *                       where j is error position, starting from low degrees)
+     * @param errorEvalPoly - The evaluator Poly Omega - equal to S(x) * Lambda(x)
+     * @return - the error magnitudes corresponding to the 'errorLocations'
+     */
+    private FiniteFieldElement[] getErrorMagnitudes(FiniteFieldElement[] errorLocations, Polynomial errorEvalPoly) {
+        return null;
     }
 }
