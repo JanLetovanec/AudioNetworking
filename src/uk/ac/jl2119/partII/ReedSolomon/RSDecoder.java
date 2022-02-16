@@ -71,31 +71,43 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
 
     /**
      * Find Lambda(x) = Product(x*alpha^j - 1), where j is error location
+     * and Omega(x) = S(x) * Lambda(x), where S(x) is the Syndrome poly
+     *
      * Do this by using **Berlekamp–Massey** algorithm:
      * https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm
      * @param syndromes -- syndromes of the message
-     * @return -- the Lambda(x) polynomial
+     * @return -- An array of polynomials,
+     *      where first element is the Lambda(x) polynomial
+     *      and the second one is the Omega(x) polynomial
      */
-    private Polynomial getErrorLocPoly(FiniteFieldElement[] syndromes) {
+    private Polynomial[] getErrorPolys(FiniteFieldElement[] syndromes) {
         // Berlekamp-Massey algo
 
         //Initialize
-        Polynomial C = getPolyOfOne();
+        Polynomial Lambda = getPolyOfOne();
         Polynomial B = getPolyOfOne();
+        Polynomial Omega = getPolyOfOne();
+        Polynomial A = new Polynomial(new FiniteFieldElement[0]); // A = 0
         int L = 0;
+
         Polynomial synPoly = getReversedSyndromePoly(syndromes); // BM uses reversed syn poly
 
         for (int i = 0; i < BLOCK_SIZE - DATA_SIZE; i++) {
             // Calculate d (discrepancy
-            FiniteFieldElement discrepancy = getDiscrepancy(synPoly, C, i);
+            FiniteFieldElement discrepancy = getDiscrepancy(synPoly, Lambda, i);
 
-            // Update C <- C - d*(B<<1)
-            Polynomial copiedC = new Polynomial(C);
-            updateC(C, B, discrepancy);
+            // Update Lam <- Lam - d*(B<<1) in the algo
+            Polynomial copiedLambda = new Polynomial(Lambda);
+            updatePoly(Lambda, B, discrepancy);
+
+            // Update Omg <- Omg - d*(A<<1)
+            Polynomial copiedOmega = new Polynomial(Lambda);
+            updatePoly(Omega, A, discrepancy);
 
             // If everything is fine, just carry on
             if (discrepancy.isZero()) {
-                B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes
+                B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes)
+                A.multiply(getShiftPoly()); // A << 1
                 continue;
             }
 
