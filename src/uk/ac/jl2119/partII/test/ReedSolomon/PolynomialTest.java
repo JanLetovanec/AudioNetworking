@@ -134,13 +134,22 @@ public class PolynomialTest extends GenericTest {
         assertPolyEquals(expectedResult, p1);
     }
 
-    public FiniteFieldElement[] getElems(int[] elems) {
+    @Test
+    void trimLeavesDataAlone() {
+        Polynomial p1 = getPoly(new int[]{5,0,0,1,2,3,4});
+        p1.trimTo(4);
+
+        Polynomial expectedResult = getPoly(new int[] {1,2,3,4});
+        assertPolyEquals(expectedResult, p1);
+    }
+
+    protected FiniteFieldElement[] getElems(int[] elems) {
         return Arrays.stream(elems)
                 .mapToObj(x -> new FiniteFieldElement((byte) x))
                 .toArray(FiniteFieldElement[]::new);
     }
 
-    public Polynomial getPoly(int[] coefs) {
+    protected Polynomial getPoly(int[] coefs) {
         FiniteFieldElement[] newCoefs = getElems(coefs);
         return new Polynomial(newCoefs);
     }

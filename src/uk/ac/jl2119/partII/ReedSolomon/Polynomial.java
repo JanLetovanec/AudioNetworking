@@ -119,6 +119,12 @@ public class Polynomial {
                 .toArray(FiniteFieldElement[]::new);
     }
 
+    public void trimTo(int newLength) {
+        int toDrop = coefficients.length - newLength;
+        coefficients = Arrays.stream(coefficients).skip(toDrop)
+                .toArray(FiniteFieldElement[]::new);
+    }
+
     private Polynomial getSubPoly(int startIndex, int endIndexExcluded) {
         FiniteFieldElement[] coefs = new FiniteFieldElement[endIndexExcluded - startIndex];
         for (int i = 0; i < coefs.length; i++) {
