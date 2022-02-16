@@ -110,7 +110,7 @@ public class FiniteFieldElement {
         long logThis = logLookup[currentValue];
         long logSecond = logLookup[second.currentValue];
         long logDivision = logThis - logSecond;
-        logDivision = logDivision % GF_CHARACTERISTIC; // GF tidy up
+        logDivision = Math.floorMod(logDivision, GF_CHARACTERISTIC); // GF tidy up
         return new FiniteFieldElement((byte) logLookup[(int)logDivision]);
     }
 }
