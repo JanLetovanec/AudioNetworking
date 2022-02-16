@@ -114,7 +114,7 @@ public class Polynomial {
         return new Polynomial[]{quotient, remainder};
     }
 
-    private void contract() {
+    public void contract() {
         coefficients = Arrays.stream(coefficients).dropWhile(x -> x.isZero())
                 .toArray(FiniteFieldElement[]::new);
     }
