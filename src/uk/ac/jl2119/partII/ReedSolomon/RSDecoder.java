@@ -115,17 +115,24 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             // so do not increase L or adjust B
             // just carry on
             if(2*L > i) {
-                B.multiply(getShiftPoly());
+                B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes)
+                A.multiply(getShiftPoly()); // A << 1
                 continue;
             }
 
-            // B <- 1/d * C though note that this is the C before the current update
-            B = getNewB(copiedC, discrepancy);
+            // B <- 1/d * Lam though note that this is the C before the current update
+            B = getNewHelper(copiedLambda, discrepancy);
+            // A <- 1/d * Omg
+            A = getNewHelper(copiedOmega, discrepancy);
             L = i - L;
         }
 
-        C.contract();
-        return C;
+        // This algo will make Omega a bit higher degree so just trim it
+        Omega.trimTo(Lambda.getCoefficients().length);
+
+        Lambda.contract();
+        Omega.contract();
+        return new Polynomial[] {Lambda, Omega};
     }
 
     /**
@@ -136,7 +143,8 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
     private FiniteFieldElement getDiscrepancy(Polynomial syndromePoly, Polynomial C, int i) {
         Polynomial temp = new Polynomial(syndromePoly);
         temp.multiply(C);
-        return temp.getCoefficients()[i];
+        int targetCoefficient = temp.getCoefficients().length - i -1;
+        return temp.getCoefficients()[targetCoefficient];
     }
 
     private Polynomial getReversedSyndromePoly(FiniteFieldElement[] syndromes) {
@@ -147,16 +155,16 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         return new Polynomial(reversed);
     }
 
-    private void updateC(Polynomial C,
+    private void updatePoly(Polynomial Lambda,
                          Polynomial B,
                          FiniteFieldElement delta) {
         Polynomial temp = new Polynomial(B);
         temp.multiply(getShiftPoly());
         temp.multiplyByScalar(delta);
-        C.add(temp);
+        Lambda.add(temp);
     }
 
-    private Polynomial getNewB(Polynomial C,
+    private Polynomial getNewHelper(Polynomial C,
                          FiniteFieldElement delta) {
         Polynomial temp = new Polynomial(C);
         FiniteFieldElement deltaInverse = FiniteFieldElement.getOne().divide(delta);
