@@ -113,4 +113,11 @@ public class FiniteFieldElement {
         logDivision = Math.floorMod(logDivision, GF_CHARACTERISTIC); // GF tidy up
         return new FiniteFieldElement((byte) expLookup[(int)logDivision]);
     }
+
+    public long logBaseGenerator() {
+        if (isZero()) {
+            return -1;
+        }
+        return logLookup[currentValue];
+    }
 }

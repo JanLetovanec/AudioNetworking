@@ -40,4 +40,11 @@ public class FiniteElementTest extends GenericTest{
         Assertions.assertEquals(254, c.getValue());
     }
 
+    @Test
+    void log6Is26() {
+        FiniteFieldElement a = new FiniteFieldElement((byte) 6);
+        long c = a.logBaseGenerator();
+
+        Assertions.assertEquals(26, c);
+    }
 }
