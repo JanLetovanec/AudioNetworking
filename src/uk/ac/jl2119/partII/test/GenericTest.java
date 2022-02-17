@@ -45,4 +45,10 @@ public class GenericTest {
         rng.nextBytes(bytes);
         return bytes;
     }
+
+    protected int generateRandomInt() {
+        Random rng = new Random();
+        return rng.nextInt();
+    }
+
 }
