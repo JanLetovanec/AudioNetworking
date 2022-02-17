@@ -121,6 +121,10 @@ public class Polynomial {
 
     public void trimTo(int newLength) {
         int toDrop = coefficients.length - newLength;
+        if (toDrop < 0) {
+            return;
+        }
+
         coefficients = Arrays.stream(coefficients).skip(toDrop)
                 .toArray(FiniteFieldElement[]::new);
     }
