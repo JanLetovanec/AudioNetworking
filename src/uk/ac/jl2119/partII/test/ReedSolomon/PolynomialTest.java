@@ -144,6 +144,15 @@ public class PolynomialTest extends GenericTest {
     }
 
     @Test
+    void trimNothingIfShorter() {
+        Polynomial p1 = getPoly(new int[]{1,2,3,4});
+        p1.trimTo(250);
+
+        Polynomial expectedResult = getPoly(new int[] {1,2,3,4});
+        assertPolyEquals(expectedResult, p1);
+    }
+
+    @Test
     void indexingFromLowRetrievesCorrect() {
         Polynomial p1 = getPoly(new int[]{1,2,3,4,5});
         FiniteFieldElement a = p1.getIndexedFromLow(1);
