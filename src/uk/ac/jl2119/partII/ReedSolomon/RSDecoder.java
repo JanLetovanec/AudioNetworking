@@ -34,6 +34,8 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         Polynomial[] errorLocAndEval = getErrorPolys(syndromes);
         Polynomial errorLocatorPoly = errorLocAndEval[0];
         Polynomial errorEvaluatorPoly = errorLocAndEval[1];
+        errorEvaluatorPoly = getErrorEvaluatorPoly(syndromes, errorLocatorPoly);
+
 
         FiniteFieldElement[] locationElements = getErrorLocations(errorLocatorPoly);
         // Cannot fix errors, just give up and forward the message
@@ -44,9 +46,11 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         FiniteFieldElement[] magnitudes = getErrorMagnitudes(locationElements,
                                                             errorEvaluatorPoly,
                                                             errorLocatorPoly);
-//          Repair the input message simply by subtracting the magnitude polynomial from the input message.
-        
-        return new Byte[0];
+
+        Polynomial msgErrorPoly = getMsgError(locationElements, magnitudes);
+        msgPoly.add(msgErrorPoly);
+
+        return extractData(msgPoly);
     }
 
     private boolean checkMessage(FiniteFieldElement[] syndromes) {
@@ -77,6 +81,13 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         Byte[] targetData = new Byte[DATA_SIZE];
         StreamUtils.copyBytesIn(targetData, rawData, 0, DATA_SIZE);
         return targetData;
+    }
+
+    private Byte[] extractData(Polynomial rawData) {
+        Byte[] rawDataBytes =  Arrays.stream(rawData.getCoefficients())
+                .map(x -> (byte) x.getValue())
+                .toArray(Byte[]::new);
+        return extractData(rawDataBytes);
     }
 
     /**
@@ -236,6 +247,18 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
                 .toArray(FiniteFieldElement[]::new);
     }
 
+    private Polynomial getErrorEvaluatorPoly(FiniteFieldElement[] syndromes,
+                                             Polynomial errorLocatorPoly) {
+        int d = BLOCK_SIZE - DATA_SIZE;
+        Polynomial syndromePoly = getReversedSyndromePoly(syndromes);
+        Polynomial errorEvaluatorPoly = new Polynomial(syndromePoly);
+        //
+        errorEvaluatorPoly.multiply(errorLocatorPoly);
+        errorEvaluatorPoly.trimTo(errorLocatorPoly.getCoefficients().length);
+        errorEvaluatorPoly.contract();
+        return  errorEvaluatorPoly;
+    }
+
     /**
      * Find the error magnitudes e_j
      * Using Forney algo for this:
@@ -259,7 +282,7 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
     private FiniteFieldElement getMagnitude(FiniteFieldElement errorLocation,
                                             Polynomial errorPoly,
                                             Polynomial LambdaPrime) {
-        FiniteFieldElement shiftCorrection = new FiniteFieldElement(FIELD_GENERATOR).power(SHIFT);
+        FiniteFieldElement shiftCorrection = errorLocation.power(1 - SHIFT);
         FiniteFieldElement invertedLoc = FiniteFieldElement.getOne().divide(errorLocation);
         FiniteFieldElement OmegaEval = errorPoly.eval(invertedLoc);
         FiniteFieldElement LambdaEval = LambdaPrime.eval(invertedLoc);
@@ -277,5 +300,28 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             LambdaPrime.setIndexedFromLow(i - 1, coef);
         }
         return LambdaPrime;
+    }
+
+    private Polynomial getMsgError(FiniteFieldElement[] errorLocations,
+                                   FiniteFieldElement[] errorMagnitudes) {
+        Polynomial errorPoly = new Polynomial(getFreshElems(BLOCK_SIZE));
+        for(int i = 0; i < errorLocations.length; i++) {
+            adjustPoly(errorPoly, errorLocations[i], errorMagnitudes[i]);
+        }
+        return  errorPoly;
+    }
+
+    // Returns Object so that we can use it in zip
+    // We are only interested in the side effect so returning null
+    private Object adjustPoly(Polynomial poly, FiniteFieldElement location, FiniteFieldElement magnitude) {
+        int index = (int) location.logBaseGenerator();
+        poly.setIndexedFromLow(index, magnitude);
+        return null;
+    }
+
+    private FiniteFieldElement[] getFreshElems(int length) {
+        FiniteFieldElement[] elems = new FiniteFieldElement[length];
+        return Arrays.stream(elems).map(x-> FiniteFieldElement.getZero())
+                .toArray(FiniteFieldElement[]::new);
     }
 }
