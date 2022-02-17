@@ -41,8 +41,11 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             return extractData(blockData);
         }
 
-        FiniteFieldElement[] magnitudes = getErrorMagnitudes(locationElements, errorEvaluatorPoly);
+        FiniteFieldElement[] magnitudes = getErrorMagnitudes(locationElements,
+                                                            errorEvaluatorPoly,
+                                                            errorLocatorPoly);
 //          Repair the input message simply by subtracting the magnitude polynomial from the input message.
+        
         return new Byte[0];
     }
 
@@ -134,11 +137,12 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             L = i - L;
         }
 
+        Lambda.contract();
+        Omega.contract();
+
         // This algo will make Omega a bit higher degree so just trim it
         Omega.trimTo(Lambda.getCoefficients().length);
 
-        Lambda.contract();
-        Omega.contract();
         return new Polynomial[] {Lambda, Omega};
     }
 
@@ -239,9 +243,39 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
      * @param errorLocations - Error location elements (alpha^j,
      *                       where j is error position, starting from low degrees)
      * @param errorEvalPoly - The evaluator Poly Omega - equal to S(x) * Lambda(x)
+     * @param errorLocPoly - The locator Poly Lambda
      * @return - the error magnitudes corresponding to the 'errorLocations'
      */
-    private FiniteFieldElement[] getErrorMagnitudes(FiniteFieldElement[] errorLocations, Polynomial errorEvalPoly) {
-        return null;
+    private FiniteFieldElement[] getErrorMagnitudes(FiniteFieldElement[] errorLocations,
+                                                    Polynomial errorEvalPoly,
+                                                    Polynomial errorLocPoly) {
+        Polynomial LambdaPrime = getFormalDerivative(errorLocPoly);
+        return Arrays.stream(errorLocations)
+                .map(x -> getMagnitude(x, errorEvalPoly, LambdaPrime))
+                .toArray(FiniteFieldElement[]::new);
+    }
+
+
+    private FiniteFieldElement getMagnitude(FiniteFieldElement errorLocation,
+                                            Polynomial errorPoly,
+                                            Polynomial LambdaPrime) {
+        FiniteFieldElement shiftCorrection = new FiniteFieldElement(FIELD_GENERATOR).power(SHIFT);
+        FiniteFieldElement invertedLoc = FiniteFieldElement.getOne().divide(errorLocation);
+        FiniteFieldElement OmegaEval = errorPoly.eval(invertedLoc);
+        FiniteFieldElement LambdaEval = LambdaPrime.eval(invertedLoc);
+        return OmegaEval.divide(LambdaEval).multiply(shiftCorrection);
+    }
+
+    private Polynomial getFormalDerivative(Polynomial Lambda) {
+        FiniteFieldElement[] newCoefs = new FiniteFieldElement[Lambda.getCoefficients().length - 1];
+        Polynomial LambdaPrime = new Polynomial(newCoefs);
+        for (int i = 1; i < Lambda.getCoefficients().length; i++) {
+            // The coefficient is 0 for even i, otherwise stays same
+            FiniteFieldElement coef = (i % 2 == 0)
+                    ? FiniteFieldElement.getZero()
+                    : Lambda.getIndexedFromLow(i);
+            LambdaPrime.setIndexedFromLow(i - 1, coef);
+        }
+        return LambdaPrime;
     }
 }
