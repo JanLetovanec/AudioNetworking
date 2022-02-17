@@ -30,11 +30,9 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
         if(checkMessage(syndromes)) {
             return extractData(blockData);
         }
-
-        Polynomial[] errorLocAndEval = getErrorPolys(syndromes);
-        Polynomial errorLocatorPoly = errorLocAndEval[0];
-        Polynomial errorEvaluatorPoly = errorLocAndEval[1];
-        errorEvaluatorPoly = getErrorEvaluatorPoly(syndromes, errorLocatorPoly);
+        
+        Polynomial errorLocatorPoly = getErrorPolys(syndromes);
+        Polynomial errorEvaluatorPoly = getErrorEvaluatorPoly(syndromes, errorLocatorPoly);
 
 
         FiniteFieldElement[] locationElements = getErrorLocations(errorLocatorPoly);
@@ -101,14 +99,12 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
      *      where first element is the Lambda(x) polynomial
      *      and the second one is the Omega(x) polynomial
      */
-    private Polynomial[] getErrorPolys(FiniteFieldElement[] syndromes) {
+    private Polynomial getErrorPolys(FiniteFieldElement[] syndromes) {
         // Berlekamp-Massey algo
 
         //Initialize
         Polynomial Lambda = getPolyOfOne();
         Polynomial B = getPolyOfOne();
-        Polynomial Omega = getPolyOfOne();
-        Polynomial A = new Polynomial(new FiniteFieldElement[0]); // A = 0
         int L = 0;
 
         Polynomial synPoly = getReversedSyndromePoly(syndromes); // BM uses reversed syn poly
@@ -121,14 +117,9 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             Polynomial copiedLambda = new Polynomial(Lambda);
             updatePoly(Lambda, B, discrepancy);
 
-            // Update Omg <- Omg - d*(A<<1)
-            Polynomial copiedOmega = new Polynomial(Lambda);
-            updatePoly(Omega, A, discrepancy);
-
             // If everything is fine, just carry on
             if (discrepancy.isZero()) {
                 B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes)
-                A.multiply(getShiftPoly()); // A << 1
                 continue;
             }
 
@@ -137,24 +128,16 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
             // just carry on
             if(2*L > i) {
                 B.multiply(getShiftPoly()); // B << 1 (because it needs to 'follow' the syndromes)
-                A.multiply(getShiftPoly()); // A << 1
                 continue;
             }
 
             // B <- 1/d * Lam though note that this is the C before the current update
             B = getNewHelper(copiedLambda, discrepancy);
-            // A <- 1/d * Omg
-            A = getNewHelper(copiedOmega, discrepancy);
             L = i - L;
         }
 
         Lambda.contract();
-        Omega.contract();
-
-        // This algo will make Omega a bit higher degree so just trim it
-        Omega.trimTo(Lambda.getCoefficients().length);
-
-        return new Polynomial[] {Lambda, Omega};
+        return Lambda;
     }
 
     /**
@@ -249,7 +232,6 @@ public class RSDecoder implements ITransformer<Byte, Byte> {
 
     private Polynomial getErrorEvaluatorPoly(FiniteFieldElement[] syndromes,
                                              Polynomial errorLocatorPoly) {
-        int d = BLOCK_SIZE - DATA_SIZE;
         Polynomial syndromePoly = getReversedSyndromePoly(syndromes);
         Polynomial errorEvaluatorPoly = new Polynomial(syndromePoly);
         //
