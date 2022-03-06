@@ -29,6 +29,14 @@ public class ComposedTransformer<S,T> implements ITransformer<S,T> {
         };
     }
 
+    public <T1,T2> ComposedTransformer(ITransformer<S,T1> first, ITransformer<T1, T2> second, ITransformer<T2, T> third) {
+        composedTransform = (S[] input) -> {
+            return third.transform(
+            second.transform(
+            first.transform(input)));
+        };
+    }
+
     @Override
     public T[] transform(S[] input) {
         return composedTransform.apply(input);
