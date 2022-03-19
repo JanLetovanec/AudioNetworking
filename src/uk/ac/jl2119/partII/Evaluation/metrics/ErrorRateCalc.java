@@ -3,7 +3,7 @@ package uk.ac.jl2119.partII.Evaluation.metrics;
 import uk.ac.jl2119.partII.Evaluation.EvalUtils;
 import uk.ac.jl2119.partII.Evaluation.sims.Simulator;
 
-public class ErrorRateCalc implements IMetricCalculator<Double, Double> {
+public class ErrorRateCalc<P> implements IMetricCalculator<Double, P> {
 
     @Override
     public Double getMetric(Byte[] input, Simulator sim) {
