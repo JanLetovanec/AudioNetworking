@@ -1,7 +1,5 @@
 package uk.ac.jl2119.partII.Evaluation;
 
-import uk.ac.jl2119.partII.ITransformer;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,18 +28,18 @@ public class Evaluator<P,M> {
      *      metrics - is a list of metric associated to each parameter-data pair
      */
     public Map<P, List<M>> evaluate() {
-        Map<P, ITransformer<Byte, Byte>> sims = simGen.getSimulators();
+        Map<P, Simulator<P>> sims = simGen.getSimulators();
         Map<P, List<M>> result = new HashMap<>();
 
         sims.keySet()
-                .forEach(param -> result.put(param, evaluateSingle(param, sims.get(param))));
+                .forEach(param -> result.put(param, evaluateSingle(sims.get(param))));
         return result;
     }
 
-    private List<M> evaluateSingle(P parameter, ITransformer<Byte, Byte> sim){
+    private List<M> evaluateSingle(Simulator<P> sim){
         Byte[][] sourceData = getDataArray();
         return Arrays.stream(sourceData)
-                .map(data -> metricCalc.getMetric(data, sim.transform(data), parameter))
+                .map(data -> metricCalc.getMetric(data, sim))
                 .collect(Collectors.toList());
     }
 

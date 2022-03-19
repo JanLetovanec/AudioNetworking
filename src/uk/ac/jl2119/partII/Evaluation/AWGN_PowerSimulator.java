@@ -17,7 +17,8 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double>{
     private final double max;
 
     public AWGN_PowerSimulator(ITransformer<Byte, Double> modulator,
-                             ITransformer<Double, Byte> demodulator, int samples, double min, double max) {
+                             ITransformer<Double, Byte> demodulator,
+                               int samples, double min, double max) {
         this.modulator = new ComposedTransformer<Byte, Double>(modulator, new AttenuatorTransformer(0.5));
         this.demodulator = demodulator;
         this.samples = samples;
@@ -26,26 +27,45 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double>{
     }
 
     @Override
-    public Map<Double, ITransformer<Byte, Byte>> getSimulators() {
-        Map<Double, ITransformer<Byte, Byte>> result = new HashMap<>();
-        Double[] parameters = getPowervalues();
+    public Map<Double, Simulator<Double>> getSimulators() {
+        Map<Double, Simulator<Double>> result = new HashMap<>();
+        Double[] parameters = getPowerValues();
         Arrays.stream(parameters)
-                .forEach(param -> result.put(param, getSimulatorForPowerLevel(param)));
+                .forEach(param -> result.put(param, new PowerSim(param)));
         return result;
     }
 
-    private ITransformer<Byte, Byte> getSimulatorForPowerLevel(Double powerValue) {
-        double stdDeviation = Math.sqrt(powerValue);
-        ITransformer<Double, Double> noise = new AWGNTransformer(stdDeviation);
-        return new ComposedTransformer<>(modulator, noise, demodulator);
-    }
-
-    private Double[] getPowervalues() {
+    private Double[] getPowerValues() {
         Double[] values = new Double[samples];
         for (int i = 0; i < samples; i++) {
             Double value = ((max - min) * i) / samples;
             values[i] = value;
         }
         return values;
+    }
+
+    private class PowerSim extends Simulator<Double> {
+        private ITransformer<Double, Double> noise;
+
+        protected PowerSim(Double powerValue) {
+            super(powerValue);
+            double stdDeviation = Math.sqrt(powerValue);
+            noise = new AWGNTransformer(stdDeviation);
+        }
+
+        @Override
+        public Byte[] getReceivedData(Byte[] input) {
+            return (new ComposedTransformer<>(modulator, noise, demodulator)).transform(input);
+        }
+
+        @Override
+        public Double[] getTransmittedSignal(Byte[] input) {
+            return modulator.transform(input);
+        }
+
+        @Override
+        public Double[] getReceivedSignal(Byte[] input) {
+            return (new ComposedTransformer<>(modulator, noise)).transform(input);
+        }
     }
 }

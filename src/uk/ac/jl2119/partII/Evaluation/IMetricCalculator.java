@@ -10,9 +10,8 @@ public interface IMetricCalculator<M, P> {
     /**
      * Calculates the metric
      * @param input -- input data to the simulator
-     * @param output -- output data of the simulator
-     * @param parameter -- parameter associated /w the simulator
+     * @param sim -- simulator to evaluate
      * @return -- the metric of this particular run
      */
-    M getMetric(Byte[] input, Byte[] output, P parameter);
+    M getMetric(Byte[] input, Simulator<P> sim);
 }

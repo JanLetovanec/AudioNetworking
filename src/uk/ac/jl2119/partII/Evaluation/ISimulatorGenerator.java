@@ -1,7 +1,5 @@
 package uk.ac.jl2119.partII.Evaluation;
 
-import uk.ac.jl2119.partII.ITransformer;
-
 import java.util.Map;
 
 /***
@@ -13,5 +11,5 @@ import java.util.Map;
  * @param <K> -- type of the parameter
  */
 public interface ISimulatorGenerator<K> {
-    Map<K, ITransformer<Byte,Byte>> getSimulators();
+    Map<K, Simulator<K>> getSimulators();
 }
