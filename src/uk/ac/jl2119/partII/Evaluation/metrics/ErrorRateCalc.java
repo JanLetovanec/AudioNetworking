@@ -9,7 +9,7 @@ public class ErrorRateCalc<P> implements IMetricCalculator<Double, P> {
     public Double getMetric(Byte[] input, Simulator sim) {
         Byte[] output = sim.getReceivedData(input);
         int correctBits = EvalUtils.getCorrectBits(input, output);
-        int totalBits = input.length;
+        int totalBits = input.length * 8;   // Cuz counting bits, not bytes!
         int wrongBits = totalBits - correctBits;
         return ((double) wrongBits) / ((double) totalBits);
     }

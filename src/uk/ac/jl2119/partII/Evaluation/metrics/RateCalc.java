@@ -17,6 +17,6 @@ public class RateCalc<P> implements IMetricCalculator<Double, P> {
     public Double getMetric(Byte[] input, Simulator<P> sim) {
         Double[] signal = sim.getReceivedSignal(input);
         double signalLengthInSeconds = ((double) signal.length) / ((double) sampleRate);
-        return ((double) input.length) / signalLengthInSeconds;
+        return ((double) input.length * 8) / signalLengthInSeconds;
     }
 }
