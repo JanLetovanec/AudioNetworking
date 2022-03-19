@@ -10,9 +10,16 @@ import static uk.ac.jl2119.partII.utils.StreamUtils.partitionData;
 
 public class RSDecoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
-    private static final int DATA_SIZE = 223;
+    private final int DATA_SIZE;
     private static final byte FIELD_GENERATOR = 3;
     private static final byte SHIFT = 1;
+
+    public RSDecoder() {
+        DATA_SIZE = 223;
+    }
+    public RSDecoder(int correctionSymbols) {
+        DATA_SIZE = BLOCK_SIZE - correctionSymbols;
+    }
 
     @Override
     public Byte[] transform(Byte[] input) {

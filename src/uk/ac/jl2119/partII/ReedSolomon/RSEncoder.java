@@ -9,11 +9,16 @@ import static uk.ac.jl2119.partII.utils.StreamUtils.partitionData;
 
 public class RSEncoder implements ITransformer<Byte, Byte> {
     private static final int BLOCK_SIZE = 255;
-    private static final int DATA_SIZE = 223;
+    private final int DATA_SIZE;
     private static final int SHIFT = 1;
-    private static byte FIELD_GENERATOR = 3;
+    private static final byte FIELD_GENERATOR = 3;
+
+    public RSEncoder(int correctionSymbols) {
+        DATA_SIZE = BLOCK_SIZE - correctionSymbols;
+    }
 
     public RSEncoder() {
+        DATA_SIZE = 223;
     }
 
     @Override
