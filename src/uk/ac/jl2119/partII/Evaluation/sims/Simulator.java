@@ -1,4 +1,4 @@
-package uk.ac.jl2119.partII.Evaluation;
+package uk.ac.jl2119.partII.Evaluation.sims;
 
 public abstract class Simulator<P> {
     protected P param;

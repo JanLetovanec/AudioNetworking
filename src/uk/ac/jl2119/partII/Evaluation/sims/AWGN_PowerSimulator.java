@@ -1,4 +1,4 @@
-package uk.ac.jl2119.partII.Evaluation;
+package uk.ac.jl2119.partII.Evaluation.sims;
 
 import uk.ac.jl2119.partII.ComposedTransformer;
 import uk.ac.jl2119.partII.ITransformer;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AWGN_PowerSimulator implements ISimulatorGenerator<Double>{
+public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
     private final ITransformer<Byte, Double> modulator;
     private final ITransformer<Double, Byte> demodulator;
     private final int samples;

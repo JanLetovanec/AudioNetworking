@@ -1,4 +1,6 @@
-package uk.ac.jl2119.partII.Evaluation;
+package uk.ac.jl2119.partII.Evaluation.metrics;
+
+import uk.ac.jl2119.partII.Evaluation.sims.Simulator;
 
 /**
  * Calculates metric of a single run.
