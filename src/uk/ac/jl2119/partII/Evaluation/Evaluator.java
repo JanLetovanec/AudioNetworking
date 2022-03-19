@@ -61,4 +61,22 @@ public class Evaluator<P,M> {
         }
         return cachedData;
     }
+
+    /***
+     * @return A JSON string from the map results
+     */
+    public String stringFromMap(String analysisName, Map<P, List<M>> evaluationResult) {
+        String header = "\"" + analysisName + "\" : {\n";
+        String footer = "}";
+        List<String> entries = evaluationResult.keySet().stream()
+                .map(p -> entryToString(p, evaluationResult.get(p)))
+                .toList();
+        return header + String.join(",", entries) + footer;
+    }
+
+    private String entryToString(P param, List<M> metrics) {
+        List<String> metricStrings = metrics.stream().map(Object::toString).toList();
+        String metricArray = "[" + String.join(",", metricStrings) + "]";
+        return param.toString() + ":" + metricArray +"\n";
+    }
 }
