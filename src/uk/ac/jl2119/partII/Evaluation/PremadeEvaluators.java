@@ -31,10 +31,11 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
-    public static Evaluator<Double, Double> RSCorrectionRateVsErrorRate(SchemeModulatorMap.CodingScheme scheme) {
+    public static Evaluator<Double, Double> RSCorrectionRateVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                        double noiseLevel) {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ISimulatorGenerator<Integer> simGen =
-                new RS_CorrectionRateSimulator(pair.modem, pair.demodem, 0.7, 5, 200);
+                new RS_CorrectionRateSimulator(pair.modem, pair.demodem, noiseLevel, 5, 200);
         IDataGenerator dataGen = new RandomDataGen(1000, 1);
         IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
