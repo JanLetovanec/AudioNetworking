@@ -1,10 +1,10 @@
 package uk.ac.jl2119.partII.Noises;
 
-import com.google.common.collect.Streams;
 import uk.ac.jl2119.partII.ITransformer;
+import uk.ac.jl2119.partII.utils.StreamUtils;
+
 import java.util.Arrays;
 import java.util.Random;
-import java.util.stream.Stream;
 
 public class AWGNTransformer implements ITransformer<Double, Double> {
     private double stdDeviation;
@@ -16,7 +16,7 @@ public class AWGNTransformer implements ITransformer<Double, Double> {
     @Override
     public Double[] transform(Double[] input) {
         Double[] noise = generatePureNoise(input.length);
-        return addSignals(input, noise);
+        return StreamUtils.addSignals(input, noise);
     }
 
     private Double[] generatePureNoise(int length) {
@@ -30,18 +30,5 @@ public class AWGNTransformer implements ITransformer<Double, Double> {
     private Double generateSingleSample() {
         Random rng = new Random();
         return rng.nextGaussian() * stdDeviation;
-    }
-
-    private double clamp(double input) {
-        return Math.min(1, Math.max(-1, input));
-    }
-
-    private Double[] addSignals(Double[] signal, Double[] noise) {
-        Stream<Double> signalStream = Arrays.stream(signal);
-        Stream<Double> noiseStream = Arrays.stream(noise);
-        return Streams
-            .zip(signalStream, noiseStream,
-                (signalFrame, noiseFrame) -> clamp(signalFrame + noiseFrame))
-            .toArray(Double[]::new);
     }
 }
