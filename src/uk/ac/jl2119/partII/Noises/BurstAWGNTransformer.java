@@ -9,8 +9,8 @@ import java.util.Random;
 public class BurstAWGNTransformer implements ITransformer<Double, Double> {
     private final int burstLength;
     private final double burstStdDeviation;
-    private PoissonDistribution poissonRng;
-    private Random gaussRng;
+    private final PoissonDistribution poissonRng;
+    private final Random gaussRng;
 
     public BurstAWGNTransformer(long meanSamplesBetweenBurst, int burstLength, double burstStdDev) {
         this.burstLength = burstLength;
@@ -23,8 +23,7 @@ public class BurstAWGNTransformer implements ITransformer<Double, Double> {
     @Override
     public Double[] transform(Double[] input) {
         Double[] noise = generateNoise(input.length);
-        Double[] signal = StreamUtils.addSignals(input, noise);
-        return signal;
+        return StreamUtils.addSignals(input, noise);
     }
 
     private Double[] generateNoise(int lengthInSamples) {
@@ -39,18 +38,18 @@ public class BurstAWGNTransformer implements ITransformer<Double, Double> {
 
     private int waitForBurst(Double[] input, int offset) {
         int samplesTilNextBurst = poissonRng.sample();
-        int endOffset = Math.min(offset + samplesTilNextBurst, input.length - 1);
+        int endOffset = Math.min(offset + samplesTilNextBurst, input.length);
         for (int i = offset; i < endOffset; i++) {
             input[i] = 0.0;
         }
-        return endOffset + 1;
+        return endOffset;
     }
 
     private int addBurst(Double[] input, int offset) {
-        int endOffset = Math.min(offset + burstLength, input.length - 1);
+        int endOffset = Math.min(offset + burstLength, input.length);
         for (int i = offset; i < endOffset; i++) {
             input[i] = gaussRng.nextGaussian() * burstStdDeviation;
         }
-        return endOffset + 1;
+        return endOffset;
     }
 }

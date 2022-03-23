@@ -8,15 +8,19 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval1.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
         myWriter.write("{\n");
 
-        //evaluatePowerVsError(myWriter);
-        //evaluatePowerVsUsefulRate(myWriter);
+        // Basic eval
+        evaluatePowerVsError(myWriter);
+        evaluatePowerVsUsefulRate(myWriter);
+        evaluateBurstMeanTimeVsError(myWriter);
 
-        //evaluateCorrectionVsError(myWriter);
-        //evaluatePowerVsErrorRS(myWriter);
+        //RS eval
+        evaluateCorrectionVsError(myWriter);
+        evaluatePowerVsErrorRS(myWriter);
         evaluatePowerVsUsefulRS(myWriter);
+        evaluateBurstMeanTimeVsErrorRS(myWriter);
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -69,7 +73,7 @@ public class RunEval {
             for(int correctionSymbolCount : correctionSymbols) {
                 String name = scheme.toString() + "|" + correctionSymbolCount + "|PowerRSVsError";
 
-                Evaluator eval = PremadeEvaluators.RSCorrectionRateVsErrorRate(scheme, correctionSymbolCount);
+                Evaluator eval = PremadeEvaluators.RSPowerRVsErrorRate(scheme, correctionSymbolCount);
                 String json = eval.stringFromMap(name, eval.evaluate());
                 myWriter.write(json);
                 myWriter.write(", \n");
@@ -85,7 +89,7 @@ public class RunEval {
             for(int correctionSymbolCount : correctionSymbols) {
                 String name = scheme.toString() + "|" + correctionSymbolCount + "|PowerRSVsUseful";
 
-                Evaluator eval = PremadeEvaluators.RSCorrectionRateVsUsefulRate(scheme, correctionSymbolCount);
+                Evaluator eval = PremadeEvaluators.RSPowerVsUsefulRate(scheme, correctionSymbolCount);
                 String json = eval.stringFromMap(name, eval.evaluate());
                 myWriter.write(json);
                 myWriter.write(", \n");
@@ -93,4 +97,39 @@ public class RunEval {
             }
         }
     }
+
+    private static void evaluateBurstMeanTimeVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating BURST RATE vs ERROR RATE");
+        List<Integer> burstLengths = List.of(50,100,300,600);
+        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+            for(int burstLength : burstLengths) {
+                String name = scheme.toString() + "|" + burstLength + "|BurstVsError";
+
+                Evaluator eval = PremadeEvaluators.burstMeanTimeVsErrorRate(scheme, 1, burstLength);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
+    }
+
+    private static void evaluateBurstMeanTimeVsErrorRS(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating BURST RATE vs ERROR RATE");
+        List<Integer> correctionCounts = List.of(5,32,64,100);
+        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+            for(int correctionCount : correctionCounts) {
+                String name = scheme.toString() + "|" + correctionCount + "|BurstRSVsError";
+
+                Evaluator eval = PremadeEvaluators.RSburstMeanTimeVsErrorRate(scheme,
+                        1, 200,
+                        correctionCount);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
+    }
+
 }

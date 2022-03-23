@@ -7,6 +7,7 @@ import uk.ac.jl2119.partII.Evaluation.metrics.ErrorRateCalc;
 import uk.ac.jl2119.partII.Evaluation.metrics.IMetricCalculator;
 import uk.ac.jl2119.partII.Evaluation.metrics.UsefulRateCalc;
 import uk.ac.jl2119.partII.Evaluation.sims.AWGN_PowerSimulator;
+import uk.ac.jl2119.partII.Evaluation.sims.BurstMeanTimeSim;
 import uk.ac.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
 import uk.ac.jl2119.partII.Evaluation.sims.RS_CorrectionRateSimulator;
 import uk.ac.jl2119.partII.ITransformer;
@@ -48,7 +49,7 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
-    public static Evaluator<Double, Double> RSCorrectionRateVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+    public static Evaluator<Double, Double> RSPowerRVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
                                                                         int correctionSymbols) {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ITransformer<Byte, Double> modem = new ComposedTransformer<>(new RSEncoder(correctionSymbols), pair.modem);
@@ -60,13 +61,55 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
-    public static Evaluator<Double, Double> RSCorrectionRateVsUsefulRate(SchemeModulatorMap.CodingScheme scheme,
+    public static Evaluator<Double, Double> RSPowerVsUsefulRate(SchemeModulatorMap.CodingScheme scheme,
                                                                         int correctionSymbols) {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ITransformer<Byte, Double> modem = new ComposedTransformer<>(new RSEncoder(correctionSymbols), pair.modem);
         ITransformer<Double, Byte> demodem = new ComposedTransformer<>(pair.demodem, new RSDecoder(correctionSymbols));
         ISimulatorGenerator<Double> simGen =
                 new AWGN_PowerSimulator(modem, demodem, 100, 0, 5);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> burstMeanTimeVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                     double noiseLevel, int burstLength) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(pair.modem, pair.demodem, burstLength, noiseLevel, 10, 2000, 10);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> RSburstMeanTimeVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                       double noiseLevel, int burstLength,
+                                                                       int correctionSymbols) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ITransformer<Byte, Double> modem = new ComposedTransformer<>(
+                new RSEncoder(correctionSymbols), pair.modem);
+        ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
+                pair.demodem, new RSDecoder(correctionSymbols)
+        );
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 10, 2000, 10);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> RSburstMeanTimeVsUsefulRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                       double noiseLevel, int burstLength,
+                                                                       int correctionSymbols) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ITransformer<Byte, Double> modem = new ComposedTransformer<>(
+                new RSEncoder(correctionSymbols), pair.modem);
+        ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
+                pair.demodem, new RSDecoder(correctionSymbols)
+        );
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 10, 2000, 10);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
