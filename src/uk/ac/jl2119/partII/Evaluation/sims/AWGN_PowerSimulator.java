@@ -17,9 +17,20 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
     private final double max;
 
     public AWGN_PowerSimulator(ITransformer<Byte, Double> modulator,
-                             ITransformer<Double, Byte> demodulator,
+                               ITransformer<Double, Byte> demodulator,
                                int samples, double min, double max) {
         this.modulator = new ComposedTransformer<Byte, Double>(modulator, new AttenuatorTransformer(0.5));
+        this.demodulator = demodulator;
+        this.samples = samples;
+        this.min = min;
+        this.max = max;
+    }
+
+    public AWGN_PowerSimulator(ITransformer<Byte, Double> modulator,
+                               ITransformer<Double, Byte> demodulator,
+                               double attenuationFactor,
+                               int samples, double min, double max) {
+        this.modulator = new ComposedTransformer<Byte, Double>(modulator, new AttenuatorTransformer(attenuationFactor));
         this.demodulator = demodulator;
         this.samples = samples;
         this.min = min;

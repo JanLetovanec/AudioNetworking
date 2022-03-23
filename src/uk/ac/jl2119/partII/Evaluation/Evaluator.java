@@ -71,12 +71,12 @@ public class Evaluator<P,M> {
         List<String> entries = evaluationResult.keySet().stream()
                 .map(p -> entryToString(p, evaluationResult.get(p)))
                 .toList();
-        return header + String.join(",", entries) + footer;
+        return header + String.join(",\n", entries) + footer;
     }
 
     private String entryToString(P param, List<M> metrics) {
         List<String> metricStrings = metrics.stream().map(Object::toString).toList();
         String metricArray = "[" + String.join(",", metricStrings) + "]";
-        return param.toString() + ":" + metricArray +"\n";
+        return "\"" + param.toString() + "\" :" + metricArray;
     }
 }

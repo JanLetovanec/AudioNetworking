@@ -10,7 +10,7 @@ import uk.ac.jl2119.partII.UEF.UEFModulator;
 
 public class SchemeModulatorMap {
     public static long DEFAULT_SAMPLE_RATE = 44100;
-    public static long DEFAULT_BASE_FREQUENCY = 1200;
+    public static double DEFAULT_BASE_FREQUENCY = 1200;
 
     public enum CodingScheme {
         PSK,
@@ -33,7 +33,7 @@ public class SchemeModulatorMap {
         ITransformer<Double, Byte> demodem;
         switch (scheme){
             case FSK:
-                long samplesPerCycle = DEFAULT_SAMPLE_RATE / DEFAULT_BASE_FREQUENCY;
+                long samplesPerCycle = Math.round(Math.floor(DEFAULT_SAMPLE_RATE / DEFAULT_BASE_FREQUENCY));
                 modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE);
                 demodem = new FSKDemodulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE);
                 return new SchemePair(modem, demodem);

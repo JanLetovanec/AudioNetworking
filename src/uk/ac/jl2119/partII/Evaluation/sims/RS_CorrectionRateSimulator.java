@@ -29,6 +29,17 @@ public class RS_CorrectionRateSimulator implements ISimulatorGenerator<Integer> 
         this.noiseLevel = noiseLevel;
     }
 
+    public RS_CorrectionRateSimulator(ITransformer<Byte, Double> modulator,
+                                      ITransformer<Double, Byte> demodulator,
+                                      double noiseLevel, double attenuationFactor,
+                                      int min, int max) {
+        this.modulator = new ComposedTransformer<>(modulator, new AttenuatorTransformer(attenuationFactor));
+        this.demodulator = demodulator;
+        this.min = min;
+        this.max = max;
+        this.noiseLevel = noiseLevel;
+    }
+
     @Override
     public Map<Integer, Simulator<Integer>> getSimulators() {
         Map<Integer, Simulator<Integer>> result = new HashMap<>();
