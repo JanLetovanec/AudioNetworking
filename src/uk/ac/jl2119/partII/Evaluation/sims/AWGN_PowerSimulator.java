@@ -19,7 +19,7 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
     public AWGN_PowerSimulator(ITransformer<Byte, Double> modulator,
                                ITransformer<Double, Byte> demodulator,
                                int samples, double min, double max) {
-        this.modulator = new ComposedTransformer<Byte, Double>(modulator, new AttenuatorTransformer(0.5));
+        this.modulator = new ComposedTransformer<>(modulator, new AttenuatorTransformer(0.5));
         this.demodulator = demodulator;
         this.samples = samples;
         this.min = min;
@@ -30,7 +30,7 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
                                ITransformer<Double, Byte> demodulator,
                                double attenuationFactor,
                                int samples, double min, double max) {
-        this.modulator = new ComposedTransformer<Byte, Double>(modulator, new AttenuatorTransformer(attenuationFactor));
+        this.modulator = new ComposedTransformer<>(modulator, new AttenuatorTransformer(attenuationFactor));
         this.demodulator = demodulator;
         this.samples = samples;
         this.min = min;
@@ -60,8 +60,7 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
 
         protected PowerSim(Double powerValue) {
             super(powerValue);
-            double stdDeviation = Math.sqrt(powerValue);
-            noise = new AWGNTransformer(stdDeviation);
+            noise = new AWGNTransformer(powerValue);
         }
 
         @Override
