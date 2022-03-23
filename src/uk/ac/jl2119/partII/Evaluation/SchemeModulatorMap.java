@@ -1,5 +1,7 @@
 package uk.ac.jl2119.partII.Evaluation;
 
+import uk.ac.jl2119.partII.ComposedTransformer;
+import uk.ac.jl2119.partII.Filters.LowPassFilterTransformer;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.PSK.PSKDemodulator;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
@@ -35,7 +37,10 @@ public class SchemeModulatorMap {
             case FSK:
                 long samplesPerCycle = Math.round(Math.floor(DEFAULT_SAMPLE_RATE / DEFAULT_BASE_FREQUENCY));
                 modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE);
-                demodem = new FSKDemodulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE);
+                demodem = new ComposedTransformer<>(
+                        new LowPassFilterTransformer(DEFAULT_SAMPLE_RATE, DEFAULT_BASE_FREQUENCY * 2),
+                        new FSKDemodulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE)
+                );
                 return new SchemePair(modem, demodem);
             case PSK:
                 modem = new PSKModulator(DEFAULT_SAMPLE_RATE);

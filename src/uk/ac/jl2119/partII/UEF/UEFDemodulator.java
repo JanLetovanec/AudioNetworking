@@ -9,11 +9,11 @@ public class UEFDemodulator extends ComposedTransformer<Double, Byte> {
 
     public UEFDemodulator(boolean originalMode, long sampleRate) {
         super(getLPF(BASE_FREQUENCY, sampleRate),
-                getComposite(BASE_FREQUENCY, originalMode, sampleRate));
+                getComposite(BASE_FREQUENCY*2, originalMode, sampleRate));
     }
 
     public UEFDemodulator(double baseFrequency, boolean originalMode, long sampleRate) {
-        super(getLPF(baseFrequency, sampleRate),
+        super(getLPF(baseFrequency*2, sampleRate),
                 getComposite(baseFrequency, originalMode, sampleRate));
     }
 
@@ -32,6 +32,6 @@ public class UEFDemodulator extends ComposedTransformer<Double, Byte> {
     private static ITransformer<Double, Byte> getComposite(double baseFrequency,boolean originalMode, long sampleRate) {
         ITransformer<Double, Byte> fskDemod = getFSKDemod(baseFrequency, originalMode, sampleRate);
         ITransformer<Byte, Byte> startStop = new StartStopRemover();
-        return new ComposedTransformer<Double, Byte>(fskDemod, startStop);
+        return new ComposedTransformer<>(fskDemod, startStop);
     }
 }
