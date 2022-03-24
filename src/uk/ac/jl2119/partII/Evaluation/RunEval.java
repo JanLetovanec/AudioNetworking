@@ -132,4 +132,17 @@ public class RunEval {
         }
     }
 
+    private static void evaluateClockDriftVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating BURST RATE vs ERROR RATE");
+        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+            String name = scheme.toString() + "|ClockDriftVsError";
+
+            Evaluator eval = PremadeEvaluators.clockDriftVsErrorRate(scheme);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+        }
+    }
+
 }
