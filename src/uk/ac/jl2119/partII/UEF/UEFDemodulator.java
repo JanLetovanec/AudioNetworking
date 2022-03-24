@@ -8,8 +8,8 @@ public class UEFDemodulator extends ComposedTransformer<Double, Byte> {
     private static final double BASE_FREQUENCY = 1200;
 
     public UEFDemodulator(boolean originalMode, long sampleRate) {
-        super(getLPF(BASE_FREQUENCY, sampleRate),
-                getComposite(BASE_FREQUENCY*2, originalMode, sampleRate));
+        super(getLPF(BASE_FREQUENCY*2, sampleRate),
+                getComposite(BASE_FREQUENCY, originalMode, sampleRate));
     }
 
     public UEFDemodulator(double baseFrequency, boolean originalMode, long sampleRate) {
