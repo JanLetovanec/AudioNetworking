@@ -33,6 +33,13 @@ public class StreamUtils {
         if (length >= 0) System.arraycopy(source, start, destination, 0, length);
     }
 
+    public static Double[] slice(Double[] source, int startOffset, int length) {
+        length = Math.min(length, source.length - startOffset);
+        Double[] result = new Double[length];
+        System.arraycopy(source, startOffset, result, 0, length);
+        return result;
+    }
+
     private static void initializeFromOffset(Byte[] destination, int offset) {
         for (int i = offset; i < destination.length; i++) {
             destination[i] = (byte) 0;

@@ -50,7 +50,7 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
 
     private Byte collectBits(Boolean[] inputBooleans) {
         byte result = 0;
-        for (int bit = 0; bit < 8; bit++){
+        for (int bit = 0; bit < inputBooleans.length; bit++){
             if (!inputBooleans[bit]) {
                 continue;
             }
