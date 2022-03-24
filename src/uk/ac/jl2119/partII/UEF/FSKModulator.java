@@ -15,7 +15,8 @@ public class FSKModulator extends FixedBatchModulator {
     }
 
     @Override
-    protected void transformBit(Boolean bit, BufferWavWriter writer){
+    protected void transformBits(Boolean[] bits, BufferWavWriter writer){
+        Boolean bit = bits[0];
         try {
             double frequency = bit ? (baseFrequency * 2) : baseFrequency;
             writer.writeFrequency((float)frequency, batchSize);

@@ -17,10 +17,17 @@ import java.util.List;
  * that correspond to a single bit
  */
 public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte> {
-    protected int samplesPerBatch;
+    protected final int samplesPerBatch;
+    protected final int bitsPerSample;
 
     protected FixedBatchDemodulator(int samplesPerBatch) {
         this.samplesPerBatch = samplesPerBatch;
+        this.bitsPerSample = 1;
+    }
+
+    protected FixedBatchDemodulator(int samplesPerBatch, int bitsPerSample) {
+        this.samplesPerBatch = samplesPerBatch;
+        this.bitsPerSample = bitsPerSample;
     }
 
     @Override
@@ -42,10 +49,9 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
 
     private Boolean[] getTransformedBits(Double[] byteBatch) {
         List<List<Double>> batchedInput = partitionData(byteBatch, samplesPerBatch);
-        Boolean[] transformedBits = batchedInput.stream()
-                .map(batch -> transformBit(batch.toArray(Double[]::new)))
+        return batchedInput.stream()
+                .flatMap(batch -> Arrays.stream(transformBits(batch.toArray(Double[]::new))))
                 .toArray(Boolean[]::new);
-        return transformedBits;
     }
 
     private Byte collectBits(Boolean[] inputBooleans) {
@@ -65,8 +71,7 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
     private List<List<Double>> partitionData(Double[] input, int batchSize) {
         UnmodifiableIterator<List<Double>> batchedIterator = Iterators
                 .partition(Arrays.stream(input).iterator(), batchSize);
-        List<List<Double>> batchedInput = Lists.newArrayList(batchedIterator);
-        return batchedInput;
+        return Lists.newArrayList(batchedIterator);
     }
 
     /**
@@ -75,5 +80,5 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
      *              is always of size `samplesPerBatch`
      * @return bit (TRUE = 1 / FALSE = 0), this batch represents
      */
-    protected abstract Boolean transformBit(Double[] batch);
+    protected abstract Boolean[] transformBits(Double[] batch);
 }

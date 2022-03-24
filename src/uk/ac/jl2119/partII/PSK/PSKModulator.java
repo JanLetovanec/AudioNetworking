@@ -1,11 +1,12 @@
 package uk.ac.jl2119.partII.PSK;
 
+import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.jl2119.partII.FixedBatchModulator;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 public class PSKModulator extends FixedBatchModulator {
 
-    private static final double DEFAULT_FREQUENCY = 1000;
+    private static final double DEFAULT_FREQUENCY = SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
     private static final int DEFAULT_CYCLES_PER_BIT = 1;
 
     private double currentPhase;
@@ -28,7 +29,8 @@ public class PSKModulator extends FixedBatchModulator {
     }
 
     @Override
-    protected void transformBit(Boolean bit, BufferWavWriter writer) {
+    protected void transformBits(Boolean[] bits, BufferWavWriter writer) {
+        Boolean bit = bits[0];
         currentPhase = getUpdatedPhase(bit);
         writeBit(writer);
     }

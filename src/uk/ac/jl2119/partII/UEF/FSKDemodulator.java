@@ -20,9 +20,10 @@ public class FSKDemodulator extends FixedBatchDemodulator {
     }
 
     @Override
-    protected Boolean transformBit(Double[] batch) {
+    protected Boolean[] transformBits(Double[] batch) {
         int actualCrossings = countNearZeroCrossings(batch);
-        return actualCrossings > crossingsDecisionThreshold;
+        boolean resultBit = actualCrossings > crossingsDecisionThreshold;
+        return new Boolean[]{resultBit};
     }
 
     private int countNearZeroCrossings(Double[] batch) {

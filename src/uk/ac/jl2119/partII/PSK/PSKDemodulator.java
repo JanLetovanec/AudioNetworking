@@ -1,10 +1,11 @@
 package uk.ac.jl2119.partII.PSK;
 
+import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.jl2119.partII.FixedBatchDemodulator;
 import uk.ac.jl2119.partII.WavManipulation.BufferWavWriter;
 
 public class PSKDemodulator extends FixedBatchDemodulator {
-    private static final double DEFAULT_FREQUENCY = 1000;
+    private static final double DEFAULT_FREQUENCY = SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
     private static final int DEFAULT_CYCLES_PER_BIT = 1;
 
     private double currentPhase;
@@ -30,14 +31,13 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     }
 
     @Override
-    protected Boolean transformBit(Double[] batch) {
+    protected Boolean[] transformBits(Double[] batch) {
         boolean resultBit = getBitFromBatch(batch);
 
         if (resultBit) {
             currentPhase = flipPhase();
         }
-
-        return  resultBit;
+        return new Boolean[] {resultBit};
     }
 
     private boolean getBitFromBatch(Double[] batch) {
