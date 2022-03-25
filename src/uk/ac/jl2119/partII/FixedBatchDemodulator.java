@@ -9,8 +9,8 @@ import java.util.List;
 
 
 /**
- * Often the samples / bit is constant
- * and it is way simpler to specify how to translate a single *batch*
+ * Often the samples / bit is constant,
+ * so it is way simpler to specify how to translate a single *batch*
  * rather than the whole signal
  *
  * FixedBatchDemodulator simply feeds its child batches of the signal,
