@@ -3,6 +3,7 @@ package uk.ac.jl2119.partII.Evaluation.sims;
 import uk.ac.jl2119.partII.ComposedTransformer;
 import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.jl2119.partII.ITransformer;
+import uk.ac.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.jl2119.partII.Noises.ClockDriftTransformer;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
 import uk.ac.jl2119.partII.UEF.FSKModulator;
@@ -17,14 +18,18 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
     private final double max;
     private final int samples;
 
+    private final double stdDev;
+
     private final ITransformer<Byte, Double> modulator;
     private final ITransformer<Double, Byte> demodulator;
 
     public ClockDriftSim(SchemeModulatorMap.CodingScheme scheme,
-                         double min, double max, int samples){
+                         double min, double max, int samples,
+                         double stdDev){
         this.samples = samples;
         this.min = min;
         this.max = max;
+        this.stdDev = stdDev;
 
         SchemeModulatorMap.SchemePair pair = getSourceScheme(scheme);
         this.modulator = pair.modem;
@@ -44,6 +49,7 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
                 modem = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, sampleRate);
                 break;
             case UEF:
+            case SYNC_UEF:
                 modem = new UEFModulator(true, sampleRate);
                 break;
             default:
@@ -75,7 +81,10 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
 
         protected ClockSim(Double factor) {
             super(factor);
-            noise = new ClockDriftTransformer(factor);
+            noise = new ComposedTransformer<Double, Double>(
+                    new AWGNTransformer(stdDev),
+                    new ClockDriftTransformer(factor)
+            );
         }
 
         @Override

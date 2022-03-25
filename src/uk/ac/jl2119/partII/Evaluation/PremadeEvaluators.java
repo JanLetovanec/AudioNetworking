@@ -27,6 +27,16 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
+    public static Evaluator<Double, Double> defaultPowerVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                    double min, double max) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ISimulatorGenerator<Double> simGen =
+                new AWGN_PowerSimulator(pair.modem, pair.demodem, 100, min, max);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
     public static Evaluator<Double, Double> defaultPowerVsUsefulRate(SchemeModulatorMap.CodingScheme scheme) {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ISimulatorGenerator<Double> simGen =
@@ -53,6 +63,19 @@ public class PremadeEvaluators {
         ITransformer<Double, Byte> demodem = new ComposedTransformer<>(pair.demodem, new RSDecoder(correctionSymbols));
         ISimulatorGenerator<Double> simGen =
                 new AWGN_PowerSimulator(modem, demodem, 100, 0, 5);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> RSPowerRVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                int correctionSymbols,
+                                                                double min, double max) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ITransformer<Byte, Double> modem = new ComposedTransformer<>(new RSEncoder(correctionSymbols), pair.modem);
+        ITransformer<Double, Byte> demodem = new ComposedTransformer<>(pair.demodem, new RSDecoder(correctionSymbols));
+        ISimulatorGenerator<Double> simGen =
+                new AWGN_PowerSimulator(modem, demodem, 100, min, max);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
@@ -112,8 +135,8 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
-    public static Evaluator clockDriftVsErrorRate(SchemeModulatorMap.CodingScheme scheme) {
-        ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.5, 1.5, 200);
+    public static Evaluator clockDriftVsErrorRate(SchemeModulatorMap.CodingScheme scheme, double noiseLvl) {
+        ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.5, 1.5, 200, noiseLvl);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);

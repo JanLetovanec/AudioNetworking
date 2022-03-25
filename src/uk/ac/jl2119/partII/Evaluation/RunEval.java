@@ -4,10 +4,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import static uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap.CodingScheme;
+
 public class RunEval {
+    private static final CodingScheme[] fastSchemes = {
+            CodingScheme.FSK,
+            CodingScheme.PSK,
+            CodingScheme.UEF,
+            CodingScheme.QAM
+    };
+
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
-
+        
         FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
         myWriter.write("{\n");
 
@@ -15,12 +24,15 @@ public class RunEval {
         evaluatePowerVsError(myWriter);
         evaluatePowerVsUsefulRate(myWriter);
         evaluateBurstMeanTimeVsError(myWriter);
+        evaluateClockDriftVsError(myWriter);
+        evaluateSmallPowerVsError(myWriter);
 
         //RS eval
         evaluateCorrectionVsError(myWriter);
         evaluatePowerVsErrorRS(myWriter);
         evaluatePowerVsUsefulRS(myWriter);
         evaluateBurstMeanTimeVsErrorRS(myWriter);
+        evaluateSmallPowerVsErrorRS(myWriter);
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -41,7 +53,7 @@ public class RunEval {
 
     private static void evaluatePowerVsUsefulRate(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating POWER vs USEFUL RATE");
-        for(SchemeModulatorMap.CodingScheme scheme : SchemeModulatorMap.CodingScheme.values()) {
+        for(SchemeModulatorMap.CodingScheme scheme : fastSchemes) {
             String evalName = scheme.toString() + "powerVsUseful";
             Evaluator eval = PremadeEvaluators.defaultPowerVsUsefulRate(scheme);
             String json = eval.stringFromMap(evalName, eval.evaluate());
@@ -54,7 +66,7 @@ public class RunEval {
     private static void evaluateCorrectionVsError(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating CORRECTION RATE vs ERROR RATE");
         List<Double> noiseLevels = List.of(0.2,0.5,1.0,3.0);
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+        for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(double noiseLvl : noiseLevels) {
                 String name = scheme.toString() + "|" + noiseLvl + "|CorrectionRSVsError";
                 Evaluator eval = PremadeEvaluators.RSCorrectionRateVsErrorRate(scheme, noiseLvl);
@@ -69,7 +81,7 @@ public class RunEval {
     private static void evaluatePowerVsErrorRS(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating POWER RATE vs ERROR RATE for RS enabled");
         List<Integer> correctionSymbols = List.of(5,32,64,100);
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+        for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(int correctionSymbolCount : correctionSymbols) {
                 String name = scheme.toString() + "|" + correctionSymbolCount + "|PowerRSVsError";
 
@@ -85,7 +97,7 @@ public class RunEval {
     private static void evaluatePowerVsUsefulRS(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating POWER RATE vs USEFUL RATE for RS enabled");
         List<Integer> correctionSymbols = List.of(5,32,64,100);
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+        for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(int correctionSymbolCount : correctionSymbols) {
                 String name = scheme.toString() + "|" + correctionSymbolCount + "|PowerRSVsUseful";
 
@@ -101,7 +113,7 @@ public class RunEval {
     private static void evaluateBurstMeanTimeVsError(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating BURST RATE vs ERROR RATE");
         List<Integer> burstLengths = List.of(50,100,300,600);
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+        for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(int burstLength : burstLengths) {
                 String name = scheme.toString() + "|" + burstLength + "|BurstVsError";
 
@@ -117,7 +129,7 @@ public class RunEval {
     private static void evaluateBurstMeanTimeVsErrorRS(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating BURST RATE vs ERROR RATE");
         List<Integer> correctionCounts = List.of(5,32,64,100);
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
+        for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(int correctionCount : correctionCounts) {
                 String name = scheme.toString() + "|" + correctionCount + "|BurstRSVsError";
 
@@ -133,11 +145,31 @@ public class RunEval {
     }
 
     private static void evaluateClockDriftVsError(FileWriter myWriter) throws IOException {
-        System.out.println("Evaluating BURST RATE vs ERROR RATE");
-        for (SchemeModulatorMap.CodingScheme scheme :SchemeModulatorMap.CodingScheme.values()) {
-            String name = scheme.toString() + "|ClockDriftVsError";
+        System.out.println("Evaluating DRIFT vs ERROR RATE");
+        List<Double> noiseLevels = List.of(0.0,0.2,0.5,1.0);
+        for (CodingScheme scheme :CodingScheme.values()) {
+            for(double noiseLvl : noiseLevels) {
+                String name = scheme.toString() + "|" + noiseLvl + "|ClockDriftVsError";
 
-            Evaluator eval = PremadeEvaluators.clockDriftVsErrorRate(scheme);
+                Evaluator eval = PremadeEvaluators.clockDriftVsErrorRate(scheme, noiseLvl);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
+    }
+
+    private static void evaluateSmallPowerVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating SMALL POWER vs ERROR RATE");
+        List<CodingScheme> schemes = List.of(
+                CodingScheme.FSK,
+                CodingScheme.UEF
+        );
+        for (SchemeModulatorMap.CodingScheme scheme :schemes) {
+            String name = scheme.toString() + "|PowerSmallVsError";
+
+            Evaluator eval = PremadeEvaluators.defaultPowerVsErrorRate(scheme, 0, 0.5);
             String json = eval.stringFromMap(name, eval.evaluate());
             myWriter.write(json);
             myWriter.write(", \n");
@@ -145,4 +177,23 @@ public class RunEval {
         }
     }
 
+    private static void evaluateSmallPowerVsErrorRS(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating SMALL POWER vs ERROR RATE for RS enabled");
+        List<Integer> correctionSymbols = List.of(5,32,64,100);
+        List<CodingScheme> schemes = List.of(
+                CodingScheme.FSK,
+                CodingScheme.UEF
+        );
+        for (SchemeModulatorMap.CodingScheme scheme :schemes) {
+            for(int correctionSymbolCount : correctionSymbols) {
+                String name = scheme.toString() + "|" + correctionSymbolCount + "|PowerSmallRSVsError";
+
+                Evaluator eval = PremadeEvaluators.RSPowerRVsErrorRate(scheme, correctionSymbolCount, 0 , 0.5);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
+    }
 }
