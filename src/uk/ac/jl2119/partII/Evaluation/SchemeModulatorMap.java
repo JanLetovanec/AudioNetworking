@@ -5,10 +5,11 @@ import uk.ac.jl2119.partII.Filters.LowPassFilterTransformer;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.PSK.PSKDemodulator;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
-import uk.ac.jl2119.partII.UEF.FSKDemodulator;
-import uk.ac.jl2119.partII.UEF.FSKModulator;
-import uk.ac.jl2119.partII.UEF.UEFDemodulator;
-import uk.ac.jl2119.partII.UEF.UEFModulator;
+import uk.ac.jl2119.partII.QAM.QAMDemodulator;
+import uk.ac.jl2119.partII.QAM.QAMModulator;
+import uk.ac.jl2119.partII.ReedSolomon.RSDecoder;
+import uk.ac.jl2119.partII.ReedSolomon.RSEncoder;
+import uk.ac.jl2119.partII.UEF.*;
 
 public class SchemeModulatorMap {
     public static long DEFAULT_SAMPLE_RATE = 44100;
@@ -17,7 +18,13 @@ public class SchemeModulatorMap {
     public enum CodingScheme {
         PSK,
         UEF,
-        FSK
+        FSK,
+        QAM,
+        SYNC_UEF
+    }
+
+    public enum Enrichment {
+        RS
     }
 
     public static class SchemePair {
@@ -50,7 +57,30 @@ public class SchemeModulatorMap {
                 modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);
                 demodem = new UEFDemodulator(true, DEFAULT_SAMPLE_RATE);
                 return new SchemePair(modem, demodem);
+            case QAM:
+                modem = new QAMModulator(DEFAULT_SAMPLE_RATE);
+                demodem = new QAMDemodulator(DEFAULT_SAMPLE_RATE);
+                return new SchemePair(modem, demodem);
+            case SYNC_UEF:
+                modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);
+                demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE);
+                return new SchemePair(modem, demodem);
             default: return null;
+        }
+    }
+
+    public static SchemePair enrichScheme(SchemePair scheme, Enrichment enrichment) {
+        switch (enrichment){
+            case RS:
+                ITransformer<Byte, Double> modem = new ComposedTransformer<>(
+                        new RSEncoder(),
+                        scheme.modem);
+                ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
+                        scheme.demodem,
+                        new RSDecoder());
+                return new SchemePair(modem, demodem);
+            default:
+                return scheme;
         }
     }
 }
