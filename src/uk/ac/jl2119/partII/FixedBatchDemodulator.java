@@ -35,11 +35,9 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
         int byteBatchSize = (8/bitsPerSample) * samplesPerBatch;
         List<List<Double>> batchedInput = partitionData(input, byteBatchSize);
 
-        Byte[] output = batchedInput.stream()
+        return batchedInput.stream()
                 .map(byteBatch -> transformByte(byteBatch.toArray(Double[]::new)))
                 .toArray(Byte[]::new);
-
-        return output;
     }
 
     private Byte transformByte(Double[] byteBatch) {
