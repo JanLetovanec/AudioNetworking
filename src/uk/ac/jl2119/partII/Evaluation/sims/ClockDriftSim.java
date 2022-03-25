@@ -61,7 +61,7 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
     private Double[] getParams() {
         Double[] values = new Double[samples];
         for (int i = 0; i < samples; i++) {
-            double value = ((max - min) * i) / samples;
+            double value = min + ((max - min) * i) / samples;
             values[i] = value;
         }
         return values;

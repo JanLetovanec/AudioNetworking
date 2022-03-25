@@ -49,7 +49,7 @@ public class AWGN_PowerSimulator implements ISimulatorGenerator<Double> {
     private Double[] getPowerValues() {
         Double[] values = new Double[samples];
         for (int i = 0; i < samples; i++) {
-            Double value = ((max - min) * i) / samples;
+            Double value = min + (((max - min) * i) / samples);
             values[i] = value;
         }
         return values;
