@@ -8,9 +8,11 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
     private final ITransformer<Double, Byte> fsk;
     private final ITransformer<Double, Double> lpf;
     private final int framesPerBit;
+    private final int stepSize;
 
-    public UEFSyncDemodulator(double baseFrequency, boolean originalMode, long sampleRate) {
+    public UEFSyncDemodulator(double baseFrequency, boolean originalMode, long sampleRate, int stepSize) {
         framesPerBit = (int)getFramesPerBit(baseFrequency, originalMode, sampleRate);
+        this.stepSize = stepSize;
         fsk = new FSKDemodulator(baseFrequency, framesPerBit, sampleRate);
         lpf = new LowPassFilterTransformer(sampleRate, 2*baseFrequency);
     }
@@ -31,7 +33,7 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
         int offset = 0;
         int index = 0;
         int totalLength = (int)Math.floor((double)input.length / ((double) framesPerBit*10));
-        Byte[] result = new Byte[totalLength];
+        Byte[] result = StreamUtils.padData(totalLength);
         while (offset < input.length) {
             result[index] = getByte(input, offset);
 
@@ -47,6 +49,12 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
         int length = framesPerBit * 10;
         Double[] byteSignal = StreamUtils.slice(source, offset, length);
         Byte[] byteData = fsk.transform(byteSignal);
+
+        // If we do not have data, just return 0
+        if (byteData.length != 2) {
+            return 0;
+        }
+
         int data = (byteData[0] << 1) | ((byteData[1] & 0xFF) >>> 7);
         data = data & 0xFF;
         return (byte)data;
@@ -62,8 +70,8 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
         }
 
         // Else re-center yourself
-        int wrongForward = getFirstWrongOffset(source, offset, 1);
-        int wrongBackwards = getFirstWrongOffset(source, offset, -1);
+        int wrongForward = getFirstWrongOffset(source, offset, stepSize);
+        int wrongBackwards = getFirstWrongOffset(source, offset, -stepSize);
         return (wrongForward + wrongBackwards) / 2;
     }
 

@@ -26,7 +26,7 @@ public class StreamUtils {
     }
 
     public static Byte[] padData(int targetBlockSize) {
-        return padData(new Byte[0], targetBlockSize);
+        return padData(new Byte[1], targetBlockSize);
     }
 
     public static void copyBytesIn(Byte[] destination, Byte[] source, int start, int length) {

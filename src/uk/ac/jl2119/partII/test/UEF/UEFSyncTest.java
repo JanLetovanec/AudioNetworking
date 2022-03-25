@@ -87,7 +87,7 @@ class UEFSyncTest extends GenericTest {
 
     private byte[] transmitBytes(byte[] in, boolean originalMode){
         UEFModulator modulator = new UEFModulator(originalMode, SAMPLE_RATE);
-        UEFSyncDemodulator demodulator = new UEFSyncDemodulator(1200, originalMode, SAMPLE_RATE);
+        UEFSyncDemodulator demodulator = new UEFSyncDemodulator(1200, originalMode, SAMPLE_RATE, 3);
 
         Double[] signal = modulator.transform(Boxer.box(in));
         return Boxer.unBox(demodulator.transform(signal));

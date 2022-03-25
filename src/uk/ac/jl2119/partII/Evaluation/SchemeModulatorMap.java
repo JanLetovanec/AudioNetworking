@@ -63,7 +63,7 @@ public class SchemeModulatorMap {
                 return new SchemePair(modem, demodem);
             case SYNC_UEF:
                 modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);
-                demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE);
+                demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE, 5);
                 return new SchemePair(modem, demodem);
             default: return null;
         }
