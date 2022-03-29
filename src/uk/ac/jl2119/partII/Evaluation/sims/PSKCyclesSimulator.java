@@ -5,6 +5,7 @@ import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.jl2119.partII.Noises.AttenuatorTransformer;
+import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
 import uk.ac.jl2119.partII.PSK.PSKDemodulator;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
 
@@ -13,23 +14,29 @@ import java.util.Map;
 
 public class PSKCyclesSimulator implements ISimulatorGenerator<Integer> {
     private final double stdDev;
+    private final int rayleighLength;
+    private final double rayleighStdDev;
     private final double factor;
 
     private final int step;
     private final int min;
     private final int max;
 
-    public PSKCyclesSimulator(double stdDev, int min, int max, int step, double attenuationFactor) {
+    public PSKCyclesSimulator(double stdDev, int rayleightLength, int min, int max, int step, double attenuationFactor) {
         this.factor = attenuationFactor;
         this.stdDev = stdDev;
+        this.rayleighLength = rayleightLength;
+        this.rayleighStdDev = attenuationFactor;
         this.min = min;
         this.max = max;
         this.step = step;
     }
 
-    public PSKCyclesSimulator(double stdDev, int min, int max, int step) {
+    public PSKCyclesSimulator(double stdDev, int rayleightLength, int min, int max, int step) {
         this.factor = 0.5;
         this.stdDev = stdDev;
+        this.rayleighLength = rayleightLength;
+        this.rayleighStdDev = factor;
         this.min = min;
         this.max = max;
         this.step = step;
@@ -57,7 +64,8 @@ public class PSKCyclesSimulator implements ISimulatorGenerator<Integer> {
                     cycles, SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
             noise = new ComposedTransformer<>(
                     new AttenuatorTransformer(factor),
-                    new AWGNTransformer(stdDev)
+                    new AWGNTransformer(stdDev),
+                    new RayleighFadingTransformer(rayleighLength, rayleighStdDev)
             );
         }
 
