@@ -23,8 +23,8 @@ class FIRFilterTest extends GenericTest {
 
     private static Double[] get1SecondSineWave() throws IOException, WavFileException {
         final int SAMPLE_RATE = 44100;
-        BufferWavWriter writer = new BufferWavWriter(SAMPLE_RATE, SAMPLE_RATE);
-        writer.writeFrequency(1000, SAMPLE_RATE);
+        BufferWavWriter writer = new BufferWavWriter(1000, SAMPLE_RATE);
+        writer.writeFrequency(1200, 0);
         return writer.getBuffer();
     }
 

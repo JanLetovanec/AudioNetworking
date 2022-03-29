@@ -14,15 +14,17 @@ public class UEFModulator extends ComposedTransformer<Byte, Double> {
         super(new StartStopAdder(), getFSKTransformer(BASE_FREQUENCY, originalMode, sampleRate));
     }
 
-    public UEFModulator(double baseFrequency, boolean originalMode, long sampleRate) {
-        super(new StartStopAdder(), getFSKTransformer(baseFrequency, originalMode, sampleRate));
+    public UEFModulator(double baseFrequency, int cyclesPerBit, long sampleRate) {
+        super(new StartStopAdder(), getFSKTransformer(baseFrequency, cyclesPerBit, sampleRate));
     }
 
     private static FSKModulator getFSKTransformer(double baseFrequency, boolean originalMode, long sampleRate) {
         int cyclesPerZero = originalMode ? 1 : 4;
-        long framesPerCycle = (Math.round(Math.floor(sampleRate / baseFrequency)));
-        long framesPerZero = framesPerCycle * cyclesPerZero;
+        return getFSKTransformer(baseFrequency, cyclesPerZero, sampleRate);
+    }
 
-        return new FSKModulator(baseFrequency, (int)framesPerZero, sampleRate);
+    private static FSKModulator getFSKTransformer(double baseFrequency, int cyclesPerBit, long sampleRate) {
+        double secondsPerBit = cyclesPerBit / baseFrequency;
+        return new FSKModulator(baseFrequency, secondsPerBit, sampleRate);
     }
 }

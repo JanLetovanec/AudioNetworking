@@ -9,15 +9,15 @@ import uk.ac.jl2119.partII.test.GenericTest;
 class FSKTest extends GenericTest {
     final int SAMPLE_RATE = 44100;
     final double BASE_FREQUENCY = 1200;
-    final int SAMPLES_PER_SYMBOL = (int) Math.floor(SAMPLE_RATE / BASE_FREQUENCY);
+    final double SECONDS_PER_SYMBOL = 1 / BASE_FREQUENCY;
 
     FSKModulator modem;
     FSKDemodulator demod;
 
     @BeforeEach
     void setUp() {
-        modem = new FSKModulator(BASE_FREQUENCY, SAMPLES_PER_SYMBOL, SAMPLE_RATE);
-        demod = new FSKDemodulator(BASE_FREQUENCY, SAMPLES_PER_SYMBOL, SAMPLE_RATE);
+        modem = new FSKModulator(BASE_FREQUENCY, SECONDS_PER_SYMBOL, SAMPLE_RATE);
+        demod = new FSKDemodulator(BASE_FREQUENCY, SECONDS_PER_SYMBOL, SAMPLE_RATE);
     }
 
     @Test

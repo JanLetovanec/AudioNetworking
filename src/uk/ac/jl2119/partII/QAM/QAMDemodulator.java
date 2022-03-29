@@ -9,24 +9,19 @@ public class QAMDemodulator extends FixedBatchDemodulator{
     private static final int DEFAULT_CYCLES_PER_BIT = 1;
 
     private final double frequency;
-    private final long sampleRate;
 
     public QAMDemodulator(double frequency, int cyclesPerBit, long sampleRate) {
-        super(getBatchSize(frequency, cyclesPerBit, sampleRate), 2);
+        super(getBatchSize(frequency, cyclesPerBit), 2, sampleRate);
         this.frequency = frequency;
-        this.sampleRate = sampleRate;
     }
 
     public QAMDemodulator(long sampleRate) {
-        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate), 2);
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT), 2, sampleRate);
         this.frequency = DEFAULT_FREQUENCY;
-        this.sampleRate = sampleRate;
     }
 
-    private static int getBatchSize(double frequency, int cyclesPerBit, long sampleRate) {
-        long samplesPerCycle = Math.round(Math.floor(sampleRate / frequency));
-        long samplesPerBit = cyclesPerBit * samplesPerCycle;
-        return (int) samplesPerBit;
+    private static double getBatchSize(double frequency, int cyclesPerBit) {
+        return ((double) cyclesPerBit/ frequency);
     }
 
     @Override
@@ -38,20 +33,15 @@ public class QAMDemodulator extends FixedBatchDemodulator{
     }
 
     private boolean getBitFromBatch(Double[] batch, double phase) {
-        Double[] baseSignal = getBaseSignal(samplesPerBatch, phase);
+        Double[] baseSignal = getBaseSignal(batch.length, phase);
         double phaseComponent = dotProductSignals(batch, baseSignal);
         return phaseComponent > 0;
     }
 
-    private Double[] getBaseSignal(int length, double phase) {
-        try {
-            BufferWavWriter writer = new BufferWavWriter(length, sampleRate);
-            writer.writeFrequency(frequency, length, phase);
-            return writer.getBuffer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private Double[] getBaseSignal(int buffSize, double phase) {
+        BufferWavWriter writer = new BufferWavWriter(buffSize, sampleRate);
+        writer.writeFrequency(frequency, phase);
+        return writer.getBuffer();
     }
 
     private double dotProductSignals(Double[] signalOne, Double[] signalTwo) {

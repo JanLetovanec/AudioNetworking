@@ -30,10 +30,9 @@ public class LowPassFilterTransformer implements ITransformer<Double, Double> {
 
     @Override
     public Double[] transform(Double[] input) {
-        Double[] output = Arrays.stream(input)
-                .map(Vin -> transformSingle(Vin))
+        return Arrays.stream(input)
+                .map(this::transformSingle)
                 .toArray(Double[]::new);
-        return output;
     }
 
     private Double transformSingle(Double Vin) {

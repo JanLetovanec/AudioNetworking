@@ -13,19 +13,17 @@ public class PSKModulator extends FixedBatchModulator {
     private final double frequency;
 
     public PSKModulator(long sampleRate) {
-        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate), sampleRate);
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT), sampleRate);
         this.frequency = DEFAULT_FREQUENCY;
     }
 
     public PSKModulator(double frequency, int cyclesPerBit, long sampleRate) {
-        super(getBatchSize(frequency, cyclesPerBit, sampleRate), sampleRate);
+        super(getBatchSize(frequency, cyclesPerBit), sampleRate);
         this.frequency = frequency;
     }
 
-    private static int getBatchSize(double frequency, int cyclesPerBit, long sampleRate) {
-        long samplesPerCycle = Math.round(Math.floor(sampleRate / frequency));
-        long samplesPerBit = cyclesPerBit * samplesPerCycle;
-        return (int) samplesPerBit;
+    private static double getBatchSize(double frequency, int cyclesPerBit) {
+        return ((double) cyclesPerBit/ frequency);
     }
 
     @Override
@@ -36,11 +34,7 @@ public class PSKModulator extends FixedBatchModulator {
     }
 
     private void writeBit(BufferWavWriter writer) {
-        try {
-            writer.writeFrequency(frequency, batchSize, currentPhase);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        writer.writeFrequency(frequency, batchDuration, currentPhase);
     }
 
     private double getUpdatedPhase(Boolean newBit) {

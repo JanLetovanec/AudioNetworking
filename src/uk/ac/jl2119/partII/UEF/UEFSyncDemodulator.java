@@ -4,23 +4,27 @@ import uk.ac.jl2119.partII.Filters.LowPassFilterTransformer;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.utils.StreamUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
     private final ITransformer<Double, Byte> fsk;
     private final ITransformer<Double, Double> lpf;
-    private final int framesPerBit;
-    private final int stepSize;
+    private final double secondsPerBit;
+    private final double stepSize;
+    private final long sampleRate;
 
-    public UEFSyncDemodulator(double baseFrequency, boolean originalMode, long sampleRate, int stepSize) {
-        framesPerBit = (int)getFramesPerBit(baseFrequency, originalMode, sampleRate);
+    public UEFSyncDemodulator(double baseFrequency, boolean originalMode, long sampleRate, double stepSize) {
+        secondsPerBit = getSecondsPerBit(baseFrequency, originalMode);
+        this.sampleRate = sampleRate;
         this.stepSize = stepSize;
-        fsk = new FSKDemodulator(baseFrequency, framesPerBit, sampleRate);
+        fsk = new FSKDemodulator(baseFrequency, secondsPerBit, sampleRate);
         lpf = new LowPassFilterTransformer(sampleRate, 2*baseFrequency);
     }
 
-    private static long getFramesPerBit(double baseFrequency, boolean originalMode, long sampleRate) {
+    private static double getSecondsPerBit(double baseFrequency, boolean originalMode) {
         int cyclesPerZero = originalMode ? 1 : 4;
-        long framesPerCycle = (Math.round(Math.floor(sampleRate / baseFrequency)));
-        return framesPerCycle * cyclesPerZero;
+        return cyclesPerZero / baseFrequency;
     }
 
     @Override
@@ -30,24 +34,20 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
     }
 
     private Byte[] transformFilteredInput(Double[] input) {
-        int offset = 0;
-        int index = 0;
-        int totalLength = (int)Math.floor((double)input.length / ((double) framesPerBit*10));
-        Byte[] result = StreamUtils.padData(totalLength);
-        while (offset < input.length) {
-            result[index] = getByte(input, offset);
-
-            offset += framesPerBit*10;
-            index++;
-            offset = synchronise(input, offset);
+        double time = 0;
+        List<Byte> result = new ArrayList<>();
+        while (getOffsetFromTime(time) < input.length) {
+            result.add(getByte(input, time));
+            time += secondsPerBit*10;
+            time = synchronise(input, time);
         }
-        return result;
+        return result.toArray(Byte[]::new);
     }
 
 
-    private byte getByte(Double[] source, int offset) {
-        int length = framesPerBit * 10;
-        Double[] byteSignal = StreamUtils.slice(source, offset, length);
+    private byte getByte(Double[] source, double time) {
+        double length = secondsPerBit * 10;
+        Double[] byteSignal = StreamUtils.timeSlice(source, time, length, sampleRate);
         Byte[] byteData = fsk.transform(byteSignal);
 
         // If we do not have data, just return 0
@@ -55,40 +55,55 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
             return 0;
         }
 
-        int data = (byteData[0] << 1) | ((byteData[1] & 0xFF) >>> 7);
+       return extractByteWithStartStops(byteData);
+    }
+
+    private byte extractByteWithStartStops(Byte[] bytes) {
+        int data = (bytes[0] << 1) | ((bytes[1] & 0xFF) >>> 7);
         data = data & 0xFF;
         return (byte)data;
     }
 
-    private int synchronise(Double[] source, int offset) {
-        if (offset + framesPerBit*8 > source.length) {
-            return source.length;
+    private double synchronise(Double[] source, double time) {
+        if (!hasMoreBytes(source, time)) {
+            return ((double) source.length / (double) sampleRate);
         }
 
-        if(!checkBits(source, offset)) {
-            return offset;
+        // Carry on if bit-error
+        if(!checkBits(source, time)) {
+            return time;
         }
 
         // Else re-center yourself
-        int wrongForward = getFirstWrongOffset(source, offset, stepSize);
-        int wrongBackwards = getFirstWrongOffset(source, offset, -stepSize);
+        double wrongForward = getFirstWrongOffset(source, time, stepSize);
+        double wrongBackwards = getFirstWrongOffset(source, time, -stepSize);
         return (wrongForward + wrongBackwards) / 2;
     }
 
-    private int getFirstWrongOffset(Double[] source, int startOffset, int stepSize) {
-        int offset = startOffset;
-        while(checkBits(source, offset)) {
-            offset += stepSize;
-        }
-        return offset;
+    private boolean hasMoreBytes(Double[] source, double time) {
+        double endTime = time + 8*secondsPerBit;
+        int offset = getOffsetFromTime(endTime);
+        return source.length - 1 > offset;
     }
 
-    private boolean checkBits(Double[] source, int offset) {
-        int start = offset - framesPerBit;
-        int length = framesPerBit * 8; // We will only use the first 2 bits, but fsk can only do Byte at a time
-        Double[] syncSignal = StreamUtils.slice(source, start, length);
+    private double getFirstWrongOffset(Double[] source, double startTime, double stepSize) {
+        double time = startTime;
+        while(checkBits(source, time)) {
+            time += stepSize;
+        }
+        return time;
+    }
+
+    private boolean checkBits(Double[] source, double time) {
+        double start = time - secondsPerBit;
+        double duration = secondsPerBit * 8; // We will only use the first 2 bits, but fsk can only do Byte at a time
+        Double[] syncSignal = StreamUtils.timeSlice(source, start, duration, sampleRate);
         byte bits = fsk.transform(syncSignal)[0];
         int relevantBits = (bits & 0b11000000);
         return relevantBits == 0b10000000;
+    }
+
+    private int getOffsetFromTime(double time) {
+        return (int) Math.floor(time*sampleRate);
     }
 }

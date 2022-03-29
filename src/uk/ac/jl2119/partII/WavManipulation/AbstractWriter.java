@@ -18,22 +18,4 @@ public abstract class AbstractWriter {
     public abstract void close() throws IOException;
 
     protected abstract int getFramesRemaining();
-
-
-    public void writeFrequency(double frequency, int lengthInSamples) throws WavFileException, IOException {
-        writeFrequency(frequency, lengthInSamples, 0);
-    }
-
-    public void writeFrequency(double frequency, int lengthInSamples, double phaseOffset) throws WavFileException, IOException {
-        if (lengthInSamples > getFramesRemaining()) {
-            throw new WavFileException("Cannot write more than remaining number of samples");
-        }
-
-        double[] buffer = new double[lengthInSamples];
-        for (int bufferOffset = 0; bufferOffset < lengthInSamples; bufferOffset++) {
-            double frequencyScale = 2.0 * Math.PI * frequency / getSampleRate();
-            buffer[bufferOffset] = Math.sin(bufferOffset * frequencyScale + phaseOffset);
-        }
-        writeFrames(buffer, lengthInSamples);
-    }
 }

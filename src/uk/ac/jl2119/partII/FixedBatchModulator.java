@@ -6,33 +6,33 @@ import java.util.Arrays;
 
 
 /**
- * Often the samples / bit is constant,
+ * Often the time / bit is constant,
  * so it is way simpler to specify how to translate a single bit
  * rather than the whole signal
  *
  * FixedBatchModulator is dual to the FixedBatchDemodulator
  */
 public abstract class FixedBatchModulator implements ITransformer<Byte, Double> {
-    protected final int batchSize;
+    protected final double batchDuration;
     protected final long sampleRate;
     protected final int bitsPerBatch;
 
-    public FixedBatchModulator(int batchSize, long sampleRate) {
-        this.batchSize = batchSize;
+    public FixedBatchModulator(double batchDurationInSeconds, long sampleRate) {
+        this.batchDuration = batchDurationInSeconds;
         this.sampleRate = sampleRate;
         this.bitsPerBatch = 1;
     }
 
-    public FixedBatchModulator(int batchSize, int bitsPerBatch, long sampleRate) {
-        this.batchSize = batchSize;
+    public FixedBatchModulator(double batchDurationInSeconds, int bitsPerBatch, long sampleRate) {
+        this.batchDuration = batchDurationInSeconds;
         this.sampleRate = sampleRate;
         this.bitsPerBatch = bitsPerBatch;
     }
 
     @Override
     public Double[] transform(Byte[] input) {
-        int numOfSamples = input.length * batchSize * (8 / bitsPerBatch); // Byte is 8 bits
-        BufferWavWriter writer = new BufferWavWriter(numOfSamples, sampleRate);
+        double totalTime = input.length  * batchDuration * 8 / bitsPerBatch;
+        BufferWavWriter writer = new BufferWavWriter(totalTime, sampleRate);
 
         Arrays.stream(input).forEach(dataByte -> transformByte(writer, dataByte));
 
@@ -55,8 +55,8 @@ public abstract class FixedBatchModulator implements ITransformer<Byte, Double> 
     }
 
     /**
-     * @param bit - bit value to transform (T = 1, F = 0)
+     * @param bits - bit values to transform (T = 1, F = 0)
      * @param writer - BufferWriter to use to write the bytes
      */
-    protected abstract void transformBits(Boolean[] bit, BufferWavWriter writer);
+    protected abstract void transformBits(Boolean[] bits, BufferWavWriter writer);
 }

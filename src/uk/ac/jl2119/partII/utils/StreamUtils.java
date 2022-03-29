@@ -40,6 +40,12 @@ public class StreamUtils {
         return result;
     }
 
+    public static Double[] timeSlice(Double[] source, double time, double duration, long sampleRate) {
+        int startOffset = (int)Math.floor(time * sampleRate);
+        int length = (int)Math.floor(duration * sampleRate);
+        return slice(source, startOffset, length);
+    }
+
     private static void initializeFromOffset(Byte[] destination, int offset) {
         for (int i = offset; i < destination.length; i++) {
             destination[i] = (byte) 0;

@@ -7,14 +7,14 @@ import uk.ac.jl2119.partII.FixedBatchDemodulator;
  */
 public class FSKDemodulator extends FixedBatchDemodulator {
     // Detecting zero crossing @ 0 causes problems
-    // cuz of noise and other imperfections,
+    // cuz of noise and timings are fuzzy (+noise),
     // so detect them slightly higher
     private final double NEAR_ZERO_CROSSING_THRESHOLD = 0.1;
     private final int crossingsDecisionThreshold;
 
-    public FSKDemodulator(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
-        super(symbolDurationInFrames);
-        int crossingsPerZero = getCrossingsPerZero(baseFrequency, symbolDurationInFrames, sampleRate);
+    public FSKDemodulator(double baseFrequency, double symbolDurationInSeconds, long sampleRate) {
+        super(symbolDurationInSeconds, sampleRate);
+        int crossingsPerZero = getCrossingsPerZero(baseFrequency, symbolDurationInSeconds);
         int crossingsPerOne = 2 * crossingsPerZero;
         crossingsDecisionThreshold = (crossingsPerZero + crossingsPerOne) / 2;
     }
@@ -45,10 +45,8 @@ public class FSKDemodulator extends FixedBatchDemodulator {
                 || (!isBelowThreshold && sample < NEAR_ZERO_CROSSING_THRESHOLD);
     }
 
-    private static int getCrossingsPerZero(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
-        int samplesPerCycle = (int) Math.floor(sampleRate / baseFrequency);
-        int numberOfCycles = symbolDurationInFrames / samplesPerCycle;
-        int numberOfZeroCrossings =  2 * numberOfCycles;
-        return numberOfZeroCrossings;
+    private static int getCrossingsPerZero(double baseFrequency, double symbolDurationInSeconds) {
+        int numberOfCycles = (int) Math.floor(baseFrequency * symbolDurationInSeconds);
+        return  2 * numberOfCycles;
     }
 }

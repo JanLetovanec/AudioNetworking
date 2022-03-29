@@ -3,7 +3,9 @@ package uk.ac.jl2119.partII;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
+import uk.ac.jl2119.partII.utils.StreamUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,45 +19,37 @@ import java.util.List;
  * that correspond to a single bit
  */
 public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte> {
-    protected final int samplesPerBatch;
+    protected final double batchDuration;
     protected final int bitsPerSample;
+    protected final long sampleRate;
 
-    protected FixedBatchDemodulator(int samplesPerBatch) {
-        this.samplesPerBatch = samplesPerBatch;
+    protected FixedBatchDemodulator(double batchDurationInSeconds, long sampleRate) {
+        this.batchDuration = batchDurationInSeconds;
         this.bitsPerSample = 1;
+        this.sampleRate = sampleRate;
     }
 
-    protected FixedBatchDemodulator(int samplesPerBatch, int bitsPerSample) {
-        this.samplesPerBatch = samplesPerBatch;
+    protected FixedBatchDemodulator(double batchDurationInSeconds, int bitsPerSample, long sampleRate) {
+        this.batchDuration = batchDurationInSeconds;
         this.bitsPerSample = bitsPerSample;
+        this.sampleRate = sampleRate;
     }
 
     @Override
     public Byte[] transform(Double[] input) {
-        int byteBatchSize = (8/bitsPerSample) * samplesPerBatch;
-        List<List<Double>> batchedInput = partitionData(input, byteBatchSize);
+        List<Boolean> bits = splitDataIntoBatches(input).stream()
+                .flatMap(x -> Arrays.stream(transformBits(x)))
+                .toList();
 
-        return batchedInput.stream()
-                .map(byteBatch -> transformByte(byteBatch.toArray(Double[]::new)))
+        return partitionBits(bits).stream()
+                .map(this::collectBits)
                 .toArray(Byte[]::new);
     }
 
-    private Byte transformByte(Double[] byteBatch) {
-        Boolean[] transformedBits = getTransformedBits(byteBatch);
-        return collectBits(transformedBits);
-    }
-
-    private Boolean[] getTransformedBits(Double[] byteBatch) {
-        List<List<Double>> batchedInput = partitionData(byteBatch, samplesPerBatch);
-        return batchedInput.stream()
-                .flatMap(batch -> Arrays.stream(transformBits(batch.toArray(Double[]::new))))
-                .toArray(Boolean[]::new);
-    }
-
-    private Byte collectBits(Boolean[] inputBooleans) {
+    private Byte collectBits(List<Boolean> inputBooleans) {
         byte result = 0;
-        for (int bit = 0; bit < inputBooleans.length; bit++){
-            if (!inputBooleans[bit]) {
+        for (int bit = 0; bit < inputBooleans.size(); bit++){
+            if (!inputBooleans.get(bit)) {
                 continue;
             }
 
@@ -66,9 +60,38 @@ public abstract class FixedBatchDemodulator implements ITransformer<Double, Byte
         return result;
     }
 
-    private List<List<Double>> partitionData(Double[] input, int batchSize) {
-        UnmodifiableIterator<List<Double>> batchedIterator = Iterators
-                .partition(Arrays.stream(input).iterator(), batchSize);
+    private List<Double[]> splitDataIntoBatches(Double[] input) {
+        List<Double[]> result = new ArrayList<>();
+        double elapsedTime = 0;
+        while(hasDataRemaining(input, elapsedTime)) {
+            Double[] batch = getBatchAtTime(input, elapsedTime);
+            result.add(batch);
+            elapsedTime += batchDuration;
+        }
+        return result;
+    }
+
+    private boolean hasDataRemaining(Double[] input, double time) {
+        int offset = getOffsetFromTime(time);
+        return offset < input.length - 1;
+    }
+
+    private Double[] getBatchAtTime(Double[] input, double time) {
+        int startIndex = getOffsetFromTime(time);
+        time += batchDuration;
+        int finishIndex = Math.min(getOffsetFromTime(time), input.length - 1);
+        int length = finishIndex - startIndex;
+
+        return StreamUtils.slice(input, startIndex, length);
+    }
+
+    private int getOffsetFromTime(double time) {
+        return (int) Math.floor(time * sampleRate);
+    }
+
+    private List<List<Boolean>> partitionBits(List<Boolean> input) {
+        UnmodifiableIterator<List<Boolean>> batchedIterator = Iterators
+                .partition(input.iterator(), 8);
         return Lists.newArrayList(batchedIterator);
     }
 

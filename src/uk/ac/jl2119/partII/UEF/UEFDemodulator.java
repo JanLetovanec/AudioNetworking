@@ -12,26 +12,30 @@ public class UEFDemodulator extends ComposedTransformer<Double, Byte> {
                 getComposite(BASE_FREQUENCY, originalMode, sampleRate));
     }
 
-    public UEFDemodulator(double baseFrequency, boolean originalMode, long sampleRate) {
+    public UEFDemodulator(double baseFrequency, int cyclesPerBit, long sampleRate) {
         super(getLPF(baseFrequency*2, sampleRate),
-                getComposite(baseFrequency, originalMode, sampleRate));
+                getComposite(baseFrequency, cyclesPerBit, sampleRate));
     }
 
     private static LowPassFilterTransformer getLPF(double baseFrequency, long sampleRate) {
         return new LowPassFilterTransformer(sampleRate, baseFrequency);
     }
 
-    private static FSKDemodulator getFSKDemod(double baseFrequency,boolean originalMode, long sampleRate) {
-        int cyclesPerZero = originalMode ? 1 : 4;
-        long framesPerCycle = (Math.round(Math.floor(sampleRate / baseFrequency)));
-        long framesPerZero = framesPerCycle * cyclesPerZero;
-
-        return new FSKDemodulator(baseFrequency, (int) framesPerZero,sampleRate);
+    private static ITransformer<Double, Byte> getComposite(double baseFrequency,
+                                                           boolean originalMode,
+                                                           long sampleRate) {
+        int cyclesPerBit = originalMode ? 1 : 4;
+        return getComposite(baseFrequency, cyclesPerBit, sampleRate);
     }
 
-    private static ITransformer<Double, Byte> getComposite(double baseFrequency,boolean originalMode, long sampleRate) {
-        ITransformer<Double, Byte> fskDemod = getFSKDemod(baseFrequency, originalMode, sampleRate);
+    private static ITransformer<Double, Byte> getComposite(double baseFrequency, int cyclesPerBit, long sampleRate) {
+        ITransformer<Double, Byte> fskDemod = getFSKDemod(baseFrequency, cyclesPerBit, sampleRate);
         ITransformer<Byte, Byte> startStop = new StartStopRemover();
         return new ComposedTransformer<>(fskDemod, startStop);
+    }
+
+    private static FSKDemodulator getFSKDemod(double baseFrequency, int cyclesPerBit, long sampleRate) {
+        double secondsPerBit = cyclesPerBit / baseFrequency;
+        return new FSKDemodulator(baseFrequency, secondsPerBit, sampleRate);
     }
 }

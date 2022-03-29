@@ -13,19 +13,17 @@ public class QAMModulator extends FixedBatchModulator {
     private final double frequency;
 
     public QAMModulator(long sampleRate) {
-        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate), 2, sampleRate);
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT), 2, sampleRate);
         this.frequency = DEFAULT_FREQUENCY;
     }
 
     public QAMModulator(double frequency, int cyclesPerBit, long sampleRate) {
-        super(getBatchSize(frequency, cyclesPerBit, sampleRate), 2, sampleRate);
+        super(getBatchSize(frequency, cyclesPerBit), 2, sampleRate);
         this.frequency = frequency;
     }
 
-    private static int getBatchSize(double frequency, int cyclesPerBit, long sampleRate) {
-        long samplesPerCycle = Math.round(Math.floor(sampleRate / frequency));
-        long samplesPerBit = cyclesPerBit * samplesPerCycle;
-        return (int) samplesPerBit;
+    private static double getBatchSize(double frequency, int cyclesPerBit) {
+        return ((double) cyclesPerBit/ frequency);
     }
 
     @Override
@@ -39,23 +37,16 @@ public class QAMModulator extends FixedBatchModulator {
     }
 
     private void writeSignal(Double[] signal, BufferWavWriter writer) {
-        try {
-            writer.writeFrames(Boxer.unBox(signal), signal.length);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        double[] buffer = Boxer.unBox(signal);
+        writer.writeSignal(buffer, batchDuration);
     }
 
     private Double[] getComponent(double phase, boolean shouldInvert) {
         double phaseOffset = shouldInvert
                 ? 0
                 : Math.PI;
-        BufferWavWriter writer = new BufferWavWriter(batchSize, sampleRate);
-        try {
-            writer.writeFrequency(frequency, batchSize, phase + phaseOffset);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        BufferWavWriter writer = new BufferWavWriter(batchDuration, sampleRate);
+        writer.writeFrequency(frequency, batchDuration, phase + phaseOffset);
         return writer.getBuffer();
     }
 }

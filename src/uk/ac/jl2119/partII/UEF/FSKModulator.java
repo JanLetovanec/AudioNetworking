@@ -9,19 +9,15 @@ public class FSKModulator extends FixedBatchModulator {
     /**
      * Binary Frequency shift keying
      */
-    public FSKModulator(double baseFrequency, int symbolDurationInFrames, long sampleRate) {
-        super(symbolDurationInFrames, sampleRate);
+    public FSKModulator(double baseFrequency, double symbolDurationInSeconds, long sampleRate) {
+        super(symbolDurationInSeconds, sampleRate);
         this.baseFrequency = baseFrequency;
     }
 
     @Override
     protected void transformBits(Boolean[] bits, BufferWavWriter writer){
         Boolean bit = bits[0];
-        try {
-            double frequency = bit ? (baseFrequency * 2) : baseFrequency;
-            writer.writeFrequency((float)frequency, batchSize);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        double frequency = bit ? (baseFrequency * 2) : baseFrequency;
+        writer.writeFrequency(frequency, batchDuration, 0);
     }
 }

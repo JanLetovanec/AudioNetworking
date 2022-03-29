@@ -5,9 +5,6 @@ import uk.ac.jl2119.partII.UEF.UEFDemodulator;
 import uk.ac.jl2119.partII.UEF.UEFModulator;
 import uk.ac.jl2119.partII.test.GenericTest;
 import uk.ac.jl2119.partII.utils.Boxer;
-import uk.ac.thirdParty.WavFile.WavFileException;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -15,70 +12,70 @@ class UEFTest extends GenericTest {
     private final long SAMPLE_RATE = 44100;
 
     @Test
-    void transmitsZeroInOriginal() throws IOException, WavFileException {
+    void transmitsZeroInOriginal() {
         byte[] input = {0};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsZeroInAlternative() throws IOException, WavFileException {
+    void transmitsZeroInAlternative() {
         byte[] input = {0};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsFFInOriginal() throws IOException, WavFileException {
+    void transmitsFFInOriginal() {
         byte[] input = {(byte) 0xFF};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsFFInAlternative() throws IOException, WavFileException {
+    void transmitsFFInAlternative() {
         byte[] input = {(byte) 0xFF};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsLotsOfZeoesInOriginal() throws IOException, WavFileException {
+    void transmitsLotsOfZeoesInOriginal() {
         byte[] input = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsLotsOfZeroesInAlternative() throws IOException, WavFileException {
+    void transmitsLotsOfZeroesInAlternative() {
         byte[] input = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsLotsOfFFsInOriginal() throws IOException, WavFileException {
+    void transmitsLotsOfFFsInOriginal() {
         byte[] input = {(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF};
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsHighLowInOriginal() throws IOException, WavFileException {
+    void transmitsHighLowInOriginal() {
         byte[] input = {5,124,5, 110, 25, 25};
         byte[] output = transmitBytes(input,true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmittsRandomInOriginal() throws IOException, WavFileException {
+    void transmittsRandomInOriginal() {
         byte[] input = generateRandomBytesUnboxed(500);
         byte[] output = transmitBytes(input, true);
         assertArrayEquals(input, output);
     }
 
     @Test
-    void transmitsRandomInAlternative() throws IOException, WavFileException {
+    void transmitsRandomInAlternative() {
         byte[] input = generateRandomBytesUnboxed(500);
         byte[] output = transmitBytes(input, false);
         assertArrayEquals(input, output);

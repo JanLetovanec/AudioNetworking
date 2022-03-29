@@ -13,21 +13,19 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     private final long sampleRate;
 
     public PSKDemodulator(double frequency, int cyclesPerBit, long sampleRate) {
-        super(getBatchSize(frequency, cyclesPerBit, sampleRate));
+        super(getBatchSize(frequency, cyclesPerBit), sampleRate);
         this.frequency = frequency;
         this.sampleRate = sampleRate;
     }
 
     public PSKDemodulator(long sampleRate) {
-        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT, sampleRate));
+        super(getBatchSize(DEFAULT_FREQUENCY, DEFAULT_CYCLES_PER_BIT), sampleRate);
         this.frequency = DEFAULT_FREQUENCY;
         this.sampleRate = sampleRate;
     }
 
-    private static int getBatchSize(double frequency, int cyclesPerBit, long sampleRate) {
-        long samplesPerCycle = Math.round(Math.floor(sampleRate / frequency));
-        long samplesPerBit = cyclesPerBit * samplesPerCycle;
-        return (int) samplesPerBit;
+    private static double getBatchSize(double frequency, int cyclesPerBit) {
+        return ((double) cyclesPerBit/ frequency);
     }
 
     @Override
@@ -41,20 +39,15 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     }
 
     private boolean getBitFromBatch(Double[] batch) {
-        Double[] baseSignal = getBaseSignal(samplesPerBatch);
+        Double[] baseSignal = getBaseSignal(batch.length);
         double inPhaseComponent = dotProductSignals(batch, baseSignal);
         return inPhaseComponent < 0;
     }
 
-    private Double[] getBaseSignal(int length) {
-        try {
-            BufferWavWriter writer = new BufferWavWriter(length, sampleRate);
-            writer.writeFrequency(frequency, length, currentPhase);
-            return writer.getBuffer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-       return null;
+    private Double[] getBaseSignal(int buffSize) {
+        BufferWavWriter writer = new BufferWavWriter(buffSize, sampleRate);
+        writer.writeFrequency(frequency, currentPhase);
+        return writer.getBuffer();
     }
 
     private double dotProductSignals(Double[] signalOne, Double[] signalTwo) {
