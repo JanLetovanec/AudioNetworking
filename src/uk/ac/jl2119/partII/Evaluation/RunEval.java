@@ -16,23 +16,25 @@ public class RunEval {
 
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
-        
-        FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
+
+        FileWriter myWriter = new FileWriter("./output/Eval/eval2.json");
         myWriter.write("{\n");
 
-        // Basic eval
-        evaluatePowerVsError(myWriter);
-        evaluatePowerVsUsefulRate(myWriter);
-        evaluateBurstMeanTimeVsError(myWriter);
+//        // Basic eval
+//        evaluatePowerVsError(myWriter);
+//        evaluatePowerVsUsefulRate(myWriter);
+//        evaluateBurstMeanTimeVsError(myWriter);
+
         evaluateClockDriftVsError(myWriter);
-        evaluateSmallPowerVsError(myWriter);
+
+//        evaluateSmallPowerVsError(myWriter);
 
         //RS eval
-        evaluateCorrectionVsError(myWriter);
-        evaluatePowerVsErrorRS(myWriter);
-        evaluatePowerVsUsefulRS(myWriter);
-        evaluateBurstMeanTimeVsErrorRS(myWriter);
-        evaluateSmallPowerVsErrorRS(myWriter);
+//        evaluateCorrectionVsError(myWriter);
+//        evaluatePowerVsErrorRS(myWriter);
+//        evaluatePowerVsUsefulRS(myWriter);
+//        evaluateBurstMeanTimeVsErrorRS(myWriter);
+//        evaluateSmallPowerVsErrorRS(myWriter);
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -146,7 +148,7 @@ public class RunEval {
 
     private static void evaluateClockDriftVsError(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating DRIFT vs ERROR RATE");
-        List<Double> noiseLevels = List.of(0.0,0.2,0.5,1.0);
+        List<Double> noiseLevels = List.of(0.0,0.2,1.0);
         for (CodingScheme scheme :CodingScheme.values()) {
             for(double noiseLvl : noiseLevels) {
                 String name = scheme.toString() + "|" + noiseLvl + "|ClockDriftVsError";
