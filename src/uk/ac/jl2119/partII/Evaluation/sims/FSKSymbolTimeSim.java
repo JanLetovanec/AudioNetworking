@@ -9,6 +9,7 @@ import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
 import uk.ac.jl2119.partII.UEF.FSKDemodulator;
 import uk.ac.jl2119.partII.UEF.FSKModulator;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,10 +47,8 @@ public class FSKSymbolTimeSim implements ISimulatorGenerator<Double> {
     public Map<Double, Simulator<Double>> getSimulators() {
         Map<Double, Simulator<Double>> result = new HashMap<>();
         Double[] params = getValues();
-        for (int i = 0; i < params.length; i++) {
-            Double param = params[i];
-            result.put(param, new FSKSim(param));
-        }
+        Arrays.stream(params)
+                .forEach(param -> result.put(param, new FSKSim(param)));
         return result;
     }
 
