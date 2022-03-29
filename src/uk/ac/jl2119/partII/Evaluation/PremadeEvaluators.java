@@ -136,7 +136,7 @@ public class PremadeEvaluators {
     }
 
     public static Evaluator clockDriftVsErrorRate(SchemeModulatorMap.CodingScheme scheme, double noiseLvl) {
-        ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.5, 1.5, 10, noiseLvl);
+        ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.5, 1.5, 20, noiseLvl);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);

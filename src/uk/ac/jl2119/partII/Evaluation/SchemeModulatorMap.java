@@ -42,11 +42,11 @@ public class SchemeModulatorMap {
         ITransformer<Double, Byte> demodem;
         switch (scheme){
             case FSK:
-                long samplesPerCycle = Math.round(Math.floor(DEFAULT_SAMPLE_RATE / DEFAULT_BASE_FREQUENCY));
-                modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE);
+                double secondsPerCycle = 1.0 / DEFAULT_BASE_FREQUENCY;
+                modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, DEFAULT_SAMPLE_RATE);
                 demodem = new ComposedTransformer<>(
                         new LowPassFilterTransformer(DEFAULT_SAMPLE_RATE, DEFAULT_BASE_FREQUENCY * 2),
-                        new FSKDemodulator(DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, DEFAULT_SAMPLE_RATE)
+                        new FSKDemodulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, DEFAULT_SAMPLE_RATE)
                 );
                 return new SchemePair(modem, demodem);
             case PSK:
@@ -62,8 +62,9 @@ public class SchemeModulatorMap {
                 demodem = new QAMDemodulator(DEFAULT_SAMPLE_RATE);
                 return new SchemePair(modem, demodem);
             case SYNC_UEF:
+                double stepSize = 5.0 / DEFAULT_SAMPLE_RATE;
                 modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);
-                demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE, 5);
+                demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE, stepSize);
                 return new SchemePair(modem, demodem);
             default: return null;
         }

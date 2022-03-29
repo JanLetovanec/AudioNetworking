@@ -46,8 +46,8 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
                 modem = new PSKModulator(sampleRate);
                 break;
             case FSK:
-                long samplesPerCycle = Math.round(Math.floor(sampleRate / SchemeModulatorMap.DEFAULT_BASE_FREQUENCY));
-                modem = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, sampleRate);
+                double secondsPerCycle = 1.0 / SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
+                modem = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, secondsPerCycle, sampleRate);
                 break;
             case QAM:
                 modem = new QAMModulator(sampleRate);
