@@ -14,8 +14,10 @@ import uk.ac.jl2119.partII.ITransformer;
 public class ClockDriftTransformer implements ITransformer<Double, Double> {
     private final long currentRate;
     private final long defaultSampledRate;
+    public static final long OVERSAMPLE_FACTOR = 120;
+
     public ClockDriftTransformer(double tickLengthFactor) {
-        defaultSampledRate = SchemeModulatorMap.DEFAULT_SAMPLE_RATE * 100;
+        defaultSampledRate = SchemeModulatorMap.DEFAULT_SAMPLE_RATE * OVERSAMPLE_FACTOR;
         // Double tick-length => Half sample-rate
         currentRate = Math.round(SchemeModulatorMap.DEFAULT_SAMPLE_RATE / tickLengthFactor);
     }
@@ -29,11 +31,10 @@ public class ClockDriftTransformer implements ITransformer<Double, Double> {
     @Override
     public Double[] transform(Double[] input) {
         double totalSeconds = ((double)input.length / (double)defaultSampledRate);
-        int numberOfSamples = (int) Math.round(totalSeconds * currentRate);
+        int numberOfSamples = (int) Math.floor(totalSeconds * currentRate);
         Double[] result = new Double[numberOfSamples];
         for (int i = 0; i < result.length; i++) {
-            double timeElapsed = ((double)i / (double) currentRate);
-            int sampleInOriginal = (int) Math.round(timeElapsed * defaultSampledRate);
+            int sampleInOriginal = (int)((i * defaultSampledRate) / currentRate);
             result[i] = input[sampleInOriginal];
         }
         return result;

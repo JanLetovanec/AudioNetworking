@@ -3,9 +3,10 @@ package uk.ac.jl2119.partII.Evaluation.sims;
 import uk.ac.jl2119.partII.ComposedTransformer;
 import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.jl2119.partII.ITransformer;
-import uk.ac.jl2119.partII.Noises.AWGNTransformer;
+import uk.ac.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.jl2119.partII.Noises.ClockDriftTransformer;
 import uk.ac.jl2119.partII.PSK.PSKModulator;
+import uk.ac.jl2119.partII.QAM.QAMModulator;
 import uk.ac.jl2119.partII.UEF.FSKModulator;
 import uk.ac.jl2119.partII.UEF.UEFModulator;
 
@@ -48,6 +49,9 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
                 long samplesPerCycle = Math.round(Math.floor(sampleRate / SchemeModulatorMap.DEFAULT_BASE_FREQUENCY));
                 modem = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, (int)samplesPerCycle, sampleRate);
                 break;
+            case QAM:
+                modem = new QAMModulator(sampleRate);
+                break;
             case UEF:
             case SYNC_UEF:
                 modem = new UEFModulator(true, sampleRate);
@@ -81,9 +85,10 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
 
         protected ClockSim(Double factor) {
             super(factor);
-            noise = new ComposedTransformer<Double, Double>(
-                    new AWGNTransformer(stdDev),
-                    new ClockDriftTransformer(factor)
+            noise = new ComposedTransformer<>(
+                    new ClockDriftTransformer(factor),
+                    new AttenuatorTransformer(0.5)
+                    //new AWGNTransformer(stdDev)
             );
         }
 
