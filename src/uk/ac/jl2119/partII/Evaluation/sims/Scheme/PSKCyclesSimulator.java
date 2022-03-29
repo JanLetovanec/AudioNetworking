@@ -1,79 +1,69 @@
-package uk.ac.jl2119.partII.Evaluation.sims;
+package uk.ac.jl2119.partII.Evaluation.sims.Scheme;
 
 import uk.ac.jl2119.partII.ComposedTransformer;
 import uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap;
+import uk.ac.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
+import uk.ac.jl2119.partII.Evaluation.sims.Simulator;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
-import uk.ac.jl2119.partII.UEF.FSKDemodulator;
-import uk.ac.jl2119.partII.UEF.FSKModulator;
+import uk.ac.jl2119.partII.PSK.PSKDemodulator;
+import uk.ac.jl2119.partII.PSK.PSKModulator;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FSKSymbolTimeSim implements ISimulatorGenerator<Double> {
+public class PSKCyclesSimulator implements ISimulatorGenerator<Integer> {
     private final double stdDev;
     private final int rayleighLength;
     private final double rayleighStdDev;
     private final double factor;
 
-    private final int samples;
-    private final double min;
-    private final double max;
+    private final int step;
+    private final int min;
+    private final int max;
 
-    public  FSKSymbolTimeSim(double stdDev, int rayleightLength, double min, double max, int samples, double attenuationFactor) {
+    public PSKCyclesSimulator(double stdDev, int rayleightLength, int min, int max, int step, double attenuationFactor) {
         this.factor = attenuationFactor;
         this.stdDev = stdDev;
         this.rayleighLength = rayleightLength;
         this.rayleighStdDev = attenuationFactor;
         this.min = min;
         this.max = max;
-        this.samples = samples;
+        this.step = step;
     }
 
-    public  FSKSymbolTimeSim(double stdDev, int rayleightLength, double min, double max, int samples) {
+    public PSKCyclesSimulator(double stdDev, int rayleightLength, int min, int max, int step) {
         this.factor = 0.5;
         this.stdDev = stdDev;
         this.rayleighLength = rayleightLength;
         this.rayleighStdDev = factor;
         this.min = min;
         this.max = max;
-        this.samples = samples;
+        this.step = step;
     }
 
     @Override
-    public Map<Double, Simulator<Double>> getSimulators() {
-        Map<Double, Simulator<Double>> result = new HashMap<>();
-        Double[] params = getValues();
-        Arrays.stream(params)
-                .forEach(param -> result.put(param, new FSKSim(param)));
+    public Map<Integer, Simulator<Integer>> getSimulators() {
+        Map<Integer, Simulator<Integer>> result = new HashMap<>();
+        for (int i = min; i < max; i += step) {
+            result.put(i, new PSKSim(i));
+        }
         return result;
     }
 
-    private Double[] getValues() {
-        Double[] values = new Double[samples];
-        for (int i = 0; i < samples; i++) {
-            Double value = min + (((max - min) * i) / samples);
-            values[i] = value;
-        }
-        return values;
-    }
-
-    private class FSKSim extends Simulator<Double> {
+    private class PSKSim extends Simulator<Integer> {
         private final ITransformer<Byte, Double> modulator;
         private final ITransformer<Double, Byte> demodulator;
         private final ITransformer<Double, Double> noise;
 
-        protected FSKSim(Double secondsPerSymbol) {
-            super(secondsPerSymbol);
-            modulator = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
-                    secondsPerSymbol,
-                    SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
-            demodulator = new FSKDemodulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
-                    secondsPerSymbol,
-                    SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        protected PSKSim(Integer cycles) {
+            super(cycles);
+            modulator = new PSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
+                    cycles, SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+            demodulator = new PSKDemodulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
+                    cycles, SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
             noise = new ComposedTransformer<>(
                     new AttenuatorTransformer(factor),
                     new AWGNTransformer(stdDev),

@@ -1,6 +1,8 @@
-package uk.ac.jl2119.partII.Evaluation.sims;
+package uk.ac.jl2119.partII.Evaluation.sims.Noise;
 
 import uk.ac.jl2119.partII.ComposedTransformer;
+import uk.ac.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
+import uk.ac.jl2119.partII.Evaluation.sims.Simulator;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
@@ -8,7 +10,7 @@ import uk.ac.jl2119.partII.Noises.RayleighFadingTransformer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RayleightLengthSim implements ISimulatorGenerator<Integer>{
+public class RayleightLengthSim implements ISimulatorGenerator<Integer> {
     private final ITransformer<Byte, Double> modulator;
     private final ITransformer<Double, Byte> demodulator;
     private final int stepSize;
