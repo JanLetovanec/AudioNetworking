@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap.CodingScheme;
+import static uk.ac.jl2119.partII.Evaluation.SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
 
 public class RunEval {
     private static final CodingScheme[] fastSchemes = {
@@ -17,24 +18,28 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval2.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
         myWriter.write("{\n");
 
-//        // Basic eval
-//        evaluatePowerVsError(myWriter);
-//        evaluatePowerVsUsefulRate(myWriter);
-//        evaluateBurstMeanTimeVsError(myWriter);
-
+        // Basic eval
+        evaluatePowerVsError(myWriter);
+        evaluatePowerVsUsefulRate(myWriter);
+        evaluateLengthVsError(myWriter);
+        evaluateBurstMeanTimeVsError(myWriter);
+        evaluateSmallPowerVsError(myWriter);
         evaluateClockDriftVsError(myWriter);
 
-//        evaluateSmallPowerVsError(myWriter);
-
         //RS eval
-//        evaluateCorrectionVsError(myWriter);
-//        evaluatePowerVsErrorRS(myWriter);
-//        evaluatePowerVsUsefulRS(myWriter);
-//        evaluateBurstMeanTimeVsErrorRS(myWriter);
-//        evaluateSmallPowerVsErrorRS(myWriter);
+        evaluateCorrectionVsError(myWriter);
+        evaluatePowerVsErrorRS(myWriter);
+        evaluatePowerVsUsefulRS(myWriter);
+        evaluateBurstMeanTimeVsErrorRS(myWriter);
+        evaluateSmallPowerVsErrorRS(myWriter);
+
+        //Scheme specific
+        evaluatePSK(myWriter);
+        evaluateFSK(myWriter);
+
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -58,6 +63,18 @@ public class RunEval {
         for(SchemeModulatorMap.CodingScheme scheme : fastSchemes) {
             String evalName = scheme.toString() + "powerVsUseful";
             Evaluator eval = PremadeEvaluators.defaultPowerVsUsefulRate(scheme);
+            String json = eval.stringFromMap(evalName, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(scheme.toString() + " Done!");
+        }
+    }
+
+    private static void evaluateLengthVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating RAYLEIGH LENGTH vs ERROR RATE");
+        for(SchemeModulatorMap.CodingScheme scheme : SchemeModulatorMap.CodingScheme.values()) {
+            String evalName = scheme.toString() + "RayleighVsError";
+            Evaluator eval = PremadeEvaluators.defaultRayleighVsErrorRate(scheme);
             String json = eval.stringFromMap(evalName, eval.evaluate());
             myWriter.write(json);
             myWriter.write(", \n");
@@ -196,6 +213,48 @@ public class RunEval {
                 myWriter.write(", \n");
                 System.out.println(name + " Done!");
             }
+        }
+    }
+
+    private static void evaluatePSK(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating PSK");
+        List<Double> noiseLvls = List.of(0.0,0.5,1.0,2.0);
+        for(double noiseLvl : noiseLvls) {
+            String name = "PSK|" + noiseLvl + "|CycleVsError";
+            Evaluator eval = PremadeEvaluators.PSKCyclesVsError(noiseLvl, 20);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+
+            name = "PSK|" + noiseLvl + "|CycleVsUseful";
+            eval = PremadeEvaluators.PSKCyclesVsUseful(noiseLvl, 20);
+            json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+        }
+    }
+
+    private static void evaluateFSK(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating FSK");
+        List<Double> noiseLvls = List.of(0.0,0.5,1.0,2.0);
+        for(double noiseLvl : noiseLvls) {
+            String name = "FSK|" + noiseLvl + "|SymboltimeVsError";
+            double min = 0.5 / DEFAULT_BASE_FREQUENCY;
+            double max = 20 / DEFAULT_BASE_FREQUENCY;
+            Evaluator eval = PremadeEvaluators.FSKTimeVsError(noiseLvl, 20, min, max);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+
+            name = "FSK|" + noiseLvl + "|SymboltimeVsUseful";
+            eval = PremadeEvaluators.FSKTimeVsUseful(noiseLvl, 20, min, max);
+            json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
         }
     }
 }

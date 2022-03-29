@@ -7,6 +7,12 @@ import uk.ac.jl2119.partII.Evaluation.metrics.ErrorRateCalc;
 import uk.ac.jl2119.partII.Evaluation.metrics.IMetricCalculator;
 import uk.ac.jl2119.partII.Evaluation.metrics.UsefulRateCalc;
 import uk.ac.jl2119.partII.Evaluation.sims.*;
+import uk.ac.jl2119.partII.Evaluation.sims.Noise.AWGN_PowerSimulator;
+import uk.ac.jl2119.partII.Evaluation.sims.Noise.BurstMeanTimeSim;
+import uk.ac.jl2119.partII.Evaluation.sims.Noise.ClockDriftSim;
+import uk.ac.jl2119.partII.Evaluation.sims.Noise.RayleightLengthSim;
+import uk.ac.jl2119.partII.Evaluation.sims.Scheme.FSKSymbolTimeSim;
+import uk.ac.jl2119.partII.Evaluation.sims.Scheme.PSKCyclesSimulator;
 import uk.ac.jl2119.partII.ITransformer;
 import uk.ac.jl2119.partII.ReedSolomon.RSDecoder;
 import uk.ac.jl2119.partII.ReedSolomon.RSEncoder;
@@ -32,6 +38,15 @@ public class PremadeEvaluators {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ISimulatorGenerator<Double> simGen =
                 new AWGN_PowerSimulator(pair.modem, pair.demodem, 100, min, max);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Integer, Double> defaultRayleighVsErrorRate(SchemeModulatorMap.CodingScheme scheme) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ISimulatorGenerator<Integer> simGen =
+                new RayleightLengthSim(pair.modem, pair.demodem, 1, 1, 200);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
@@ -139,6 +154,36 @@ public class PremadeEvaluators {
         ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.5, 1.5, 20, noiseLvl);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator PSKCyclesVsError(double noiseLevel, int rayleighLength) {
+        ISimulatorGenerator<Integer> simGen = new PSKCyclesSimulator(noiseLevel, rayleighLength,
+                1, 20, 1);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+    public static Evaluator PSKCyclesVsUseful(double noiseLevel, int rayleighLength) {
+        ISimulatorGenerator<Integer> simGen = new PSKCyclesSimulator(noiseLevel, rayleighLength,
+                1, 20, 1);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator FSKTimeVsError(double noiseLevel, int rayleighLength, double min, double max) {
+        ISimulatorGenerator simGen = new FSKSymbolTimeSim(noiseLevel, rayleighLength,
+                min, max, 100);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+    public static Evaluator FSKTimeVsUseful(double noiseLevel, int rayleighLength, double min, double max) {
+        ISimulatorGenerator simGen =  new FSKSymbolTimeSim(noiseLevel, rayleighLength,
+                min, max, 100);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 }
