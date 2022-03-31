@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class StreamUtils {
-    public static List<List<Byte>> partitionData(Byte[] input, int batchSize) {
-        UnmodifiableIterator<List<Byte>> batchedIterator = Iterators
+    public static <T> List<List<T>> partitionData(T[] input, int batchSize) {
+        UnmodifiableIterator<List<T>> batchedIterator = Iterators
                 .partition(Arrays.stream(input).iterator(), batchSize);
         return Lists.newArrayList(batchedIterator);
     }
