@@ -20,19 +20,19 @@ import java.util.stream.Stream;
 public class PacketEncoder implements ITransformer<Byte, Byte> {
     private final Byte[] preamble;
     private final byte startSymbol;
-    private final int payloadLength;
+    private final int packetLength;
     private final int footerLength;
 
     public PacketEncoder(Byte[] preamble, byte startOfPacket, int payloadLength, int footerLength) {
         this.preamble = preamble;
         this.startSymbol = startOfPacket;
-        this.payloadLength = payloadLength;
+        this.packetLength = payloadLength;
         this.footerLength = footerLength;
     }
 
     @Override
     public Byte[] transform(Byte[] input) {
-        List<List<Byte>> payloads = StreamUtils.partitionData(input, payloadLength);
+        List<List<Byte>> payloads = StreamUtils.partitionData(input, packetLength);
         return payloads.stream()
                 .flatMap(this::makePacket)
                 .toArray(Byte[]::new);
