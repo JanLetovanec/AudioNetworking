@@ -11,9 +11,11 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
     private final double stepSize;
     private final double bigStepSize;
     private final long sampleRate;
-    private final double batchDuration;
+    private final double batchDurationHeader;
+    private final double batchDurationPayload;
     private final int bitPerBatch;
-    private final ITransformer<Double, Byte> demod;
+    private final ITransformer<Double, Byte> demodHeader;
+    private final ITransformer<Double, Byte> demodPayload;
 
     private final byte seek;
     private  final int preambleLength;
@@ -23,15 +25,18 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
 
     private int currentOffset;
 
-    public PacketDemodulator(ITransformer<Double, Byte> demod, double stepSizeInSeconds,
-                             byte seek, int preambleLength, byte startOfPacket,
-                             int payloadLength, int footerLength,
-                             long sampleRate, double timePerBatch, int bitPerBatch) {
+    public PacketDemodulator(ITransformer<Double, Byte> headerDemod,
+                             ITransformer<Double, Byte> payloadDemod,
+                             double stepSizeInSeconds,
+                             byte seek, int preambleLength, byte startOfPacket, int payloadLength, int footerLength,
+                             long sampleRate, double timePerBatchHeader, double timePerBatchPayload, int bitPerBatch) {
         this.stepSize = stepSizeInSeconds;
-        this.bigStepSize = 5 * stepSizeInSeconds;
-        this.demod = demod;
+        this.bigStepSize = 4 * stepSizeInSeconds;
+        this.demodHeader = headerDemod;
+        this.demodPayload = payloadDemod;
         this.sampleRate = sampleRate;
-        this.batchDuration = timePerBatch;
+        this.batchDurationHeader = timePerBatchHeader;
+        this.batchDurationPayload = timePerBatchPayload;
         this.bitPerBatch = bitPerBatch;
 
         this.seek = seek;
@@ -39,6 +44,25 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
         this.start = startOfPacket;
         this.payloadLength = payloadLength;
         this.footerLength = footerLength;
+    }
+
+    public PacketDemodulator(ITransformer<Double, Byte> headerDemod,
+                             ITransformer<Double, Byte> payloadDemod,
+                             long sampleRate, double timePerBatchHeader, double timePerBatchPayload, int bitPerBatch) {
+        this.stepSize = timePerBatchHeader / 30;
+        this.bigStepSize = 4 * stepSize;
+        this.demodHeader = headerDemod;
+        this.demodPayload = payloadDemod;
+        this.sampleRate = sampleRate;
+        this.batchDurationHeader = timePerBatchHeader;
+        this.batchDurationPayload = timePerBatchPayload;
+        this.bitPerBatch = bitPerBatch;
+
+        this.seek = (byte) 0x01111111;
+        this.preambleLength = 3;
+        this.start = (byte) 0xEC;
+        this.payloadLength = 255;
+        this.footerLength = 5;
     }
 
     @Override
@@ -60,8 +84,13 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
 
     private void homeAnchor(Double[] input) {
         coarseLock(input);
-        fineLock(input);
+        if (!isAtBeginning()) {
+            fineLock(input);
+        }
     }
+     private boolean isAtBeginning() {
+        return currentOffset <= 1;
+     }
 
     private void coarseLock(Double[] input) {
         double time = getTimeFromOffset(currentOffset);
@@ -97,36 +126,36 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
      */
     private void seekStartSymbol(Double[] input) {
         double time = getTimeFromOffset(currentOffset);
-        double byteDuration = batchDuration * (8.0/ bitPerBatch);
-        double maxGuess = (time * preambleLength + 1) * byteDuration;
+        double byteDuration = getTimePerByte(true);
+        double maxTime = time + (preambleLength + 1) * byteDuration;
         byte currentByte;
         do {
             currentByte = getByte(time, input);
             time = time + byteDuration;
         }
-        while(currentByte != start && time < maxGuess);
+        while(currentByte != start && time < maxTime);
 
         currentOffset = getOffsetFromTime(time);
     }
 
     private byte getByte(double time, Double[] input) {
-        double duration = batchDuration * (8.0 / bitPerBatch);
+        double duration = getTimePerByte(true);
         Double[] byteSignal = StreamUtils.timeSlice(input, time, duration, sampleRate);
-        return demod.transform(byteSignal)[0];
+        return demodHeader.transform(byteSignal)[0];
     }
 
     private List<Byte> getPayload(Double[] input) {
         double startTime = getTimeFromOffset(currentOffset);
-        double length = batchDuration * payloadLength * (8.0 / bitPerBatch);
+        double length = getTimePerByte(false) * payloadLength;
         currentOffset = getOffsetFromTime(startTime + length);
         Double[] payload = StreamUtils.timeSlice(input, startTime, length, sampleRate);
-        Byte[] payloadData = demod.transform(payload);
+        Byte[] payloadData = demodPayload.transform(payload);
         return Arrays.stream(payloadData).toList();
     }
 
     private void skipFooter() {
         double time = getTimeFromOffset(currentOffset);
-        time += batchDuration * footerLength * (8.0 / (double) sampleRate);
+        time += footerLength * getTimePerByte(true);
         currentOffset = getOffsetFromTime(time);
     }
 
@@ -136,5 +165,12 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
 
     private int getOffsetFromTime(double time) {
         return (int) Math.floor(time * sampleRate);
+    }
+
+    private double getTimePerByte(boolean isHeader) {
+        if (isHeader) {
+            return batchDurationHeader * (8.0 / (double) bitPerBatch);
+        }
+        return batchDurationPayload * (8.0 / (double) bitPerBatch);
     }
 }
