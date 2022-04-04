@@ -36,5 +36,14 @@
     </orderEntry>
     <orderEntry type="library" name="ejml.all" level="project" />
     <orderEntry type="library" name="cc.redberry.rings" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/annotations-20.1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
