@@ -107,7 +107,7 @@ public class PacketsTest extends GenericTest {
         PacketDemodulator pDemod = new PacketDemodulator(demod, demod,
                 SchemeModulatorMap.DEFAULT_SAMPLE_RATE,
                 1/SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
-                1/SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, 1);
+                255*8/SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, 1);
 
         Double[] transmittedSignal = pMod.transform(data);
         return pDemod.transform(transmittedSignal);
