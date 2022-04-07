@@ -2,8 +2,8 @@ package uk.ac.cam.jl2119.partII.test.UEF;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.UEF.StartStopRemover;
-import uk.ac.cam.jl2119.partII.UEF.StartStopAdder;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.StartStopRemover;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.StartStopAdder;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class StartStopTest extends GenericTest {

@@ -1,8 +1,8 @@
 package uk.ac.cam.jl2119.partII.test.UEF;
 
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.UEF.UEFDemodulator;
-import uk.ac.cam.jl2119.partII.UEF.UEFModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 

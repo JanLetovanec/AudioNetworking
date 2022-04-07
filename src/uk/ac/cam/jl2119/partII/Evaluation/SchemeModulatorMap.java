@@ -1,15 +1,15 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.ComposedTransformer;
-import uk.ac.cam.jl2119.partII.Filters.LowPassFilterTransformer;
-import uk.ac.cam.jl2119.partII.ITransformer;
-import uk.ac.cam.jl2119.partII.PSK.PSKDemodulator;
-import uk.ac.cam.jl2119.partII.PSK.PSKModulator;
-import uk.ac.cam.jl2119.partII.QAM.QAMDemodulator;
-import uk.ac.cam.jl2119.partII.QAM.QAMModulator;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSDecoder;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSEncoder;
-import uk.ac.cam.jl2119.partII.UEF.*;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Filters.LowPassFilter;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.*;
 
 public class SchemeModulatorMap {
     public static long DEFAULT_SAMPLE_RATE = 44100;
@@ -45,7 +45,7 @@ public class SchemeModulatorMap {
                 double secondsPerCycle = 1.0 / DEFAULT_BASE_FREQUENCY;
                 modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, DEFAULT_SAMPLE_RATE);
                 demodem = new ComposedTransformer<>(
-                        new LowPassFilterTransformer(DEFAULT_SAMPLE_RATE, DEFAULT_BASE_FREQUENCY * 2),
+                        new LowPassFilter(DEFAULT_SAMPLE_RATE, DEFAULT_BASE_FREQUENCY * 2),
                         new FSKDemodulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, DEFAULT_SAMPLE_RATE)
                 );
                 return new SchemePair(modem, demodem);

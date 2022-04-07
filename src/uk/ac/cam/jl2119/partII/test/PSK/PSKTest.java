@@ -2,8 +2,8 @@ package uk.ac.cam.jl2119.partII.test.PSK;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.PSK.PSKDemodulator;
-import uk.ac.cam.jl2119.partII.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class PSKTest extends GenericTest {

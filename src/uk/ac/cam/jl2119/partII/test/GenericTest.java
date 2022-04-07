@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.test;
 
-import uk.ac.cam.jl2119.partII.ReedSolomon.FiniteFieldElement;
-import uk.ac.cam.jl2119.partII.ReedSolomon.Polynomial;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.FiniteFieldElement;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.Polynomial;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 
 import java.util.Random;

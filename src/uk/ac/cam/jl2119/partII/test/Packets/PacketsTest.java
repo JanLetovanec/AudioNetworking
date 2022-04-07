@@ -3,9 +3,9 @@ package uk.ac.cam.jl2119.partII.test.Packets;
 import com.google.common.base.Strings;
 import org.junit.jupiter.api.Test;
 import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
-import uk.ac.cam.jl2119.partII.ITransformer;
-import uk.ac.cam.jl2119.partII.Packets.PacketDemodulator;
-import uk.ac.cam.jl2119.partII.Packets.PacketModulator;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
+import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketDemodulator;
+import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 

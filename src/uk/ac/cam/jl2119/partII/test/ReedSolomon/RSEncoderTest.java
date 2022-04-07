@@ -3,7 +3,7 @@ package uk.ac.cam.jl2119.partII.test.ReedSolomon;
 import com.google.common.base.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSEncoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 

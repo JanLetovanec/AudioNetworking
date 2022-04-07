@@ -3,7 +3,7 @@ package uk.ac.cam.jl2119.partII.demo;
 import com.google.common.base.Strings;
 import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.RayleighFadingTransformer;
-import uk.ac.cam.jl2119.partII.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.WavManipulation.WavWriter;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 import uk.ac.cam.jl2119.thirdParty.WavFile.WavFileException;

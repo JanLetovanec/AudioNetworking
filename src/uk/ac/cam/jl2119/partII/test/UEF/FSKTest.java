@@ -2,8 +2,8 @@ package uk.ac.cam.jl2119.partII.test.UEF;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.UEF.FSKDemodulator;
-import uk.ac.cam.jl2119.partII.UEF.FSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class FSKTest extends GenericTest {

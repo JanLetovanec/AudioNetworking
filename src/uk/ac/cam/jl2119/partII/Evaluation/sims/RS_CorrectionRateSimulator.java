@@ -1,11 +1,11 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims;
 
-import uk.ac.cam.jl2119.partII.ComposedTransformer;
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.AttenuatorTransformer;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSDecoder;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSEncoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 
 import java.util.Arrays;
 import java.util.HashMap;

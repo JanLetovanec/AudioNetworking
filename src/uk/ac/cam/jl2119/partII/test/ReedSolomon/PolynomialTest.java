@@ -1,8 +1,8 @@
 package uk.ac.cam.jl2119.partII.test.ReedSolomon;
 
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.ReedSolomon.FiniteFieldElement;
-import uk.ac.cam.jl2119.partII.ReedSolomon.Polynomial;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.FiniteFieldElement;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.Polynomial;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.IDataGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.RandomDataGen;
 import uk.ac.cam.jl2119.partII.Evaluation.metrics.ErrorRateCalc;
@@ -13,9 +13,9 @@ import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.ClockDriftSim;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.RayleightLengthSim;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme.FSKSymbolTimeSim;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme.PSKCyclesSimulator;
-import uk.ac.cam.jl2119.partII.ITransformer;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSDecoder;
-import uk.ac.cam.jl2119.partII.ReedSolomon.RSEncoder;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 
 /**
  * Evaluators ready to be fired

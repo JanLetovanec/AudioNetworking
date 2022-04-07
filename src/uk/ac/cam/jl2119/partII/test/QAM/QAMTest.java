@@ -2,8 +2,8 @@ package uk.ac.cam.jl2119.partII.test.QAM;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.QAM.QAMDemodulator;
-import uk.ac.cam.jl2119.partII.QAM.QAMModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class QAMTest extends GenericTest {

@@ -1,9 +1,9 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims.Noise;
 
-import uk.ac.cam.jl2119.partII.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Simulator;
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.cam.jl2119.partII.Noises.BurstAWGNTransformer;
 

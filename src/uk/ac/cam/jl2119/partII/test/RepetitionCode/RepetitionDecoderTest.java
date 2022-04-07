@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.test.RepetitionCode;
 
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.RepetitionCode.RepetitionDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class RepetitionDecoderTest extends GenericTest {

@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Evaluation.metrics;
 
-import uk.ac.cam.jl2119.partII.Evaluation.EvalUtils;
+import uk.ac.cam.jl2119.partII.utils.EvalUtils;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Simulator;
 
 /***

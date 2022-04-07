@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.Noises;
 
 import org.apache.commons.math3.distribution.PoissonDistribution;
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.utils.StreamUtils;
 
 import java.util.Random;

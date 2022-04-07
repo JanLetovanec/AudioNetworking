@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Filters;
 
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 
 public class FIRFilter implements ITransformer<Double, Double> {
     private Double[] coefficients;

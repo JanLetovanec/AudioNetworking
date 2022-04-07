@@ -1,15 +1,15 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme;
 
-import uk.ac.cam.jl2119.partII.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Simulator;
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.cam.jl2119.partII.Noises.RayleighFadingTransformer;
-import uk.ac.cam.jl2119.partII.UEF.FSKDemodulator;
-import uk.ac.cam.jl2119.partII.UEF.FSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
 
 import java.util.Arrays;
 import java.util.HashMap;

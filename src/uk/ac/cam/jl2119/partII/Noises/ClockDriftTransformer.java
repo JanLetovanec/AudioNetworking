@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.Noises;
 
 import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
-import uk.ac.cam.jl2119.partII.ITransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 
 /**
  * Simulates clock-drift.
