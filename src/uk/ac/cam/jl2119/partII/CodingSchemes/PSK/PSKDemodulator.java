@@ -29,6 +29,12 @@ public class PSKDemodulator extends FixedBatchDemodulator {
     }
 
     @Override
+    public Byte[] transform(Double[] signal) {
+        currentPhase = 0;
+        return super.transform(signal);
+    }
+
+    @Override
     protected Boolean[] transformBits(Double[] batch) {
         boolean resultBit = getBitFromBatch(batch);
 

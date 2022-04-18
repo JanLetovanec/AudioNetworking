@@ -27,6 +27,12 @@ public class PSKModulator extends FixedBatchModulator {
     }
 
     @Override
+    public Double[] transform(Byte[] data) {
+        currentPhase = 0;
+        return super.transform(data);
+    }
+
+    @Override
     protected void transformBits(Boolean[] bits, BufferWavWriter writer) {
         Boolean bit = bits[0];
         currentPhase = getUpdatedPhase(bit);
