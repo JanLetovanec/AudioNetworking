@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketDemodulator.PREAMBLE_DEFAULT;
+
 /**
  * Slits the stream into packets.
  * Each packet consists of:
@@ -41,11 +43,26 @@ public class PacketModulator implements ITransformer<Byte, Double> {
     public PacketModulator(ITransformer<Byte, Double> headerTf, ITransformer<Byte, Double> payloadTf) {
         byte seek = (byte) 0x01111111;
         byte startOfPacket = (byte) 0xEC;
-        List<Byte> preambleList = new ArrayList<>(Collections.nCopies(3, seek));
+        List<Byte> preambleList = new ArrayList<>(Collections.nCopies(PREAMBLE_DEFAULT, seek));
         preambleList.add(startOfPacket);
         this.preamble = preambleList.toArray(Byte[]::new);
         this.packetLength = 255;
-        this.footerLength = 5;
+        this.footerLength = PREAMBLE_DEFAULT;
+
+
+        this.headerTf = headerTf;
+        this.payloadTf = payloadTf;
+    }
+
+    public PacketModulator(ITransformer<Byte, Double> headerTf, ITransformer<Byte, Double> payloadTf,
+                           int packetLength) {
+        byte seek = (byte) 0x01111111;
+        byte startOfPacket = (byte) 0xEC;
+        List<Byte> preambleList = new ArrayList<>(Collections.nCopies(PREAMBLE_DEFAULT, seek));
+        preambleList.add(startOfPacket);
+        this.preamble = preambleList.toArray(Byte[]::new);
+        this.packetLength = packetLength;
+        this.footerLength = PREAMBLE_DEFAULT;
 
 
         this.headerTf = headerTf;

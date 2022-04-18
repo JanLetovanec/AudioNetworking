@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PacketDemodulator implements ITransformer<Double, Byte> {
+    public static final int PREAMBLE_DEFAULT = 7;
+
     private final double stepSize;
     private final double bigStepSize;
     private final long sampleRate;
@@ -30,7 +32,7 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
                              byte seek, int preambleLength, byte startOfPacket, int footerLength,
                              long sampleRate, double timePerBatchHeader, double durationPayload, int bitPerBatch) {
         this.stepSize = stepSizeInSeconds;
-        this.bigStepSize = 4 * stepSizeInSeconds;
+        this.bigStepSize = 3 * stepSizeInSeconds;
         this.demodHeader = headerDemod;
         this.demodPayload = payloadDemod;
         this.sampleRate = sampleRate;
@@ -47,7 +49,7 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
     public PacketDemodulator(ITransformer<Double, Byte> headerDemod,
                              ITransformer<Double, Byte> payloadDemod,
                              long sampleRate, double timePerBatchHeader, double timePerPayload, int bitPerBatch) {
-        this.stepSize = timePerBatchHeader / 30;
+        this.stepSize = timePerBatchHeader / 40;
         this.bigStepSize = 4 * stepSize;
         this.demodHeader = headerDemod;
         this.demodPayload = payloadDemod;
@@ -57,17 +59,16 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
         this.bitPerBatch = bitPerBatch;
 
         this.seek = (byte) 0x01111111;
-        this.preambleLength = 3;
+        this.preambleLength = PREAMBLE_DEFAULT;
         this.start = (byte) 0xEC;
-        this.footerLength = 5;
+        this.footerLength = PREAMBLE_DEFAULT;
     }
 
     @Override
     public Byte[] transform(Double[] input) {
         currentTime = 0;
         List<Byte> data = new ArrayList<>();
-        while (hasDataRemaining(input)) {
-            homeAnchor(input);
+        while (hasDataRemaining(input) && homeAnchor(input)) {
             seekStartSymbol(input);
             data.addAll(getPayload(input));
             skipFooter();
@@ -77,28 +78,26 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
 
     private boolean hasDataRemaining(Double[] input) {
         double totalDuration = (double) input.length / (double) sampleRate;
-        return currentTime < (totalDuration - batchDurationHeader); // Fuzzy arithmetic - check a batch ahead
+        return currentTime < (totalDuration - durationPayload); // Fuzzy arithmetic - check a batch ahead
     }
 
-    private void homeAnchor(Double[] input) {
+    private boolean homeAnchor(Double[] input) {
         coarseLock(input);
         if (!isAtBeginning()) {
             fineLock(input);
         }
+        return hasDataRemaining(input);
     }
      private boolean isAtBeginning() {
         return currentTime <= batchDurationHeader;
      }
 
     private void coarseLock(Double[] input) {
-        double time = currentTime;
-        byte currentByte = getByte(time, input);
-        while(currentByte != seek) {
-            time += bigStepSize;
-            currentByte = getByte(time, input);
+        byte currentByte = getByte(currentTime, input);
+        while(currentByte != seek & hasDataRemaining(input)) {
+            currentTime += bigStepSize;
+            currentByte = getByte(currentTime, input);
         }
-
-        currentTime = time;
     }
 
     private void fineLock(Double[] input) {

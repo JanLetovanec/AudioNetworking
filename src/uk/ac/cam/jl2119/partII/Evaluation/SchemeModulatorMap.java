@@ -1,18 +1,18 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
-import uk.ac.cam.jl2119.partII.Filters.LowPassFilter;
-import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.*;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
-import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.*;
+import uk.ac.cam.jl2119.partII.Filters.LowPassFilter;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 
 public class SchemeModulatorMap {
-    public static long DEFAULT_SAMPLE_RATE = 44100;
+    public static long DEFAULT_SAMPLE_RATE = 48000;
     public static double DEFAULT_BASE_FREQUENCY = 1200;
 
     public enum CodingScheme {

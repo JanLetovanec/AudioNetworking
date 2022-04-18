@@ -14,6 +14,11 @@ public abstract class AbstractWriter {
 
     public abstract int writeFrames(double[] sampleBuffer, int offset, int numFramesToWrite) throws IOException, WavFileException;
 
+    public int writeNothing(int numOfSamples) throws IOException, WavFileException {
+        double[] empty = new double[numOfSamples];
+        return writeFrames(empty, empty.length);
+    }
+
     public abstract long getSampleRate();
     public abstract void close() throws IOException;
 

@@ -14,6 +14,14 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
     private final double stepSize;
     private final long sampleRate;
 
+    public UEFSyncDemodulator(double baseFrequency, int cyclesPerBit, long sampleRate) {
+        secondsPerBit = cyclesPerBit / baseFrequency;
+        this.sampleRate = sampleRate;
+        this.stepSize = 4.0 / sampleRate;
+        fsk = new FSKDemodulator(baseFrequency, secondsPerBit, sampleRate);
+        lpf = new LowPassFilter(sampleRate, 2*baseFrequency);
+    }
+
     public UEFSyncDemodulator(double baseFrequency, boolean originalMode, long sampleRate, double stepSize) {
         secondsPerBit = getSecondsPerBit(baseFrequency, originalMode);
         this.sampleRate = sampleRate;
