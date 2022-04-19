@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims.Noise;
 
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFModulator;
@@ -9,12 +9,15 @@ import uk.ac.cam.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Simulator;
 import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Framework.ITransformer;
+import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.AttenuatorTransformer;
 import uk.ac.cam.jl2119.partII.Noises.ClockDriftTransformer;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.*;
 
 public class ClockDriftSim implements ISimulatorGenerator<Double> {
     private final double min;
@@ -40,16 +43,16 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
     }
 
     private static SchemeModulatorMap.SchemePair getSourceScheme(SchemeModulatorMap.CodingScheme scheme) {
-        long sampleRate = SchemeModulatorMap.DEFAULT_SAMPLE_RATE * 100;
-        ITransformer<Double, Byte> demodem = SchemeModulatorMap.getDefaultScheme(scheme).demodem;
+        long sampleRate = DEFAULT_SAMPLE_RATE * ClockDriftTransformer.OVERSAMPLE_FACTOR;
+        ITransformer<Double, Byte> demodem = getDefaultScheme(scheme).demodem;
         ITransformer<Byte, Double> modem;
         switch (scheme) {
-            case PSK:
-                modem = new PSKModulator(sampleRate);
+            case DPSK:
+                modem = new DPSKModulator(sampleRate);
                 break;
             case FSK:
-                double secondsPerCycle = 1.0 / SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
-                modem = new FSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY, secondsPerCycle, sampleRate);
+                double secondsPerCycle = 1.0 / DEFAULT_BASE_FREQUENCY;
+                modem = new FSKModulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, sampleRate);
                 break;
             case QAM:
                 modem = new QAMModulator(sampleRate);
@@ -89,8 +92,8 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
             super(factor);
             noise = new ComposedTransformer<>(
                     new ClockDriftTransformer(factor),
-                    new AttenuatorTransformer(0.5)
-                    //new AWGNTransformer(stdDev)
+                    new AttenuatorTransformer(0.5),
+                    new AWGNTransformer(stdDev)
             );
         }
 

@@ -9,6 +9,7 @@ import java.util.List;
 
 public class PacketDemodulator implements ITransformer<Double, Byte> {
     public static final int PREAMBLE_DEFAULT = 7;
+    public static final int SEEK_SYMBOL = 0x11101010;
 
     private final double stepSize;
     private final double bigStepSize;
@@ -32,7 +33,7 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
                              byte seek, int preambleLength, byte startOfPacket, int footerLength,
                              long sampleRate, double timePerBatchHeader, double durationPayload, int bitPerBatch) {
         this.stepSize = stepSizeInSeconds;
-        this.bigStepSize = 3 * stepSizeInSeconds;
+        this.bigStepSize = 2 * stepSizeInSeconds;
         this.demodHeader = headerDemod;
         this.demodPayload = payloadDemod;
         this.sampleRate = sampleRate;
@@ -49,8 +50,8 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
     public PacketDemodulator(ITransformer<Double, Byte> headerDemod,
                              ITransformer<Double, Byte> payloadDemod,
                              long sampleRate, double timePerBatchHeader, double timePerPayload, int bitPerBatch) {
-        this.stepSize = timePerBatchHeader / 40;
-        this.bigStepSize = 4 * stepSize;
+        this.stepSize = timePerBatchHeader / 80.0;
+        this.bigStepSize = 2 * stepSize;
         this.demodHeader = headerDemod;
         this.demodPayload = payloadDemod;
         this.sampleRate = sampleRate;
@@ -58,7 +59,7 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
         this.durationPayload = timePerPayload;
         this.bitPerBatch = bitPerBatch;
 
-        this.seek = (byte) 0x01111111;
+        this.seek = (byte) SEEK_SYMBOL;
         this.preambleLength = PREAMBLE_DEFAULT;
         this.start = (byte) 0xEC;
         this.footerLength = PREAMBLE_DEFAULT;

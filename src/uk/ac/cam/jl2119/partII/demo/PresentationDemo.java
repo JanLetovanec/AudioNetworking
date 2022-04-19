@@ -1,8 +1,8 @@
 package uk.ac.cam.jl2119.partII.demo;
 
 import com.google.common.base.Strings;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.AttenuatorTransformer;
@@ -32,7 +32,7 @@ public class PresentationDemo {
 
     public static Double[] simulate(Byte[] data) {
         String filename = "./output/Presentation/demo.vaw";
-        ITransformer<Byte, Double> psk = new PSKModulator(SAMPLE_RATE);
+        ITransformer<Byte, Double> psk = new DPSKModulator(SAMPLE_RATE);
         ITransformer<Double, Double> attenuate = new AttenuatorTransformer(0.2);
         ITransformer<Double, Double> noise = new AWGNTransformer(0.2 * NOISE_VOLUME);
         return noise.transform(attenuate.transform(psk.transform(data)));
@@ -52,7 +52,7 @@ public class PresentationDemo {
     }
 
     public static Byte[] decodeSignal(Double[] data) {
-        ITransformer<Double, Byte> psk = new PSKDemodulator(SAMPLE_RATE);
+        ITransformer<Double, Byte> psk = new DPSKDemodulator(SAMPLE_RATE);
         return psk.transform(data);
     }
 

@@ -1,5 +1,7 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
@@ -16,6 +18,7 @@ public class SchemeModulatorMap {
     public static double DEFAULT_BASE_FREQUENCY = 1200;
 
     public enum CodingScheme {
+        DPSK,
         PSK,
         UEF,
         FSK,
@@ -49,9 +52,13 @@ public class SchemeModulatorMap {
                         new FSKDemodulator(DEFAULT_BASE_FREQUENCY, secondsPerCycle, DEFAULT_SAMPLE_RATE)
                 );
                 return new SchemePair(modem, demodem);
+            case DPSK:
+                modem = new DPSKModulator(DEFAULT_SAMPLE_RATE);
+                demodem = new DPSKDemodulator(DEFAULT_SAMPLE_RATE);
+                return new SchemePair(modem, demodem);
             case PSK:
-                modem = new PSKModulator(DEFAULT_SAMPLE_RATE);
-                demodem = new PSKDemodulator(DEFAULT_SAMPLE_RATE);
+                modem = new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE);
+                demodem = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE);
                 return new SchemePair(modem, demodem);
             case UEF:
                 modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);

@@ -16,7 +16,7 @@ public class PacketsTest extends GenericTest {
     void transmitsAllAsWithPSK() {
         String text = Strings.repeat("A",255);
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -25,7 +25,7 @@ public class PacketsTest extends GenericTest {
     void transmitsHelloWorldsWithPSK() {
         String text = Strings.repeat("HelloWorld",25) + "!!!!!";
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -34,7 +34,7 @@ public class PacketsTest extends GenericTest {
     void transmitsTwoPacketsOfAsPSK() {
         String text = Strings.repeat("HelloWorld",51);
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -69,7 +69,7 @@ public class PacketsTest extends GenericTest {
     @Test
     void transmitsRandomPacketWithPSK() {
         Byte[] original = generateRandomBytes(255);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -85,7 +85,7 @@ public class PacketsTest extends GenericTest {
     @Test
     void transmitsRandom3PacketsWithPSK() {
         Byte[] original = generateRandomBytes(255*3);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
 
         assertBoxedArrayEquals(original, received);
     }

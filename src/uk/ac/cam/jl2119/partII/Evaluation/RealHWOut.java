@@ -1,8 +1,9 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFModulator;
+import uk.ac.cam.jl2119.partII.Enrichments.Packets.AdvancedPacketMod;
 import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketModulator;
 import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.WavManipulation.WavWriter;
@@ -19,12 +20,13 @@ import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.DEFAULT_BASE
 import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.DEFAULT_SAMPLE_RATE;
 
 public class RealHWOut {
-    public static final int CYCLES_DEFAULT = 10;
+    public static final int CYCLES_DEFAULT = 12;
     public static final int PAYLOAD_LENGTH = 128;
 
     private static final String FILENAME = "./output/Eval/HW.wav";
 
-    private static final String LONG_STRING = getStringFromFile("./output/Eval/predictableText.txt");
+    private static final String MED_STRING = getStringFromFile("./output/Eval/predictableText.txt");
+    private static final String LONG_STRING = getStringFromFile("./output/Eval/sampleText.txt");
 
     private static String getStringFromFile(String filename) {
         try {
@@ -37,17 +39,23 @@ public class RealHWOut {
 
     public static void main(String[] args) throws IOException, WavFileException {
 
-        Double[] pskPackets = getSignal(LONG_STRING, getPSK());
-        Double[] qamPackets = getSignal(LONG_STRING, getQAM());
+        Double[] apskMed = getSignal(MED_STRING, getAdvancedPSK());
+        Double[] apskLong = getSignal(LONG_STRING, getAdvancedPSK());
 
-        Double[][] allData = new Double[][] {pskPackets, qamPackets};
+        Double[][] allData = new Double[][] {apskMed};
         writeAll(FILENAME, allData);
     }
 
     private static ITransformer<Byte, Double> getPSK() {
-        PSKModulator psk1 = new PSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
-        PSKModulator psk2 = new PSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        DPSKModulator psk1 = new DPSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        DPSKModulator psk2 = new DPSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
         return new PacketModulator(psk1, psk2, PAYLOAD_LENGTH);
+    }
+
+    private static ITransformer<Byte, Double> getAdvancedPSK() {
+        DPSKModulator psk1 = new DPSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        DPSKModulator psk2 = new DPSKModulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        return new AdvancedPacketMod(psk1, psk2, PAYLOAD_LENGTH);
     }
 
     private static ITransformer<Byte, Double> getQAM() {

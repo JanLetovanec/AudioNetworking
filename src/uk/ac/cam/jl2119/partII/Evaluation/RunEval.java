@@ -10,7 +10,7 @@ import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.DEFAULT_BASE
 public class RunEval {
     private static final CodingScheme[] fastSchemes = {
             CodingScheme.FSK,
-            CodingScheme.PSK,
+            CodingScheme.DPSK,
             CodingScheme.UEF,
             CodingScheme.QAM
     };
@@ -18,27 +18,27 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval1.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
         myWriter.write("{\n");
 
-//        // Basic eval
-//        evaluatePowerVsError(myWriter);
-//        evaluatePowerVsUsefulRate(myWriter);
-//        evaluateLengthVsError(myWriter);
-//        evaluateBurstMeanTimeVsError(myWriter);
-//        evaluateSmallPowerVsError(myWriter);
-//        evaluateClockDriftVsError(myWriter);
-//
-//        //RS eval
-//        evaluateCorrectionVsError(myWriter);
-//        evaluatePowerVsErrorRS(myWriter);
-//        evaluatePowerVsUsefulRS(myWriter);
-//        evaluateBurstMeanTimeVsErrorRS(myWriter);
-//        evaluateSmallPowerVsErrorRS(myWriter);
-//
-//        //Scheme specific
-//        evaluatePSK(myWriter);
-//        evaluateFSK(myWriter);
+        // Basic eval
+        evaluatePowerVsError(myWriter);
+        evaluatePowerVsUsefulRate(myWriter);
+        evaluateLengthVsError(myWriter);
+        evaluateBurstMeanTimeVsError(myWriter);
+        evaluateSmallPowerVsError(myWriter);
+        evaluateClockDriftVsError(myWriter);
+
+        //RS eval
+        evaluateCorrectionVsError(myWriter);
+        evaluatePowerVsErrorRS(myWriter);
+        evaluatePowerVsUsefulRS(myWriter);
+        evaluateBurstMeanTimeVsErrorRS(myWriter);
+        evaluateSmallPowerVsErrorRS(myWriter);
+
+        //Scheme specific
+        evaluatePSK(myWriter);
+        evaluateFSK(myWriter);
 
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);

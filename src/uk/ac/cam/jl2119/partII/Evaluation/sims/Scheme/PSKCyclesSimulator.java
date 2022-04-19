@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme;
 
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.ISimulatorGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Simulator;
@@ -60,9 +60,9 @@ public class PSKCyclesSimulator implements ISimulatorGenerator<Integer> {
 
         protected PSKSim(Integer cycles) {
             super(cycles);
-            modulator = new PSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
+            modulator = new DPSKModulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
                     cycles, SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
-            demodulator = new PSKDemodulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
+            demodulator = new DPSKDemodulator(SchemeModulatorMap.DEFAULT_BASE_FREQUENCY,
                     cycles, SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
             noise = new ComposedTransformer<>(
                     new AttenuatorTransformer(factor),

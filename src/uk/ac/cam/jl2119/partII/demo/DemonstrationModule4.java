@@ -1,7 +1,7 @@
 package uk.ac.cam.jl2119.partII.demo;
 
 import com.google.common.base.Strings;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.Noises.AWGNTransformer;
 import uk.ac.cam.jl2119.partII.Noises.RayleighFadingTransformer;
 import uk.ac.cam.jl2119.partII.WavManipulation.WavWriter;
@@ -19,7 +19,7 @@ public class DemonstrationModule4 {
         writeOut("./output/Module4/pureWhite.wav", noise);
 
         String data = Strings.repeat("This is some sample data to be encodded, so be careful about it",10);
-        Double[] signal = new PSKModulator(SAMPLE_RATE).transform(Boxer.box(data.getBytes()));
+        Double[] signal = new DPSKModulator(SAMPLE_RATE).transform(Boxer.box(data.getBytes()));
         writeOut("./output/Module4/pureSignal.wav", signal);
 
         Double[] signalWithNoise = new AWGNTransformer(0.2).transform(signal);

@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFSyncDemodulator;
@@ -22,13 +22,13 @@ public class RealHWIn {
     private static final String PREFIX = "./output/Eval/";
 
     public static void main(String[] args) throws IOException, WavFileException {
-        printContentsPSK(PREFIX + "PSK_LONG.wav");
-        printContentsUEF(PREFIX + "QAM_LONG.wav");
+        printContentsPSK(PREFIX + "APSK_MED.wav");
+        printContentsPSK(PREFIX + "APSK_LONG.wav");
     }
 
     private static void printContentsPSK(String filename) throws IOException, WavFileException {
-        PSKDemodulator psk1 = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
-        PSKDemodulator psk2 = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        DPSKDemodulator psk1 = new DPSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        DPSKDemodulator psk2 = new DPSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
         double timePerBatch = (CYCLES_DEFAULT * 1.0) / DEFAULT_BASE_FREQUENCY;
 
         ITransformer<Double, Byte> transformer = new PacketDemodulator(psk1,psk2,
@@ -38,7 +38,7 @@ public class RealHWIn {
     }
 
     private static void printContentsFSK(String filename) throws IOException, WavFileException {
-        double timePerBatch = 10.0 / DEFAULT_BASE_FREQUENCY;
+        double timePerBatch = (CYCLES_DEFAULT * 1.0) / DEFAULT_BASE_FREQUENCY;
         FSKDemodulator fsk1 = new FSKDemodulator(DEFAULT_BASE_FREQUENCY,
                 timePerBatch,
                 DEFAULT_SAMPLE_RATE);
@@ -53,12 +53,13 @@ public class RealHWIn {
     }
 
     private static void printContentsQAM(String filename) throws IOException, WavFileException {
-        QAMDemodulator qam1 = new QAMDemodulator(DEFAULT_BASE_FREQUENCY, 10, DEFAULT_SAMPLE_RATE);
-        QAMDemodulator qam2 = new QAMDemodulator(DEFAULT_BASE_FREQUENCY, 10, DEFAULT_SAMPLE_RATE);
-        double timePerBatch = 10.0 / DEFAULT_BASE_FREQUENCY;
+        QAMDemodulator qam1 = new QAMDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        QAMDemodulator qam2 = new QAMDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        double timePerBatch = (CYCLES_DEFAULT * 1.0) / DEFAULT_BASE_FREQUENCY;
 
         ITransformer<Double, Byte> transformer = new PacketDemodulator(qam1, qam2,
-                SchemeModulatorMap.DEFAULT_SAMPLE_RATE, timePerBatch, timePerBatch * 255 * 4, 2);
+                SchemeModulatorMap.DEFAULT_SAMPLE_RATE, timePerBatch,
+                timePerBatch * PAYLOAD_LENGTH * 4, 2);
         printData(filename, transformer);
     }
 

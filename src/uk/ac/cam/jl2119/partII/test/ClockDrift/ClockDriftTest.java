@@ -1,8 +1,8 @@
 package uk.ac.cam.jl2119.partII.test.ClockDrift;
 
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFModulator;
 import uk.ac.cam.jl2119.partII.Framework.ITransformer;
@@ -22,9 +22,9 @@ public class ClockDriftTest extends GenericTest {
 
     @Test
     void tranlatesZeroAsNormalPSK() {
-        modem = new PSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
+        modem = new DPSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
         noise = new ClockDriftTransformer(1);
-        demod = new PSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
+        demod = new DPSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
 
         Byte[] input = {0};
         Byte[] output = translateBytes(input);
@@ -33,9 +33,9 @@ public class ClockDriftTest extends GenericTest {
 
     @Test
     void tranlatesFFAsNormalPSK() {
-        modem = new PSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
+        modem = new DPSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
         noise = new ClockDriftTransformer(1);
-        demod = new PSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
+        demod = new DPSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
 
         Byte[] input = {(byte) 0xFF};
         Byte[] output = translateBytes(input);
@@ -44,9 +44,9 @@ public class ClockDriftTest extends GenericTest {
 
     @Test
     void tranlatesHighLowAsNormalPSK() {
-        modem = new PSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
+        modem = new DPSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
         noise = new ClockDriftTransformer(1);
-        demod = new PSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
+        demod = new DPSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
 
         Byte[] input = {5,124,5, 110, 25, 25};
         Byte[] output = translateBytes(input);
@@ -55,9 +55,9 @@ public class ClockDriftTest extends GenericTest {
 
     @Test
     void tranlatesRandomAsNormalPSK() {
-        modem = new PSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
+        modem = new DPSKModulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE*oversampleFactor);
         noise = new ClockDriftTransformer(1);
-        demod = new PSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
+        demod = new DPSKDemodulator(BASE_FREQUENCY, CYCLES_PER_SYMBOL, SAMPLE_RATE);
 
         Byte[] input = generateRandomBytes(500);
         Byte[] output = translateBytes(input);
