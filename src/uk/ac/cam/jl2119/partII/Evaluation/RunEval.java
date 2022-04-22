@@ -33,7 +33,7 @@ public class RunEval {
         myWriter.write("{\n");
 
         // Basic eval
-        evaluatePowerVsError(myWriter);
+        //evaluatePowerVsError(myWriter);
         //evaluatePowerVsUsefulRate(myWriter);
         //evaluateLengthVsError(myWriter);
         //evaluateBurstMeanTimeVsError(myWriter);
@@ -53,6 +53,7 @@ public class RunEval {
 
         //evaluateRepetitions(myWriter);
         //evaluateEC(myWriter);
+        evaluateBurstMeanTimeVsErrorAll(myWriter);
 
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
@@ -161,7 +162,7 @@ public class RunEval {
 
     private static void evaluateBurstMeanTimeVsErrorRS(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating BURST RATE vs ERROR RATE");
-        List<Integer> correctionCounts = List.of(5,32,64,100);
+        List<Integer> correctionCounts = List.of(5,32,64,204);
         for (SchemeModulatorMap.CodingScheme scheme :fastSchemes) {
             for(int correctionCount : correctionCounts) {
                 String name = scheme.toString() + "|" + correctionCount + "|BurstRSVsError";
@@ -338,5 +339,30 @@ public class RunEval {
             myWriter.write(", \n");
             System.out.println(name + " Done!");
         }
+    }
+
+    private static void evaluateBurstMeanTimeVsErrorAll(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating BURST RATE vs ERROR RATE");
+        List<Integer> correctionCounts = List.of(32,64,204);
+        CodingScheme scheme = CodingScheme.PSK;
+        for(int correctionCount : correctionCounts) {
+            String name = scheme.name() + "|" + correctionCount + "|320|BurstRSVsError";
+
+            Evaluator eval = PremadeEvaluators.RSburstMeanTimeVsErrorRate(scheme,
+                    1, 320,
+                    correctionCount);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+        }
+
+        String name = scheme.name() + "|320|BurstVsError";
+        Evaluator eval = PremadeEvaluators.burstMeanTimeVsErrorRate(scheme,
+                1, 320);
+        String json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
     }
 }

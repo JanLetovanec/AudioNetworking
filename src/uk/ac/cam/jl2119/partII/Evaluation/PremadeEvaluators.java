@@ -1,5 +1,7 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
+import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionEncoder;
 import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.IDataGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.RandomDataGen;
@@ -126,6 +128,22 @@ public class PremadeEvaluators {
                 new RSEncoder(correctionSymbols), pair.modem);
         ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
                 pair.demodem, new RSDecoder(correctionSymbols)
+        );
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 10, 2000, 10);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator RepetburstMeanTimeVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                       double noiseLevel, int burstLength,
+                                                       int correctionCount) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ITransformer<Byte, Double> modem = new ComposedTransformer<>(
+                new RepetitionEncoder(correctionCount), pair.modem);
+        ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
+                pair.demodem, new RepetitionDecoder(correctionCount)
         );
         ISimulatorGenerator<Integer> simGen =
                 new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 10, 2000, 10);
