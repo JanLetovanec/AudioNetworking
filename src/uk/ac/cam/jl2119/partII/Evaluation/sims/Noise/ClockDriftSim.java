@@ -1,6 +1,7 @@
 package uk.ac.cam.jl2119.partII.Evaluation.sims.Noise;
 
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFModulator;
@@ -49,6 +50,9 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
         switch (scheme) {
             case DPSK:
                 modem = new DPSKModulator(sampleRate);
+                break;
+            case PSK:
+                modem = new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE);
                 break;
             case FSK:
                 double secondsPerCycle = 1.0 / DEFAULT_BASE_FREQUENCY;

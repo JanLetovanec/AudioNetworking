@@ -1,11 +1,22 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
+import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionEncoder;
+import uk.ac.cam.jl2119.partII.Filters.LowPassFilter;
+import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.CodingScheme;
-import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.DEFAULT_BASE_FREQUENCY;
+import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.*;
 
 public class RunEval {
     private static final CodingScheme[] fastSchemes = {
@@ -18,27 +29,30 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval0.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval1.json");
         myWriter.write("{\n");
 
         // Basic eval
         evaluatePowerVsError(myWriter);
-        evaluatePowerVsUsefulRate(myWriter);
-        evaluateLengthVsError(myWriter);
-        evaluateBurstMeanTimeVsError(myWriter);
-        evaluateSmallPowerVsError(myWriter);
-        evaluateClockDriftVsError(myWriter);
+        //evaluatePowerVsUsefulRate(myWriter);
+        //evaluateLengthVsError(myWriter);
+        //evaluateBurstMeanTimeVsError(myWriter);
+        //evaluateSmallPowerVsError(myWriter);
+        //evaluateClockDriftVsError(myWriter);
 
         //RS eval
-        evaluateCorrectionVsError(myWriter);
-        evaluatePowerVsErrorRS(myWriter);
-        evaluatePowerVsUsefulRS(myWriter);
-        evaluateBurstMeanTimeVsErrorRS(myWriter);
-        evaluateSmallPowerVsErrorRS(myWriter);
+        //evaluateCorrectionVsError(myWriter);
+        //evaluatePowerVsErrorRS(myWriter);
+        //evaluatePowerVsUsefulRS(myWriter);
+        //evaluateBurstMeanTimeVsErrorRS(myWriter);
+        //evaluateSmallPowerVsErrorRS(myWriter);
 
         //Scheme specific
-        evaluatePSK(myWriter);
-        evaluateFSK(myWriter);
+        //evaluatePSK(myWriter);
+        //evaluateFSK(myWriter);
+
+        //evaluateRepetitions(myWriter);
+        //evaluateEC(myWriter);
 
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
@@ -251,6 +265,74 @@ public class RunEval {
 
             name = "FSK|" + noiseLvl + "|SymboltimeVsUseful";
             eval = PremadeEvaluators.FSKTimeVsUseful(noiseLvl, 20, min, max);
+            json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+        }
+    }
+
+    private static void evaluateRepetitions(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating Repets");
+        List<Integer> repetitions = List.of(2, 3, 5, 10);
+        for (CodingScheme scheme : CodingScheme.values()) {
+            for(int repets : repetitions) {
+                String name = scheme.name() + "|" + repets + "|CorrectionVsErrorRepets";
+                ITransformer<Byte, Double> repMod = new ComposedTransformer<>(
+                        new RepetitionEncoder(repets),
+                        getDefaultScheme(scheme).modem);
+                ITransformer<Double, Byte> repDemod = new ComposedTransformer<>(
+                        getDefaultScheme(scheme).demodem,
+                        new RepetitionDecoder(repets));
+                Evaluator eval = PremadeEvaluators.tfVsErrorRate(repMod, repDemod);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
+    }
+
+    private static void evaluateEC(FileWriter myWriter) throws IOException {
+        System.out.println("EValuating EC - RS");
+        CodingScheme[] schemes = new CodingScheme[]{CodingScheme.PSK, CodingScheme.DPSK, CodingScheme.FSK};
+        for (CodingScheme scheme : schemes) {
+            String name = scheme.name() + "|204|CorrectionVsErrorRS";
+            Evaluator eval = PremadeEvaluators.RSPowerRVsErrorRate(scheme, 204);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+        }
+
+        System.out.println("EValuating EC - Bit Durations");
+        List<Integer> repetitions = List.of(2, 3, 5, 10);
+        for(int repets : repetitions) {
+            String name = "DPSK|" + repets + "|CorrectionVsErrorCycles";
+            ITransformer<Byte, Double> mod = new DPSKModulator(DEFAULT_BASE_FREQUENCY, repets, DEFAULT_SAMPLE_RATE);
+            ITransformer<Double, Byte> demod = new DPSKDemodulator(DEFAULT_BASE_FREQUENCY, repets, DEFAULT_SAMPLE_RATE);
+            Evaluator eval = PremadeEvaluators.tfVsErrorRate(mod, demod);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+
+            name = "PSK|" + repets + "|CorrectionVsErrorCycles";
+            mod = new PSKModulator(DEFAULT_BASE_FREQUENCY, repets, DEFAULT_SAMPLE_RATE);
+            demod = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, repets, DEFAULT_SAMPLE_RATE);
+            eval = PremadeEvaluators.tfVsErrorRate(mod, demod);
+            json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
+
+            name = "FSK|" + repets + "|CorrectionVsErrorCycles";
+            double duration = (double) repets / DEFAULT_BASE_FREQUENCY;
+            mod = new FSKModulator(DEFAULT_BASE_FREQUENCY, duration, DEFAULT_SAMPLE_RATE);
+            demod = new ComposedTransformer<>(
+                    new LowPassFilter(DEFAULT_SAMPLE_RATE, 2*DEFAULT_BASE_FREQUENCY),
+                    new FSKDemodulator(DEFAULT_BASE_FREQUENCY, duration, DEFAULT_SAMPLE_RATE));
+            eval = PremadeEvaluators.tfVsErrorRate(mod, demod);
             json = eval.stringFromMap(name, eval.evaluate());
             myWriter.write(json);
             myWriter.write(", \n");

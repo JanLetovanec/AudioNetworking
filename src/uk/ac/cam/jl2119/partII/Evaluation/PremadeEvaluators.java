@@ -164,6 +164,7 @@ public class PremadeEvaluators {
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
+
     public static Evaluator PSKCyclesVsUseful(double noiseLevel, int rayleighLength) {
         ISimulatorGenerator<Integer> simGen = new PSKCyclesSimulator(noiseLevel, rayleighLength,
                 1, 20, 1);
@@ -184,6 +185,14 @@ public class PremadeEvaluators {
                 min, max, 100);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> tfVsErrorRate(ITransformer<Byte, Double> mod, ITransformer<Double, Byte> demod) {
+        ISimulatorGenerator<Double> simGen =
+                new AWGN_PowerSimulator(mod, demod, 100, 0, 5);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 }

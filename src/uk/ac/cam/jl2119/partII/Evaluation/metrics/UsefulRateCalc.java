@@ -17,11 +17,24 @@ public class UsefulRateCalc<P> implements IMetricCalculator<Double, P>{
 
     @Override
     public Double getMetric(Byte[] input, Simulator<P> sim) {
+        int sentBytes = input.length;
+        double signalDuration = (double) sim.getReceivedSignal(input).length / sampleRate;
+        double mutualInfo = getMutualInfo(input, sim);
+
+        return mutualInfo * 8.0 * (sentBytes / signalDuration);
+    }
+
+    private double getMutualInfo(Byte[] input, Simulator<P> sim) {
         Byte[] output = sim.getReceivedData(input);
         int correctBits = EvalUtils.getCorrectBits(input, output);
+        double errorRate = ((double) correctBits) / input.length;
 
-        Double[] signal = sim.getReceivedSignal(input);
-        double signalLengthInSeconds = ((double) signal.length) / ((double) sampleRate);
-        return ((double) correctBits) / signalLengthInSeconds;
+        return 1.0
+                + errorRate * log2(errorRate)
+                + (1 - errorRate) * log2(errorRate);
+    }
+
+    private double log2(double n) {
+        return Math.log(n) / Math.log(2);
     }
 }

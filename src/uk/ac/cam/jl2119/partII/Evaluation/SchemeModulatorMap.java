@@ -69,7 +69,7 @@ public class SchemeModulatorMap {
                 demodem = new QAMDemodulator(DEFAULT_SAMPLE_RATE);
                 return new SchemePair(modem, demodem);
             case SYNC_UEF:
-                double stepSize = 5.0 / DEFAULT_SAMPLE_RATE;
+                double stepSize = 3.0 / DEFAULT_SAMPLE_RATE;
                 modem = new UEFModulator(true, DEFAULT_SAMPLE_RATE);
                 demodem = new UEFSyncDemodulator(DEFAULT_BASE_FREQUENCY, true, DEFAULT_SAMPLE_RATE, stepSize);
                 return new SchemePair(modem, demodem);
