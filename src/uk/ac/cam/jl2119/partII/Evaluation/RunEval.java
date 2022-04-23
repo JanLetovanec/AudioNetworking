@@ -6,6 +6,8 @@ import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
+import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionEncoder;
 import uk.ac.cam.jl2119.partII.Filters.LowPassFilter;
@@ -29,7 +31,7 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval1.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval4.json");
         myWriter.write("{\n");
 
         // Basic eval
@@ -54,6 +56,7 @@ public class RunEval {
         //evaluateRepetitions(myWriter);
         //evaluateEC(myWriter);
         evaluateBurstMeanTimeVsErrorAll(myWriter);
+        //evaluateCombined(myWriter);
 
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
@@ -343,26 +346,61 @@ public class RunEval {
 
     private static void evaluateBurstMeanTimeVsErrorAll(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating BURST RATE vs ERROR RATE");
-        List<Integer> correctionCounts = List.of(32,64,204);
         CodingScheme scheme = CodingScheme.PSK;
-        for(int correctionCount : correctionCounts) {
-            String name = scheme.name() + "|" + correctionCount + "|320|BurstRSVsError";
+        double noiseLvl = 4;
+        int burstLength = 320;
 
-            Evaluator eval = PremadeEvaluators.RSburstMeanTimeVsErrorRate(scheme,
-                    1, 320,
-                    correctionCount);
-            String json = eval.stringFromMap(name, eval.evaluate());
-            myWriter.write(json);
-            myWriter.write(", \n");
-            System.out.println(name + " Done!");
-        }
 
-        String name = scheme.name() + "|320|BurstVsError";
-        Evaluator eval = PremadeEvaluators.burstMeanTimeVsErrorRate(scheme,
-                1, 320);
+        String name = scheme.name() + "|128|320|BurstRSVsError";
+
+        Evaluator eval = PremadeEvaluators.RSburstMeanTimeVsErrorRate(scheme,
+                noiseLvl, burstLength,
+                128);
         String json = eval.stringFromMap(name, eval.evaluate());
         myWriter.write(json);
         myWriter.write(", \n");
         System.out.println(name + " Done!");
+
+        name = scheme.name() + "|"+ burstLength +"|BurstVsError";
+        eval = PremadeEvaluators.burstMeanTimeVsErrorRate(scheme,
+                noiseLvl, burstLength);
+        json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+
+        name = scheme.name() + "|"+ burstLength +"|BurstCyclesVsError";
+        eval = PremadeEvaluators.LongPSKBurstMeanTimeVsErrorRate(
+                noiseLvl, burstLength, 2);
+        json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+    }
+
+    private static void evaluateCombined(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating COMBINED vs ERROR RATE");
+
+        ITransformer<Byte, Double> mod = new ComposedTransformer<>(
+                new RSEncoder(64),
+                new PSKModulator(DEFAULT_BASE_FREQUENCY, 5, DEFAULT_SAMPLE_RATE)
+        );
+        ITransformer<Double, Byte> demod = new ComposedTransformer<>(
+                new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 5, DEFAULT_SAMPLE_RATE),
+                new RSDecoder(64)
+        );
+        String evalName =  "Combined|powerVsError";
+        Evaluator eval = PremadeEvaluators.tfVsErrorRate(mod, demod);
+        String json = eval.stringFromMap(evalName, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(evalName + " Done!");
+
+        evalName =  "Combined|RS|powerVsError";
+        eval = PremadeEvaluators.RSPowerRVsErrorRate(CodingScheme.PSK, 64);
+        json = eval.stringFromMap(evalName, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(evalName + " Done!");
     }
 }

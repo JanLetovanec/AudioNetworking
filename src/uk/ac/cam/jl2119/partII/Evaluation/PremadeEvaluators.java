@@ -1,5 +1,7 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionEncoder;
 import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
@@ -19,6 +21,8 @@ import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 
+import static uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap.*;
+
 /**
  * Evaluators ready to be fired
  */
@@ -37,7 +41,7 @@ public class PremadeEvaluators {
 
     public static Evaluator<Double, Double> defaultPowerVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
                                                                     double min, double max) {
-        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        SchemeModulatorMap.SchemePair pair = getDefaultScheme(scheme);
         ISimulatorGenerator<Double> simGen =
                 new AWGN_PowerSimulator(pair.modem, pair.demodem, 100, min, max);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
@@ -46,7 +50,7 @@ public class PremadeEvaluators {
     }
 
     public static Evaluator<Integer, Double> defaultRayleighVsErrorRate(SchemeModulatorMap.CodingScheme scheme) {
-        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        SchemeModulatorMap.SchemePair pair = getDefaultScheme(scheme);
         ISimulatorGenerator<Integer> simGen =
                 new RayleightLengthSim(pair.modem, pair.demodem, 1, 1, 200);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
@@ -55,11 +59,11 @@ public class PremadeEvaluators {
     }
 
     public static Evaluator<Double, Double> defaultPowerVsUsefulRate(SchemeModulatorMap.CodingScheme scheme) {
-        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        SchemeModulatorMap.SchemePair pair = getDefaultScheme(scheme);
         ISimulatorGenerator<Double> simGen =
                 new AWGN_PowerSimulator(pair.modem, pair.demodem, 100, 0, 5);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
-        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        IMetricCalculator metricCalc = new UsefulRateCalc(DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
@@ -114,7 +118,32 @@ public class PremadeEvaluators {
                                                                      double noiseLevel, int burstLength) {
         SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
         ISimulatorGenerator<Integer> simGen =
-                new BurstMeanTimeSim(pair.modem, pair.demodem, burstLength, noiseLevel, 10, 2000, 10);
+                new BurstMeanTimeSim(pair.modem, pair.demodem, burstLength, noiseLevel, 10, 6000, 10);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> repetBurstMeanTimeVsErrorRate(SchemeModulatorMap.CodingScheme scheme,
+                                                                     double noiseLevel, int burstLength, int correctionSymbols) {
+        SchemeModulatorMap.SchemePair pair = SchemeModulatorMap.getDefaultScheme(scheme);
+        ITransformer<Byte, Double> modem = new ComposedTransformer<>(
+                new RepetitionEncoder(correctionSymbols), pair.modem);
+        ITransformer<Double, Byte> demodem = new ComposedTransformer<>(
+                pair.demodem, new RepetitionDecoder(correctionSymbols)
+        );
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 50, 6000, 50);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator<Double, Double> LongPSKBurstMeanTimeVsErrorRate(double noiseLevel, int burstLength, int cycleCount) {
+        ITransformer<Byte, Double> modem = new PSKModulator(DEFAULT_BASE_FREQUENCY, cycleCount, DEFAULT_SAMPLE_RATE);
+        ITransformer<Double, Byte> demodem = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, cycleCount, DEFAULT_SAMPLE_RATE);
+        ISimulatorGenerator<Integer> simGen =
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 50, 6000, 50);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
@@ -130,7 +159,7 @@ public class PremadeEvaluators {
                 pair.demodem, new RSDecoder(correctionSymbols)
         );
         ISimulatorGenerator<Integer> simGen =
-                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 10, 2000, 10);
+                new BurstMeanTimeSim(modem, demodem, burstLength, noiseLevel, 50, 6000, 50);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
