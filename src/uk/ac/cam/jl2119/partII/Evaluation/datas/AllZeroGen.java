@@ -15,7 +15,7 @@ public class AllZeroGen implements IDataGenerator {
     public Byte[][] getData() {
         Byte[][] allData = new Byte[numberOfSamples][];
         for(int i = 0; i < numberOfSamples; i++) {
-            allData[i] = Collections.nCopies(lengthSingle, 0)
+            allData[i] = Collections.nCopies(lengthSingle, (byte)0)
                     .toArray(Byte[]::new);
         }
 

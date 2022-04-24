@@ -43,6 +43,18 @@ public class ClockDriftSim implements ISimulatorGenerator<Double> {
         this.demodulator = pair.demodem;
     }
 
+    public ClockDriftSim(ITransformer<Byte, Double> modem, ITransformer<Double, Byte> demodem,
+                         double min, double max, int samples,
+                         double stdDev){
+        this.samples = samples;
+        this.min = min;
+        this.max = max;
+        this.stdDev = stdDev;
+
+        this.modulator = modem;
+        this.demodulator = demodem;
+    }
+
     private static SchemeModulatorMap.SchemePair getSourceScheme(SchemeModulatorMap.CodingScheme scheme) {
         long sampleRate = DEFAULT_SAMPLE_RATE * ClockDriftTransformer.OVERSAMPLE_FACTOR;
         ITransformer<Double, Byte> demodem = getDefaultScheme(scheme).demodem;

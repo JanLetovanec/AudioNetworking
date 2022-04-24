@@ -31,7 +31,7 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/eval4.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/evalT.json");
         myWriter.write("{\n");
 
         // Basic eval
@@ -53,11 +53,15 @@ public class RunEval {
         //evaluatePSK(myWriter);
         //evaluateFSK(myWriter);
 
+        //AD-HOC
         //evaluateRepetitions(myWriter);
         //evaluateEC(myWriter);
-        evaluateBurstMeanTimeVsErrorAll(myWriter);
+        //evaluateBurstMeanTimeVsErrorAll(myWriter);
         //evaluateCombined(myWriter);
-
+        //evaluateRayleighRenewingVsError(myWriter);
+        // evaluateRayleighVsErrorWithStaticData(myWriter);
+        //evaluateClockDriftDataLenVsError(myWriter);
+        evaluateClockDriftVsError(myWriter);
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -402,5 +406,62 @@ public class RunEval {
         myWriter.write(json);
         myWriter.write(", \n");
         System.out.println(evalName + " Done!");
+    }
+
+    private static void evaluateRayleighRenewingVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating RAYLEIGH LENGTH vs ERROR RATE but RENEWS!");
+        int defaultSamples = PremadeEvaluators.numberOfSamples;
+        int defaultSingle = PremadeEvaluators.lengthOfSingle;
+        PremadeEvaluators.numberOfSamples = 1;
+        PremadeEvaluators.lengthOfSingle = 100;
+
+        for(SchemeModulatorMap.CodingScheme scheme : SchemeModulatorMap.CodingScheme.values()) {
+            for (int i = 0; i < 100; i ++) {
+                String evalName = scheme.name()+ "|" + i + "|RayleighVsError";
+                Evaluator eval = PremadeEvaluators.defaultRayleighVsErrorRate(scheme);
+                String json = eval.stringFromMap(evalName, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+            }
+            System.out.println(scheme.name() + " Done!");
+        }
+        PremadeEvaluators.numberOfSamples = defaultSamples;
+        PremadeEvaluators.lengthOfSingle = defaultSingle;
+    }
+
+    private static void evaluateRayleighVsErrorWithStaticData(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating RAYLEIGH LENGTH vs ERROR RATE but STATIC DATA!");
+        int defaultSamples = PremadeEvaluators.numberOfSamples;
+        int defaultSingle = PremadeEvaluators.lengthOfSingle;
+        PremadeEvaluators.numberOfSamples = 1;
+        PremadeEvaluators.lengthOfSingle = 100;
+
+        for(SchemeModulatorMap.CodingScheme scheme : SchemeModulatorMap.CodingScheme.values()) {
+            String evalName = scheme.name()+ "|StaticRayleighVsError";
+            Evaluator eval = PremadeEvaluators.defaultStaticRayleighVsErrorRate(scheme);
+            String json = eval.stringFromMap(evalName, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(scheme.name() + " Done!");
+        }
+        PremadeEvaluators.numberOfSamples = defaultSamples;
+        PremadeEvaluators.lengthOfSingle = defaultSingle;
+    }
+
+    private static void evaluateClockDriftDataLenVsError(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating DRIFT DATA LENGTH  vs ERROR RATE");
+        List<Double> noiseLevels = List.of(0.0, 0.2);
+        CodingScheme[] schemes= new CodingScheme[] {CodingScheme.PSK, CodingScheme.UEF, CodingScheme.SYNC_UEF};
+        for (CodingScheme scheme :schemes) {
+            for(double noiseLvl : noiseLevels) {
+                String name = scheme.name() + "|" + noiseLvl + "|DataLenClockDriftVsError";
+
+                Evaluator eval = PremadeEvaluators.clockDriftDataLengthVsErrorRate(scheme, noiseLvl);
+                String json = eval.stringFromMap(name, eval.evaluate());
+                myWriter.write(json);
+                myWriter.write(", \n");
+                System.out.println(name + " Done!");
+            }
+        }
     }
 }
