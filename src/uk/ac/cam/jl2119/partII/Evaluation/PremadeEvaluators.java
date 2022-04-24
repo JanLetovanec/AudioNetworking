@@ -6,6 +6,7 @@ import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionEncoder;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.AllZeroGen;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.DifferentLengthRandomGen;
+import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.*;
 import uk.ac.cam.jl2119.partII.Framework.ComposedTransformer;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.IDataGenerator;
 import uk.ac.cam.jl2119.partII.Evaluation.datas.RandomDataGen;
@@ -13,10 +14,6 @@ import uk.ac.cam.jl2119.partII.Evaluation.metrics.ErrorRateCalc;
 import uk.ac.cam.jl2119.partII.Evaluation.metrics.IMetricCalculator;
 import uk.ac.cam.jl2119.partII.Evaluation.metrics.UsefulRateCalc;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.*;
-import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.AWGN_PowerSimulator;
-import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.BurstMeanTimeSim;
-import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.ClockDriftSim;
-import uk.ac.cam.jl2119.partII.Evaluation.sims.Noise.RayleightLengthSim;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme.FSKSymbolTimeSim;
 import uk.ac.cam.jl2119.partII.Evaluation.sims.Scheme.PSKCyclesSimulator;
 import uk.ac.cam.jl2119.partII.Framework.ITransformer;
@@ -234,7 +231,7 @@ public class PremadeEvaluators {
         ISimulatorGenerator<Integer> simGen = new PSKCyclesSimulator(noiseLevel, rayleighLength,
                 1, 20, 1);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
-        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        IMetricCalculator metricCalc = new UsefulRateCalc(DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
@@ -249,7 +246,7 @@ public class PremadeEvaluators {
         ISimulatorGenerator simGen =  new FSKSymbolTimeSim(noiseLevel, rayleighLength,
                 min, max, 100);
         IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
-        IMetricCalculator metricCalc = new UsefulRateCalc(SchemeModulatorMap.DEFAULT_SAMPLE_RATE);
+        IMetricCalculator metricCalc = new UsefulRateCalc(DEFAULT_SAMPLE_RATE);
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
@@ -261,9 +258,16 @@ public class PremadeEvaluators {
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }
 
-    public static Evaluator clockDriftTFVsErrorRate(SchemeModulatorMap.CodingScheme scheme, double noiseLvl) {
-        ISimulatorGenerator<Double> simGen = new ClockDriftSim(scheme, 0.8, 1.2, 200, noiseLvl);
+    public static Evaluator clockDriftTFVsErrorRate(ITransformer<Byte, Double> modem, ITransformer<Double, Byte> demodem, double noiseLvl) {
+        ISimulatorGenerator<Double> simGen = new ClockDriftSim(modem, demodem, 0.99, 1.01, 200, noiseLvl);
         IDataGenerator dataGen = new RandomDataGen(100, numberOfSamples);
+        IMetricCalculator metricCalc = new ErrorRateCalc();
+        return new Evaluator<>(simGen, dataGen, metricCalc);
+    }
+
+    public static Evaluator delayTFVsErrorRate(ITransformer<Byte, Double> modem, ITransformer<Double, Byte> demodem, double noise) {
+        ISimulatorGenerator<Double> simGen = new DelaySim(modem, demodem, 0, 0.1, 100, DEFAULT_SAMPLE_RATE, noise);
+        IDataGenerator dataGen = new RandomDataGen(lengthOfSingle, numberOfSamples);
         IMetricCalculator metricCalc = new ErrorRateCalc();
         return new Evaluator<>(simGen, dataGen, metricCalc);
     }

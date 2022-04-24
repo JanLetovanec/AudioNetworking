@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PacketDemodulator implements ITransformer<Double, Byte> {
     public static final int PREAMBLE_DEFAULT = 7;
-    public static final int SEEK_SYMBOL = 0x11101010;
+    public static final int SEEK_SYMBOL = 0b11101010;
 
     private final double stepSize;
     private final double bigStepSize;

@@ -7,7 +7,7 @@ import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 
 class PSKTest extends GenericTest {
-    final int SAMPLE_RATE = 44100;
+    final int SAMPLE_RATE = 48000;
     final double BASE_FREQUENCY = 1200;
     final int CYCLES_PER_SYMBOL = 1;
 

@@ -6,6 +6,8 @@ import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKModulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKModulator;
+import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketDemodulator;
+import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketModulator;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSDecoder;
 import uk.ac.cam.jl2119.partII.Enrichments.ReedSolomon.RSEncoder;
 import uk.ac.cam.jl2119.partII.Enrichments.RepetitionCode.RepetitionDecoder;
@@ -31,12 +33,12 @@ public class RunEval {
     public static void main(String[] args) throws IOException{
         PremadeEvaluators.numberOfSamples = 10;
 
-        FileWriter myWriter = new FileWriter("./output/Eval/evalT.json");
+        FileWriter myWriter = new FileWriter("./output/Eval/eval9.json");
         myWriter.write("{\n");
 
         // Basic eval
         //evaluatePowerVsError(myWriter);
-        //evaluatePowerVsUsefulRate(myWriter);
+        evaluatePowerVsUsefulRate(myWriter);
         //evaluateLengthVsError(myWriter);
         //evaluateBurstMeanTimeVsError(myWriter);
         //evaluateSmallPowerVsError(myWriter);
@@ -61,7 +63,10 @@ public class RunEval {
         //evaluateRayleighRenewingVsError(myWriter);
         // evaluateRayleighVsErrorWithStaticData(myWriter);
         //evaluateClockDriftDataLenVsError(myWriter);
-        evaluateClockDriftVsError(myWriter);
+        //evaluateClockDriftVsError(myWriter);
+        //evaluatePackets(myWriter);
+        //evaluateDelayPackets(myWriter);
+        //evaluateDelayPacketsWithNoise(myWriter);
 
         myWriter.write("\"number_of_samples\" :" + PremadeEvaluators.numberOfSamples);
         myWriter.write("\n}");
@@ -82,7 +87,7 @@ public class RunEval {
 
     private static void evaluatePowerVsUsefulRate(FileWriter myWriter) throws IOException {
         System.out.println("Evaluating POWER vs USEFUL RATE");
-        for(SchemeModulatorMap.CodingScheme scheme : fastSchemes) {
+        for(CodingScheme scheme : CodingScheme.values()) {
             String evalName = scheme.toString() + "powerVsUseful";
             Evaluator eval = PremadeEvaluators.defaultPowerVsUsefulRate(scheme);
             String json = eval.stringFromMap(evalName, eval.evaluate());
@@ -462,6 +467,111 @@ public class RunEval {
                 myWriter.write(", \n");
                 System.out.println(name + " Done!");
             }
+        }
+    }
+
+    private static void evaluatePackets(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating DRIFT PACKETS vs ERROR RATE");
+
+        double timePerBit = 1.0/DEFAULT_BASE_FREQUENCY;
+        int packetLen = 16;
+
+        String name = "PSK|PacketDriftVsError";
+        ITransformer<Byte, Double> modem = new PacketModulator(
+                new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                packetLen);
+
+        ITransformer<Double, Byte> demodem = new PacketDemodulator(
+                new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                DEFAULT_SAMPLE_RATE, timePerBit, packetLen*8*timePerBit, 1);
+
+        Evaluator eval = PremadeEvaluators.clockDriftTFVsErrorRate(modem, demodem, 0);
+        String json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+
+        name = "FSK|PacketDriftVsError";
+        modem = new PacketModulator(
+                new FSKModulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                new FSKModulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                packetLen);
+        demodem = new PacketDemodulator(
+                new FSKDemodulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                new FSKDemodulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                DEFAULT_SAMPLE_RATE, timePerBit, packetLen*8*timePerBit, 1);
+        eval = PremadeEvaluators.clockDriftTFVsErrorRate(modem, demodem, 0);
+        json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+    }
+
+    private static void evaluateDelayPackets(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating DELAY PACKETS vs ERROR RATE");
+
+        double timePerBit = 1.0/DEFAULT_BASE_FREQUENCY;
+        int packetLength = 50;
+
+        String name = "PSK|PacketDelayVsError";
+        ITransformer<Byte, Double> modem = new PacketModulator(
+                new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                packetLength);
+
+        ITransformer<Double, Byte> demodem = new PacketDemodulator(
+                new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                DEFAULT_SAMPLE_RATE, timePerBit, packetLength*8*timePerBit, 1);
+
+        Evaluator eval = PremadeEvaluators.delayTFVsErrorRate(modem, demodem, 0);
+        String json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+
+        name = "FSK|PacketDelayVsError";
+        modem = new PacketModulator(
+                new FSKModulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                new FSKModulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                packetLength);
+        demodem = new PacketDemodulator(
+                new FSKDemodulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                new FSKDemodulator(DEFAULT_BASE_FREQUENCY, timePerBit, DEFAULT_SAMPLE_RATE),
+                DEFAULT_SAMPLE_RATE, timePerBit, packetLength*8*timePerBit, 1);
+        eval = PremadeEvaluators.delayTFVsErrorRate(modem, demodem, 0);
+        json = eval.stringFromMap(name, eval.evaluate());
+        myWriter.write(json);
+        myWriter.write(", \n");
+        System.out.println(name + " Done!");
+    }
+
+    private static void evaluateDelayPacketsWithNoise(FileWriter myWriter) throws IOException {
+        System.out.println("Evaluating DELAY PACKETS WITH NOISE vs ERROR RATE");
+
+        double[] noiseLvls = new double[]{0.5, 1.0, 4.0};
+        for (double noise : noiseLvls) {
+            double timePerBit = 1.0/DEFAULT_BASE_FREQUENCY;
+            int packetLength = 50;
+
+            String name = "PSK|"+ noise + "|PacketDelayNoiseVsError";
+            ITransformer<Byte, Double> modem = new PacketModulator(
+                    new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                    new PSKModulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                    packetLength);
+
+            ITransformer<Double, Byte> demodem = new PacketDemodulator(
+                    new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                    new PSKDemodulator(DEFAULT_BASE_FREQUENCY, 1, DEFAULT_SAMPLE_RATE),
+                    DEFAULT_SAMPLE_RATE, timePerBit, packetLength*8*timePerBit, 1);
+
+            Evaluator eval = PremadeEvaluators.delayTFVsErrorRate(modem, demodem, noise);
+            String json = eval.stringFromMap(name, eval.evaluate());
+            myWriter.write(json);
+            myWriter.write(", \n");
+            System.out.println(name + " Done!");
         }
     }
 }

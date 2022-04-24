@@ -27,7 +27,7 @@ public class UsefulRateCalc<P> implements IMetricCalculator<Double, P>{
     private double getMutualInfo(Byte[] input, Simulator<P> sim) {
         Byte[] output = sim.getReceivedData(input);
         int correctBits = EvalUtils.getCorrectBits(input, output);
-        double errorRate = ((double) correctBits) / input.length;
+        double errorRate = ((double) correctBits) / (input.length*8);
 
         return 1.0
                 + errorRate * log2(errorRate)

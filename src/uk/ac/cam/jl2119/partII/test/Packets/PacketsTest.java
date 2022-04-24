@@ -2,10 +2,10 @@ package uk.ac.cam.jl2119.partII.test.Packets;
 
 import com.google.common.base.Strings;
 import org.junit.jupiter.api.Test;
-import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
-import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketDemodulator;
 import uk.ac.cam.jl2119.partII.Enrichments.Packets.PacketModulator;
+import uk.ac.cam.jl2119.partII.Evaluation.SchemeModulatorMap;
+import uk.ac.cam.jl2119.partII.Framework.ITransformer;
 import uk.ac.cam.jl2119.partII.test.GenericTest;
 import uk.ac.cam.jl2119.partII.utils.Boxer;
 
@@ -16,7 +16,7 @@ public class PacketsTest extends GenericTest {
     void transmitsAllAsWithPSK() {
         String text = Strings.repeat("A",255);
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -25,7 +25,7 @@ public class PacketsTest extends GenericTest {
     void transmitsHelloWorldsWithPSK() {
         String text = Strings.repeat("HelloWorld",25) + "!!!!!";
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -34,7 +34,7 @@ public class PacketsTest extends GenericTest {
     void transmitsTwoPacketsOfAsPSK() {
         String text = Strings.repeat("HelloWorld",51);
         Byte[] original = dataAsBytes(text);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -69,7 +69,7 @@ public class PacketsTest extends GenericTest {
     @Test
     void transmitsRandomPacketWithPSK() {
         Byte[] original = generateRandomBytes(255);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
 
         assertBoxedArrayEquals(original, received);
     }
@@ -85,7 +85,7 @@ public class PacketsTest extends GenericTest {
     @Test
     void transmitsRandom3PacketsWithPSK() {
         Byte[] original = generateRandomBytes(255*3);
-        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.DPSK);
+        Byte[] received = transmitData(original, SchemeModulatorMap.CodingScheme.PSK);
 
         assertBoxedArrayEquals(original, received);
     }
