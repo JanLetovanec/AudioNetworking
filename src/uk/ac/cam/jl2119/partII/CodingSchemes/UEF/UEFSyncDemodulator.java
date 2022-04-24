@@ -44,7 +44,7 @@ public class UEFSyncDemodulator implements ITransformer<Double, Byte> {
     private Byte[] transformFilteredInput(Double[] input) {
         double time = 0;
         List<Byte> result = new ArrayList<>();
-        while (getOffsetFromTime(time) < input.length) {
+        while (hasMoreBytes(input, time)) {
             result.add(getByte(input, time));
             time += secondsPerBit*10;
             time = synchronise(input, time);
