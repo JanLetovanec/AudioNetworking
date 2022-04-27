@@ -1,6 +1,6 @@
 package uk.ac.cam.jl2119.partII.Evaluation;
 
-import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.DPSKDemodulator;
+import uk.ac.cam.jl2119.partII.CodingSchemes.PSK.PSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.QAM.QAMDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.FSKDemodulator;
 import uk.ac.cam.jl2119.partII.CodingSchemes.UEF.UEFSyncDemodulator;
@@ -22,13 +22,19 @@ public class RealHWIn {
     private static final String PREFIX = "./output/Eval/";
 
     public static void main(String[] args) throws IOException, WavFileException {
-        printContentsPSK(PREFIX + "APSK_MED.wav");
-        printContentsPSK(PREFIX + "APSK_LONG.wav");
+        printContentsPSK(PREFIX + "PSK_MED.wav");
+        printContentsPurePSK(PREFIX + "PURE_MED.wav");
+        //printContentsPSK(PREFIX + "PSK_MED_PERFECT.wav");
+    }
+
+    private static void printContentsPurePSK(String filename) throws IOException, WavFileException {
+        PSKDemodulator psk1 = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        printData(filename, psk1);
     }
 
     private static void printContentsPSK(String filename) throws IOException, WavFileException {
-        DPSKDemodulator psk1 = new DPSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
-        DPSKDemodulator psk2 = new DPSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        PSKDemodulator psk1 = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
+        PSKDemodulator psk2 = new PSKDemodulator(DEFAULT_BASE_FREQUENCY, CYCLES_DEFAULT, DEFAULT_SAMPLE_RATE);
         double timePerBatch = (CYCLES_DEFAULT * 1.0) / DEFAULT_BASE_FREQUENCY;
 
         ITransformer<Double, Byte> transformer = new PacketDemodulator(psk1,psk2,

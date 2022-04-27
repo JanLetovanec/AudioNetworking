@@ -50,7 +50,7 @@ public class PacketDemodulator implements ITransformer<Double, Byte> {
     public PacketDemodulator(ITransformer<Double, Byte> headerDemod,
                              ITransformer<Double, Byte> payloadDemod,
                              long sampleRate, double timePerBatchHeader, double timePerPayload, int bitPerBatch) {
-        this.stepSize = timePerBatchHeader / 80.0;
+        this.stepSize = timePerBatchHeader / 40.0;
         this.bigStepSize = 2 * stepSize;
         this.demodHeader = headerDemod;
         this.demodPayload = payloadDemod;
